@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { APP_DESCRIPTION } from "./config/app.config";
+import { APP_DEFAULT_TITLE } from "./config/app.config";
+import { APP_NAME } from "./config/app.config";
 
-const APP_NAME = "My Template";
-const APP_DEFAULT_TITLE = "My Template";
 const APP_TITLE_TEMPLATE = `%s - ${APP_NAME}`;
-const APP_DESCRIPTION = "Just a template";
 
 export const OpenGraph: Metadata = {
   applicationName: APP_NAME,

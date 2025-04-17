@@ -1,13 +1,12 @@
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { OpenGraph } from "@/lib/og";
-import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
-import NextTopLoader from "nextjs-toploader";
 import "@/styles/globals.css";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 
-const inter = Inter({
-  variable: "--font-inter",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
@@ -27,12 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-          <NextTopLoader showSpinner={false} />
-          <Toaster richColors theme="system" position="bottom-right" duration={2000} closeButton />
-        </ThemeProvider>
+      <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
+        {children}
+        <NextTopLoader showSpinner={false} color="#E19D7D" />
+        <Toaster richColors theme="system" position="bottom-center" duration={2000} closeButton />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { FadeUpContainer, FadeUpItem } from "@/components/motion/fade-up";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -8,6 +9,7 @@ import { products } from "@/lib/data-product";
 import { Filter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
 
 export interface FilterState {
   categories: string;
@@ -26,7 +28,7 @@ export const FilterPanel = () => {
   const maxPrice = Math.max(...products.map((product) => product.price));
 
   // Change filter will change url
-  const handleFilterChange = (key: FilterKey, value: string) => {
+  const handleFilterChange = useDebounceCallback((key: FilterKey, value: string) => {
     const params = new URLSearchParams(searchParams);
 
     // Categories split by comma
@@ -52,7 +54,7 @@ export const FilterPanel = () => {
     }
 
     router.replace(`?${params.toString()}`);
-  };
+  }, 300);
 
   // Handle price range change
   const handlePriceChange = (value: number[]) => {
@@ -99,7 +101,7 @@ export const FilterPanel = () => {
               />
               <label
                 htmlFor={`category-${category}`}
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {category}
               </label>
@@ -117,7 +119,6 @@ export const FilterPanel = () => {
             defaultValue={[0, maxPrice]}
             max={maxPrice}
             step={1}
-            value={[Number(searchParams.get("priceFrom") ?? 0), Number(searchParams.get("priceTo") ?? maxPrice)]}
             onValueChange={handlePriceChange}
             className="w-full"
           />
@@ -137,12 +138,12 @@ export const FilterPanel = () => {
             <div key={color} className="flex items-center space-x-2">
               <Checkbox
                 id={`color-${color}`}
-                checked={searchParams.get("colors")?.includes(color)}
+                defaultChecked={searchParams.get("colors")?.includes(color)}
                 onCheckedChange={() => handleFilterChange("colors", color)}
               />
               <label
                 htmlFor={`color-${color}`}
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {color}
               </label>
@@ -191,7 +192,11 @@ export const FilterPanel = () => {
           </Button>
         </div>
 
-        <FilterItems />
+        <FadeUpContainer stagger={0.05} delay={0.1}>
+          <FadeUpItem className="space-y-6">
+            <FilterItems />
+          </FadeUpItem>
+        </FadeUpContainer>
       </div>
     </div>
   );

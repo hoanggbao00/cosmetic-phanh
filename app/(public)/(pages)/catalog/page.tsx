@@ -1,3 +1,4 @@
+import PageLayout from "@/components/layout/(public)/page-layout";
 import CatalogPageView, { type FilterAndSortParams } from "./_components/catalog-page";
 
 interface Props {
@@ -8,8 +9,8 @@ export default async function CatalogPage({ searchParams: s }: Props) {
   const searchParams = await s;
 
   return (
-    <div className="mt-28">
+    <PageLayout>
       <CatalogPageView searchParams={searchParams} />
-    </div>
+    </PageLayout>
   );
 }

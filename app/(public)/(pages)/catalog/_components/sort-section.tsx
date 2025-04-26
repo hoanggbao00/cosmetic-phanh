@@ -3,8 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SlidersHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-export const DEFAULT_SORT_OPTION = "featured";
+import { DEFAULT_SORT_OPTION } from "../const";
 
 const SORT_OPTIONS = [
   { value: "featured", label: "Featured" },

@@ -2,6 +2,7 @@ export const products = [
   {
     id: 1,
     name: "Natural Powder",
+    slug: "natural-powder",
     image_primary: "/images/products/product_1_primary.png",
     image_secondary: "/images/products/product_1_secondary.png",
     price: 15.0,
@@ -14,6 +15,7 @@ export const products = [
   {
     id: 2,
     name: "Matte Foundation",
+    slug: "matte-foundation",
     image_primary: "/images/products/product_2_primary.png",
     image_secondary: "/images/products/product_2_secondary.png",
     price: 12.0,
@@ -26,6 +28,7 @@ export const products = [
   {
     id: 3,
     name: "Shimmer Blush",
+    slug: "shimmer-blush",
     image_primary: "/images/products/product_3_primary.png",
     image_secondary: "/images/products/product_3_secondary.png",
     price: 10.0,
@@ -38,6 +41,7 @@ export const products = [
   {
     id: 4,
     name: "Matte Foundation",
+    slug: "matte-foundation",
     image_primary: "/images/products/product_2_primary.png",
     image_secondary: "/images/products/product_2_secondary.png",
     price: 12.0,
@@ -50,6 +54,7 @@ export const products = [
   {
     id: 5,
     name: "Natural Powder",
+    slug: "natural-powder",
     image_primary: "/images/products/product_1_primary.png",
     image_secondary: "/images/products/product_1_secondary.png",
     price: 8.0,

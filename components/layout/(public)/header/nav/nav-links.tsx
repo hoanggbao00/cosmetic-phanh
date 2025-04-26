@@ -12,8 +12,8 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/catalog", label: "Catalog" },
   { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/blog/about", label: "About" },
+  { href: "/blog/contact", label: "Contact" },
 ];
 
 export const NavLinks = () => {

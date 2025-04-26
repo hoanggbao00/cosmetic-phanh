@@ -78,7 +78,7 @@ export const SectionCollections = ({ title, subTitle }: Props) => {
                   {/* Button */}
                   <div className="-translate-x-1/2 absolute bottom-0 left-1/2 opacity-0 transition-all duration-500 group-hover:bottom-[10%] group-hover:opacity-100">
                     <Link
-                      href={`/products/${product.id}`}
+                      href={`/product/${product.id}`}
                       className="group/link min-w-[150px] rounded-full bg-primary px-4 py-3 text-white transition-colors duration-300 hover:bg-primary/70"
                     >
                       <span className="group-hover/link:opacity-0">View Product</span>

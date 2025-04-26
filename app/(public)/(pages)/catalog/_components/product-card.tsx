@@ -17,7 +17,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.name}
             className="size-full object-contain transition-all duration-300 group-hover:scale-110"
           />
-          <Link href={`/products/${product.id}`} className="absolute inset-0">
+          <Link href={`/product/${product.id}`} className="absolute inset-0">
             <img
               src={product.image_secondary}
               alt={product.name}
@@ -27,7 +27,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           {/* Button */}
           <div className="-translate-x-1/2 absolute bottom-0 left-1/2 min-w-[120px] opacity-0 transition-all duration-500 group-hover:bottom-[10%] group-hover:opacity-100">
             <Link
-              href={`/products/${product.id}`}
+              href={`/product/${product.id}`}
               className="group/link relative rounded-full bg-primary px-2.5 py-1.5 text-white transition-colors duration-300 hover:bg-primary/70"
             >
               <span className="group-hover/link:-translate-y-1/2 group-hover/link:opacity-0">View Product</span>
@@ -50,7 +50,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               </Link>
             ))}
           </div>
-          <Link href={`/products/${product.id}`} className="transition-colors duration-300 hover:text-primary">
+          <Link href={`/product/${product.id}`} className="transition-colors duration-300 hover:text-primary">
             <h3 className="font-medium text-2xl">{product.name}</h3>
           </Link>
           <p className="mt-1 text-sm">Starts From ${product.price.toFixed(2)}</p>

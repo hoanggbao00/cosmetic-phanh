@@ -1,9 +1,10 @@
 import { FadeUpContainer, FadeUpItem } from "@/components/motion/fade-up";
 import { products } from "@/lib/data-product";
+import { DEFAULT_SORT_OPTION } from "../const";
 import { ClearFilter } from "./clear-filter";
 import { FilterPanel } from "./filter-pannel";
 import { ProductCard } from "./product-card";
-import { DEFAULT_SORT_OPTION, SortSection } from "./sort-section";
+import { SortSection } from "./sort-section";
 
 export type FilterAndSortParams = {
   categories?: string;

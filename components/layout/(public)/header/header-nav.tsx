@@ -29,16 +29,16 @@ export const HeaderNav = () => {
       <div className="flex flex-1 items-center justify-end gap-8">
         <div className="flex items-center gap-4">
           <div className="cursor-pointer transition-colors duration-300 hover:text-primary">
-            <SearchIcon />
+            <SearchIcon className="size-4 md:size-6" />
           </div>
           <div className="cursor-pointer transition-colors duration-300 hover:text-primary">
-            <UserIcon />
+            <UserIcon className="size-4 md:size-6" />
           </div>
           <div className="cursor-pointer transition-colors duration-300 hover:text-primary">
-            <ShoppingBagIcon />
+            <ShoppingBagIcon className="size-4 md:size-6" />
           </div>
         </div>
-        <SpecialButton>Special Offers</SpecialButton>
+        <SpecialButton className="hidden md:flex">Special Offers</SpecialButton>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { SpecialButton } from "@/components/shared/special-button";
+import { APP_NAME } from "@/lib/config/app.config";
 import { SearchIcon, ShoppingBagIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { NavLinks } from "./nav-links";
@@ -14,7 +15,7 @@ export const HeaderNav = () => {
         <Link href="/" className="flex items-center">
           <div className="relative h-10">
             <div className="font-bold font-script text-2xl text-gray-800 transition-colors duration-300 hover:text-primary">
-              CosmeticPhanh
+              {APP_NAME}
             </div>
             <div className="-bottom-1 -translate-x-1/2 absolute left-1/2 w-full">
               <svg viewBox="0 0 100 10" className="h-3 w-full text-primary">

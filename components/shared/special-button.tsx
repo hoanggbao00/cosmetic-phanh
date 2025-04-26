@@ -1,3 +1,4 @@
+import { StarIcon } from "@/assets/icons/star-icon";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
@@ -13,9 +14,9 @@ export const SpecialButton = ({ children, className, ...props }: SpecialButtonPr
       effect="shine"
       {...props}
     >
-      <span className="icon transition-transform duration-500 group-hover:rotate-45">✦</span>
+      <StarIcon className="icon !size-3 transition-transform duration-500 group-hover:rotate-45" />
       {children}
-      <span className="icon transition-transform duration-500 group-hover:rotate-45">✦</span>
+      <StarIcon className="icon !size-3 transition-transform duration-500 group-hover:rotate-45" />
     </Button>
   );
 };

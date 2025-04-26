@@ -4,36 +4,26 @@ import { CarouselHome } from "./carousel-home";
 
 export const SectionHome = () => {
   return (
-    <section id="home" className="relative h-[120vh] bg-accent px-4 pt-28 md:px-8">
+    <section id="home" className="relative h-screen bg-accent px-4 pt-28 md:px-8">
       <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-4">
         <p className="text-center font-bold font-serif text-8xl capitalize leading-32">
-          <u>Experience</u> the art{" "}
-          <span className="inline-block pr-3">
+          <u>Experience</u> the art
+          <span className="inline-block px-3">
             <img
               src="https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Text-with-img-2.jpg"
               alt="Art"
               className="h-18 w-auto rounded-full"
             />
           </span>
-          Of beauty with Our
-          <i>
-            {" "}
-            <u>premium</u>{" "}
-          </i>
-          assortment{" "}
-          <span className="inline-block pr-3">
+          Of beauty with Our <u>Premium</u> assortment
+          <span className="inline-block px-3">
             <img
               src="https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Text-with-img-1.jpg"
               alt="Collection"
               className="h-18 w-auto rounded-full"
             />
           </span>
-          of{" "}
-          <i>
-            {" "}
-            <u>cosmetics</u>{" "}
-          </i>
-          wonders.
+          of <u>Cosmetics</u> wonders.
         </p>
         <SpecialButton className="mt-10 animate-bounce">Shop Now</SpecialButton>
         {/* Scroll down */}

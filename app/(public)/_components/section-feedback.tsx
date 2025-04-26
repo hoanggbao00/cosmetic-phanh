@@ -2,7 +2,6 @@ import { StarIcon } from "@/assets/icons/star-icon";
 import { SpecialButton } from "@/components/shared/special-button";
 import { cn } from "@/lib/utils";
 import { QuoteIcon, Star } from "lucide-react";
-import Image from "next/image";
 
 interface Review {
   id: number;
@@ -79,7 +78,7 @@ export default function SectionFeedback() {
               {/* Reviewer */}
               <div className="flex items-center gap-4">
                 <div className="size-8 overflow-hidden rounded-full">
-                  <Image
+                  <img
                     src={review.avatar || "/placeholder.svg"}
                     alt={review.name}
                     width={48}
@@ -102,7 +101,7 @@ export default function SectionFeedback() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Promotion 1 */}
           <div className="relative overflow-hidden rounded-lg bg-secondary">
-            <Image
+            <img
               src="/images/promotions/promotion-1.jpg"
               alt="Beauty Products"
               width={400}
@@ -123,7 +122,7 @@ export default function SectionFeedback() {
 
           {/* Promotion 2 */}
           <div className="relative overflow-hidden rounded-lg bg-secondary">
-            <Image
+            <img
               src="/images/promotions/promotion-2.jpg"
               alt="Beauty Products"
               width={400}

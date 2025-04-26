@@ -1,7 +1,7 @@
 import { StarIcon } from "@/assets/icons/star-icon";
-import { SymbolIcon } from "@/assets/icons/symbol-icon";
 import { SpecialButton } from "@/components/shared/special-button";
 import Link from "next/link";
+import { CategoryList } from "./category-list";
 
 export function SectionCategory() {
   const categories = [
@@ -36,26 +36,7 @@ export function SectionCategory() {
         </div>
 
         {/* Categories */}
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-          {categories.map((category, index) => (
-            <div
-              key={category}
-              className="group hover:-translate-y-2 flex items-center transition-transform duration-300 hover:scale-105"
-            >
-              {index !== 0 && (
-                <div className="hidden md:block">
-                  <SymbolIcon className="size-8 origin-center text-primary transition-transform duration-300 group-hover:rotate-90" />
-                </div>
-              )}
-              <Link
-                href="#"
-                className="px-2 text-foreground text-sm tracking-wide transition-all duration-300 hover:text-primary md:text-base lg:text-xl"
-              >
-                {category}
-              </Link>
-            </div>
-          ))}
-        </div>
+        <CategoryList categories={categories} />
 
         {/* View All Button */}
         <div className="mt-12 flex justify-center">

@@ -1,7 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/config/app.config";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -60,11 +68,13 @@ export const NavLinks = () => {
             <div className="p-4">
               <ul>
                 {navItems.map((item) => (
-                  <li key={item.href}>
-                    <NavItem href={item.href} isActive={pathname === item.href} className="text-2xl tracking-wide">
-                      {item.label}
-                    </NavItem>
-                  </li>
+                  <SheetClose asChild key={item.href}>
+                    <li>
+                      <NavItem href={item.href} isActive={pathname === item.href} className="text-2xl tracking-wide">
+                        {item.label}
+                      </NavItem>
+                    </li>
+                  </SheetClose>
                 ))}
               </ul>
             </div>

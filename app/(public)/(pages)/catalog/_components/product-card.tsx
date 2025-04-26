@@ -9,7 +9,10 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Card key={product.id} className="group cursor-pointer rounded-none bg-transparent p-4 shadow-none md:p-8">
+    <Card
+      key={product.id}
+      className="group h-full cursor-pointer rounded-none bg-transparent p-4 font-serif shadow-none md:p-8"
+    >
       <CardContent className="flex flex-col items-center p-0">
         <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-xl bg-secondary transition-all duration-300 group-hover:rounded-full">
           <img
@@ -38,7 +41,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-muted-foreground text-xs md:text-sm">
             {product.category.map((category, index) => (
               <Link
                 key={category}
@@ -51,9 +54,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             ))}
           </div>
           <Link href={`/product/${product.id}`} className="transition-colors duration-300 hover:text-primary">
-            <h3 className="font-medium text-2xl">{product.name}</h3>
+            <h3 className="font-medium text-xl md:text-2xl">{product.name}</h3>
           </Link>
-          <p className="mt-1 text-sm">Starts From ${product.price.toFixed(2)}</p>
+          <p className="mt-1 text-xs md:text-sm">Starts From ${product.price.toFixed(2)}</p>
         </div>
       </CardContent>
     </Card>

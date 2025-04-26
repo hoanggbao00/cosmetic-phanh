@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRightIcon, UserIcon } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 import { LoginContent } from "./login-content";
 import { SignUpContent } from "./sign-up-content";
@@ -38,7 +37,7 @@ export default function AuthDialog() {
       <DialogContent className="!rounded-3xl overflow-hidden border-none bg-accent shadow-none sm:max-w-sm">
         <DialogHeader className="border-border border-b pb-4">
           <DialogTitle className="flex items-center justify-center">
-            <Image src="/images/logo-with-text.png" alt="logo" width={50} height={50} />
+            <img src="/images/logo-with-text.png" alt="logo" width={50} height={50} />
           </DialogTitle>
           <DialogDescription className="text-center">Login to get more discounts and rewards</DialogDescription>
         </DialogHeader>

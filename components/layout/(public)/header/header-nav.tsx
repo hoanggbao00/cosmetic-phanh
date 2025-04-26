@@ -1,7 +1,6 @@
 import { SpecialButton } from "@/components/shared/special-button";
 import { APP_NAME } from "@/lib/config/app.config";
 import { ShoppingBagIcon } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { AuthDialog } from "./auth-dialog";
 import { NavLinks } from "./nav/nav-links";
@@ -16,7 +15,7 @@ export const HeaderNav = () => {
       {/* Logo */}
       <div className="">
         <Link href="/" className="group flex items-center">
-          <Image
+          <img
             src="/images/logo-with-text.png"
             alt={APP_NAME}
             width={50}

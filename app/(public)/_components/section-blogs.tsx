@@ -3,7 +3,6 @@
 import { StarIcon } from "@/assets/icons/star-icon";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -128,7 +127,7 @@ function BlogPostCard({ post }: { post: BlogPost }) {
       <Link href="#" className="mb-4 block">
         <Button effect="shineHover" variant="ghost" className="h-full p-0">
           <div className="overflow-hidden rounded-lg">
-            <Image
+            <img
               src={post.image || "/placeholder.svg"}
               alt={post.title}
               width={600}

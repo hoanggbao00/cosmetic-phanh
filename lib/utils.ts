@@ -8,3 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export function tw(s: string) {
   return s;
 }
+
+export async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

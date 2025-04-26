@@ -3,57 +3,10 @@
 import { StarIcon } from "@/assets/icons/star-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { products } from "@/lib/data-product";
 import { ChevronLeft, ChevronRight, ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-
-const products = [
-  {
-    id: 1,
-    name: "Natural Powder",
-    image_primary: "/images/products/product_1_primary.png",
-    image_secondary: "/images/products/product_1_secondary.png",
-    priceFrom: 8.0,
-    priceTo: 25.0,
-    category: ["Blender", "Body Spray"],
-  },
-  {
-    id: 2,
-    name: "Matte Foundation",
-    image_primary: "/images/products/product_2_primary.png",
-    image_secondary: "/images/products/product_2_secondary.png",
-    priceFrom: 12.0,
-    priceTo: 30.0,
-    category: ["Body Spray", "Concealer"],
-  },
-  {
-    id: 3,
-    name: "Shimmer Blush",
-    image_primary: "/images/products/product_3_primary.png",
-    image_secondary: "/images/products/product_3_secondary.png",
-    priceFrom: 10.0,
-    priceTo: 22.0,
-    category: ["Blender", "Concealer"],
-  },
-  {
-    id: 4,
-    name: "Matte Foundation",
-    image_primary: "/images/products/product_2_primary.png",
-    image_secondary: "/images/products/product_2_secondary.png",
-    priceFrom: 12.0,
-    priceTo: 30.0,
-    category: ["Body Spray", "Concealer"],
-  },
-  {
-    id: 5,
-    name: "Natural Powder",
-    image_primary: "/images/products/product_1_primary.png",
-    image_secondary: "/images/products/product_1_secondary.png",
-    priceFrom: 8.0,
-    priceTo: 25.0,
-    category: ["Blender", "Body Spray"],
-  },
-];
 
 interface Props {
   title: string;

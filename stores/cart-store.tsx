@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -39,6 +40,10 @@ export const useCartStore = create<CartStore>()(
           // Add new item
           set({ items: [...items, item] });
         }
+
+        toast.success("Product added to cart", {
+          description: `${item.name} added to cart`,
+        });
       },
 
       removeItem: (id: number) => {

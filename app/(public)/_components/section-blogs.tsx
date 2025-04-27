@@ -2,18 +2,10 @@
 
 import { StarIcon } from "@/assets/icons/star-icon";
 import { Button } from "@/components/ui/button";
+import type { BlogPost } from "@/types/blog.types";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-
-interface BlogPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  date: string;
-  author: string;
-  image: string;
-}
 
 const blogPosts: BlogPost[] = [
   {
@@ -22,8 +14,16 @@ const blogPosts: BlogPost[] = [
     excerpt:
       "Aptent Arcu In Hendrerit Maximus Sed Porta Tempor; Ullamcorper Gravida.Curabitur Quis Nullam Nascetur Auctor.",
     date: "November 8, 2024",
-    author: "Developer",
-    image: "/images/blogs/blog-1.jpg",
+    author: {
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
+      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
+      role: "Skincare Expert",
+    },
+    coverImage: "/images/blogs/blog-1.jpg",
+    content: "This is the content of the blog post",
+    readTime: 5,
+    categories: ["Skincare"],
   },
   {
     id: 2,
@@ -31,8 +31,16 @@ const blogPosts: BlogPost[] = [
     excerpt:
       "Praesent At Felis Nibh Pharetra Ligula Nascetur Lobortis; Semper Nostra Feugiat. At Lectus Bibendum Mus Netus Dis Gravida.",
     date: "November 8, 2024",
-    author: "Developer",
-    image: "/images/blogs/blog-2.jpg",
+    author: {
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
+      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
+      role: "Skincare Expert",
+    },
+    coverImage: "/images/blogs/blog-2.jpg",
+    content: "This is the content of the blog post",
+    readTime: 5,
+    categories: ["Skincare"],
   },
   {
     id: 3,
@@ -40,8 +48,16 @@ const blogPosts: BlogPost[] = [
     excerpt:
       "Convallis Ullamcorper At Montes Habitant Fringilla Dapibus Nam. Id Blandit Nisl Euismod Cras Sed Porta Scelerisque.",
     date: "November 8, 2024",
-    author: "Developer",
-    image: "/images/blogs/blog-3.jpg",
+    author: {
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
+      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
+      role: "Skincare Expert",
+    },
+    coverImage: "/images/blogs/blog-3.jpg",
+    content: "This is the content of the blog post",
+    readTime: 5,
+    categories: ["Skincare"],
   },
   {
     id: 4,
@@ -49,8 +65,16 @@ const blogPosts: BlogPost[] = [
     excerpt:
       "Vestibulum Ante Ipsum Primis In Faucibus Orci Luctus Et Ultrices Posuere Cubilia Curae; Donec Velit Neque, Auctor Sit Amet Aliquam Vel.",
     date: "November 8, 2024",
-    author: "Developer",
-    image: "/images/blogs/blog-4.jpg",
+    author: {
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
+      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
+      role: "Skincare Expert",
+    },
+    coverImage: "/images/blogs/blog-4.jpg",
+    content: "This is the content of the blog post",
+    readTime: 5,
+    categories: ["Skincare"],
   },
   {
     id: 5,
@@ -58,8 +82,16 @@ const blogPosts: BlogPost[] = [
     excerpt:
       "Mauris Blandit Aliquet Elit, Eget Tincidunt Nibh Pulvinar A. Curabitur Non Nulla Sit Amet Nisl Tempus Convallis Quis Ac Lectus.",
     date: "November 8, 2024",
-    author: "Developer",
-    image: "/images/blogs/blog-1.jpg",
+    author: {
+      name: "John Doe",
+      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
+      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
+      role: "Skincare Expert",
+    },
+    coverImage: "/images/blogs/blog-1.jpg",
+    content: "This is the content of the blog post",
+    readTime: 5,
+    categories: ["Skincare"],
   },
 ];
 
@@ -128,7 +160,7 @@ function BlogPostCard({ post }: { post: BlogPost }) {
         <Button effect="shineHover" variant="ghost" className="h-full p-0">
           <div className="overflow-hidden rounded-lg">
             <img
-              src={post.image || "/placeholder.svg"}
+              src={post.coverImage || "/placeholder.svg"}
               alt={post.title}
               width={600}
               height={400}
@@ -142,7 +174,7 @@ function BlogPostCard({ post }: { post: BlogPost }) {
         <CalendarIcon className="size-4" />
         <span>{post.date}</span>
         <span>—</span>
-        <span>{post.author}</span>
+        <span>{post.author.name}</span>
       </div>
 
       <Link href="#" className="block px-4">

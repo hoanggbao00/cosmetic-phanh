@@ -1,17 +1,17 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product.types";
 import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { addItem } = useCartStore();
-  const router = useRouter();
 
   function handleAddToCart() {
     addItem({
@@ -20,17 +20,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       price: product.price,
       image: product.image_primary,
       quantity: 1,
-    });
-
-    toast.success("Product added to cart", {
-      action: {
-        label: "View Cart",
-        onClick: () => router.push("/cart"),
-        actionButtonStyle: {
-          backgroundColor: "var(--primary)",
-          color: "white",
-        },
-      },
     });
   }
 

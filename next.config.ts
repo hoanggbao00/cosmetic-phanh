@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   experimental: {
     reactCompiler: true,
   },
+  distDir: process.env.NODE_ENV === "production" ? ".next" : ".next-dev",
 };
 
 export default nextConfig;

@@ -7,7 +7,13 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules", ".next", ".vscode", "*.{json,css,html,md}"]
+    "ignore": [
+      "node_modules",
+      ".next",
+      ".next-dev",
+      ".vscode",
+      "*.{json,css,html,md}"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -26,7 +32,8 @@
       ".turbo",
       "node_modules",
       "build",
-      ".vscode"
+      ".vscode",
+      ".next-dev"
     ]
   },
   "organizeImports": {
@@ -40,7 +47,8 @@
       ".turbo",
       "node_modules",
       "build",
-      ".vscode"
+      ".vscode",
+      ".next-dev"
     ]
   },
   "linter": {

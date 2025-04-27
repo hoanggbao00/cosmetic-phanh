@@ -9,6 +9,8 @@ export interface BlogPost {
   author: {
     name: string;
     avatar: string;
+    bio?: string;
+    role?: string;
   };
   categories: string[];
   featured?: boolean;

@@ -11,7 +11,7 @@ export const blogPosts: BlogPost[] = [
     date: "2023-04-15",
     readTime: 5,
     author: {
-      name: "Emma Johnson",
+      name: "Mine",
       avatar: "/images/feedbacks/avatar-1.png",
     },
     categories: ["Skincare", "Beauty Tips"],

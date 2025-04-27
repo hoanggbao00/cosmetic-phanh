@@ -1,13 +1,39 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useCartStore } from "@/stores/cart-store";
 import type { Product } from "@/types/product.types";
 import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
+  const { addItem } = useCartStore();
+  const router = useRouter();
+
+  function handleAddToCart() {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_primary,
+      quantity: 1,
+    });
+
+    toast.success("Product added to cart", {
+      action: {
+        label: "View Cart",
+        onClick: () => router.push("/cart"),
+        actionButtonStyle: {
+          backgroundColor: "var(--primary)",
+          color: "white",
+        },
+      },
+    });
+  }
+
   return (
     <Card
       key={product.id}
@@ -29,15 +55,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </Link>
           {/* Button */}
           <div className="-translate-x-1/2 absolute bottom-0 left-1/2 min-w-[120px] opacity-0 transition-all duration-500 group-hover:bottom-[10%] group-hover:opacity-100">
-            <Link
-              href={`/product/${product.id}`}
+            <div
               className="group/link relative rounded-full bg-primary px-2.5 py-1.5 text-white transition-colors duration-300 hover:bg-primary/70"
+              onClick={handleAddToCart}
             >
               <span className="group-hover/link:-translate-y-1/2 group-hover/link:opacity-0">View Product</span>
               <span className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 opacity-0 transition-all duration-300 group-hover/link:opacity-100">
                 <ShoppingBagIcon size={20} />
               </span>
-            </Link>
+            </div>
           </div>
         </div>
         <div className="mt-4 text-center">

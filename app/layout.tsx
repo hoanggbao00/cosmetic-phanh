@@ -29,7 +29,7 @@ export default function RootLayout({
       <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
         {children}
         <NextTopLoader showSpinner={false} color="#E19D7D" />
-        <Toaster richColors theme="system" position="bottom-center" duration={2000} closeButton />
+        <Toaster richColors theme="system" position="bottom-right" duration={2000} closeButton />
       </body>
     </html>
   );

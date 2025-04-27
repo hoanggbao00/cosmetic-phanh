@@ -1,8 +1,8 @@
 import { SpecialButton } from "@/components/shared/special-button";
 import { APP_NAME } from "@/lib/config/app.config";
-import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
 import { AuthDialog } from "./auth-dialog";
+import { CartCount } from "./cart-count";
 import { NavLinks } from "./nav/nav-links";
 import SearchDialog from "./search-dialog";
 
@@ -30,9 +30,7 @@ export const HeaderNav = () => {
         <div className="flex items-center gap-4">
           <SearchDialog key="search-dialog" />
           <AuthDialog key="auth-dialog" />
-          <Link href="/cart" prefetch={false} className="transition-colors duration-300 hover:text-primary">
-            <ShoppingBagIcon className="size-4 md:size-6" />
-          </Link>
+          <CartCount />
         </div>
         <SpecialButton className="hidden md:flex">Special Offers</SpecialButton>
       </div>

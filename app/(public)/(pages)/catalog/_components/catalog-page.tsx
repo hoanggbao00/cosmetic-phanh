@@ -4,6 +4,7 @@ import { DEFAULT_SORT_OPTION } from "../const";
 import { ClearFilter } from "./clear-filter";
 import { FilterPanel } from "./filter-pannel";
 import { ProductCard } from "./product-card";
+import ProductList from "./product-list";
 import { SortSection } from "./sort-section";
 
 export type FilterAndSortParams = {
@@ -33,7 +34,10 @@ export default function CatalogPageView({ searchParams }: Props) {
   // Filter products
   const filteredProducts = products.filter((product) => {
     // Filter by category
-    if (filters.categories.length > 0 && !filters.categories.some((c) => product.category.includes(c))) {
+    if (
+      filters.categories.length > 0 &&
+      !filters.categories.some((c) => product.category.includes(c))
+    ) {
       return false;
     }
 
@@ -67,21 +71,24 @@ export default function CatalogPageView({ searchParams }: Props) {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 font-bold text-2xl">Product Catalog</h1>
+    <div className='container mx-auto px-4 py-8'>
+      <h1 className='mb-6 font-bold text-2xl'>Product Catalog</h1>
 
-      <div className="flex flex-col gap-8 md:flex-row">
+      <div className='flex flex-col gap-8 md:flex-row'>
         {/* Filter Sidebar */}
         <FilterPanel />
 
         {/* Products Section */}
-        <div className="flex-1">
+        <div className='flex-1'>
           {/* Sort and Results Count */}
           <SortSection />
 
           {/* Product Grid */}
           {sortedProducts.length > 0 ? (
-            <FadeUpContainer className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3 xl:grid-cols-4" stagger={0.1}>
+            <FadeUpContainer
+              className='grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3 xl:grid-cols-4'
+              stagger={0.1}
+            >
               {sortedProducts.map((product) => (
                 <FadeUpItem key={product.id}>
                   <ProductCard product={product} />
@@ -89,12 +96,14 @@ export default function CatalogPageView({ searchParams }: Props) {
               ))}
             </FadeUpContainer>
           ) : (
-            <div className="py-12 text-center">
-              <p className="text-gray-500">No products match your filters.</p>
+            <div className='py-12 text-center'>
+              <p className='text-gray-500'>No products match your filters.</p>
               <ClearFilter searchParams={searchParams} />
             </div>
           )}
         </div>
+
+        <ProductList />
       </div>
     </div>
   );

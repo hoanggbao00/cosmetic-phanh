@@ -1,6 +1,6 @@
+import "@/assets/styles/tailwind.css";
 import { Toaster } from "@/components/ui/sonner";
 import { OpenGraph } from "@/lib/og";
-import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
@@ -25,11 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
         {children}
-        <NextTopLoader showSpinner={false} color="#E19D7D" />
-        <Toaster richColors theme="system" position="bottom-right" duration={2000} closeButton />
+        <NextTopLoader showSpinner={false} color='#E19D7D' />
+        <Toaster richColors theme='system' position='bottom-right' duration={2000} closeButton />
       </body>
     </html>
   );

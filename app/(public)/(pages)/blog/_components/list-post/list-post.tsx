@@ -19,7 +19,7 @@ export const ListPost = ({ searchQuery, selectedCategory }: ListPostProps) => {
   });
 
   return (
-    <FadeUpContainer className="grid grid-cols-1 gap-4 md:gap-6" delay={0.5}>
+    <FadeUpContainer className='grid grid-cols-1 gap-4 md:gap-6' delay={0.5}>
       {filteredPosts.map((post) => (
         <FadeUpItem key={post.id}>
           <PostCard post={post} />

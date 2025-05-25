@@ -10,18 +10,18 @@ export const SignUpContent = () => {
       exit={{ opacity: 0, x: 100 }}
       transition={{ duration: 0.5 }}
     >
-      <form className="flex flex-col gap-4" id="signup-form">
-        <div className="flex flex-col gap-2">
+      <form className='flex flex-col gap-4' id='signup-form'>
+        <div className='flex flex-col gap-2'>
           <Label>Email</Label>
-          <Input type="email" placeholder="Email" />
+          <Input type='email' placeholder='Email' />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className='flex flex-col gap-2'>
           <Label>Password</Label>
-          <Input type="password" placeholder="Password" />
+          <Input type='password' placeholder='Password' />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className='flex flex-col gap-2'>
           <Label>Confirm Password</Label>
-          <Input type="password" placeholder="Confirm Password" />
+          <Input type='password' placeholder='Confirm Password' />
         </div>
       </form>
     </motion.div>

@@ -119,17 +119,17 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   };
 
   return (
-    <div className="bg-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className='bg-white'>
+      <div className='container mx-auto px-4 py-8'>
         {/* Product Detail Section */}
-        <div className="mb-16 flex flex-col gap-8 lg:flex-row">
+        <div className='mb-16 flex flex-col gap-8 lg:flex-row'>
           {/* Product Gallery */}
-          <div className="lg:w-1/2">
+          <div className='lg:w-1/2'>
             <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           {/* Product Info */}
-          <div className="lg:w-1/2">
+          <div className='lg:w-1/2'>
             <ProductInfo
               product={product}
               quantity={quantity}
@@ -143,29 +143,34 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         </div>
 
         {/* Product Description */}
-        <div className="mb-16">
-          <Collapsible className="rounded-lg border border-accent">
+        <div className='mb-16'>
+          <Collapsible className='rounded-lg border border-accent'>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" icon={ChevronDown} iconPlacement="right" className="w-full justify-between">
-                <h2 className="font-bold text-2xl">Product Details</h2>
+              <Button
+                variant='ghost'
+                icon={ChevronDown}
+                iconPlacement='right'
+                className='w-full justify-between'
+              >
+                <h2 className='font-bold text-2xl'>Product Details</h2>
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="p-4">
+            <CollapsibleContent className='p-4'>
               <div dangerouslySetInnerHTML={{ __html: product.description }} />
             </CollapsibleContent>
           </Collapsible>
         </div>
 
         {/* Related Products */}
-        <div className="mb-16">
-          <h2 className="mb-6 font-bold text-2xl">You May Also Like</h2>
+        <div className='mb-16'>
+          <h2 className='mb-6 font-bold text-2xl'>You May Also Like</h2>
           <RelatedProducts currentProductId={Number.parseInt(productId)} />
         </div>
 
         {/* Related Posts */}
-        <div className="mb-16">
-          <h2 className="mb-6 font-bold text-2xl">Related Articles</h2>
-          <RelatedPosts productCategory="Skincare" />
+        <div className='mb-16'>
+          <h2 className='mb-6 font-bold text-2xl'>Related Articles</h2>
+          <RelatedPosts productCategory='Skincare' />
         </div>
       </div>
     </div>

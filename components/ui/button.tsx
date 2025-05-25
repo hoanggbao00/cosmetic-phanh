@@ -10,14 +10,16 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-primary bg-transparent hover:bg-accent hover:bg-background hover:text-primary",
+        outline:
+          "border border-primary bg-transparent hover:bg-accent hover:bg-background hover:text-primary",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-foreground underline-offset-4 transition-colors duration-300 hover:text-primary hover:underline",
       },
       effect: {
         expandIcon: "group relative gap-0",
-        ringHover: "transition-all duration-300 hover:ring-2 hover:ring-primary/90 hover:ring-offset-2",
+        ringHover:
+          "transition-all duration-300 hover:ring-2 hover:ring-primary/90 hover:ring-offset-2",
         shine:
           "background-position_0s_ease relative overflow-hidden before:absolute before:inset-0 before:animate-shine before:rounded-[inherit] before:bg-[length:250%_250%,100%_100%] before:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.5)_50%,transparent_75%,transparent_100%)] before:bg-no-repeat",
         shineHover:
@@ -82,7 +84,7 @@ function Button({
       {Icon &&
         iconPlacement === "left" &&
         (effect === "expandIcon" ? (
-          <div className="w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pr-2 group-hover:opacity-100">
+          <div className='w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pr-2 group-hover:opacity-100'>
             <Icon />
           </div>
         ) : (
@@ -92,7 +94,7 @@ function Button({
       {Icon &&
         iconPlacement === "right" &&
         (effect === "expandIcon" ? (
-          <div className="w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
+          <div className='w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100'>
             <Icon />
           </div>
         ) : (

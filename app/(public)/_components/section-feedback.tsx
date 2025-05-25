@@ -44,53 +44,58 @@ const reviews: Review[] = [
 
 export default function SectionFeedback() {
   return (
-    <div className="w-full px-4 py-16">
-      <div className="mx-auto max-w-7xl">
+    <div className='w-full px-4 py-16'>
+      <div className='mx-auto max-w-7xl'>
         {/* Reviews Header */}
-        <div className="mb-16 text-center">
-          <div className="mb-2 flex items-center justify-center gap-2">
-            <StarIcon className="size-4 animate-spin text-primary" />
-            <span className="text-sm">Positive Feedback</span>
+        <div className='mb-16 text-center'>
+          <div className='mb-2 flex items-center justify-center gap-2'>
+            <StarIcon className='size-4 animate-spin text-primary' />
+            <span className='text-sm'>Positive Feedback</span>
           </div>
-          <h2 className="font-semibold font-serif text-4xl text-primary md:text-5xl">Customer Service Reviews</h2>
+          <h2 className='font-semibold font-serif text-4xl text-primary md:text-5xl'>
+            Customer Service Reviews
+          </h2>
         </div>
 
         {/* Reviews Grid */}
-        <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className='mb-16 grid grid-cols-1 gap-8 md:grid-cols-3'>
           {reviews.map((review) => (
-            <div key={review.id} className="group relative flex flex-col">
+            <div key={review.id} className='group relative flex flex-col'>
               {/* Stars */}
-              <div className="mb-4 flex">
+              <div className='mb-4 flex'>
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={cn("size-4", i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-yellow-400")}
+                    className={cn(
+                      "size-4",
+                      i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-yellow-400",
+                    )}
                   />
                 ))}
               </div>
 
               {/* Review Text */}
-              <p className="relative z-10 mb-4 text-muted-foreground">{review.comment}</p>
-              <span className="absolute top-0 right-0 transition-all duration-300 group-hover:top-2">
-                <QuoteIcon className="size-8 fill-accent text-accent" />
+              <p className='relative z-10 mb-4 text-muted-foreground'>{review.comment}</p>
+              <span className='absolute top-0 right-0 transition-all duration-300 group-hover:top-2'>
+                <QuoteIcon className='size-8 fill-accent text-accent' />
               </span>
 
               {/* Reviewer */}
-              <div className="flex items-center gap-4">
-                <div className="size-8 overflow-hidden rounded-full">
+              <div className='flex items-center gap-4'>
+                <div className='size-8 overflow-hidden rounded-full'>
                   <img
                     src={review.avatar || "/placeholder.svg"}
                     alt={review.name}
                     width={48}
                     height={48}
-                    className="object-cover"
+                    className='object-cover'
                   />
                 </div>
-                <div className="flex flex-1 items-center gap-1">
-                  <div className="h-0.5 flex-1 bg-border/80" />
-                  <p className="font-medium text-gray-900 text-sm">{review.name},</p>
-                  <p className="text-gray-500 text-sm">{review.location}</p>
-                  <div className="h-0.5 w-8 bg-border/80" />
+                <div className='flex flex-1 items-center gap-1'>
+                  <div className='h-0.5 flex-1 bg-border/80' />
+                  <p className='font-medium text-gray-900 text-sm'>{review.name},</p>
+                  <p className='text-gray-500 text-sm'>{review.location}</p>
+                  <div className='h-0.5 w-8 bg-border/80' />
                 </div>
               </div>
             </div>
@@ -98,45 +103,49 @@ export default function SectionFeedback() {
         </div>
 
         {/* Product Promotions */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           {/* Promotion 1 */}
-          <div className="relative overflow-hidden rounded-lg bg-secondary">
+          <div className='relative overflow-hidden rounded-lg bg-secondary'>
             <img
-              src="/images/promotions/promotion-1.jpg"
-              alt="Beauty Products"
+              src='/images/promotions/promotion-1.jpg'
+              alt='Beauty Products'
               width={400}
               height={300}
-              className="absolute inset-0 h-full w-full object-cover"
+              className='absolute inset-0 h-full w-full object-cover'
             />
-            <div className="relative z-10 flex flex-col md:flex-row">
-              <div className="p-8 md:w-1/2">
-                <div className="mb-4 flex items-center gap-2">
-                  <StarIcon className="size-4 animate-spin text-primary" />
-                  <span className="text-sm">Fresh Cosmetics</span>
+            <div className='relative z-10 flex flex-col md:flex-row'>
+              <div className='p-8 md:w-1/2'>
+                <div className='mb-4 flex items-center gap-2'>
+                  <StarIcon className='size-4 animate-spin text-primary' />
+                  <span className='text-sm'>Fresh Cosmetics</span>
                 </div>
-                <h3 className="mb-8 font-medium font-serif text-3xl text-gray-900">Boost Your Beauty Regimen</h3>
-                <SpecialButton className="w-fit">Know More</SpecialButton>
+                <h3 className='mb-8 font-medium font-serif text-3xl text-gray-900'>
+                  Boost Your Beauty Regimen
+                </h3>
+                <SpecialButton className='w-fit'>Know More</SpecialButton>
               </div>
             </div>
           </div>
 
           {/* Promotion 2 */}
-          <div className="relative overflow-hidden rounded-lg bg-secondary">
+          <div className='relative overflow-hidden rounded-lg bg-secondary'>
             <img
-              src="/images/promotions/promotion-2.jpg"
-              alt="Beauty Products"
+              src='/images/promotions/promotion-2.jpg'
+              alt='Beauty Products'
               width={400}
               height={300}
-              className="absolute inset-0 h-full w-full object-cover"
+              className='absolute inset-0 h-full w-full object-cover'
             />
-            <div className="relative z-10 flex flex-col md:flex-row">
-              <div className="p-8 md:w-1/2">
-                <div className="mb-4 flex items-center gap-2">
-                  <StarIcon className="size-4 animate-spin text-primary" />
-                  <span className="text-sm">Trending Now</span>
+            <div className='relative z-10 flex flex-col md:flex-row'>
+              <div className='p-8 md:w-1/2'>
+                <div className='mb-4 flex items-center gap-2'>
+                  <StarIcon className='size-4 animate-spin text-primary' />
+                  <span className='text-sm'>Trending Now</span>
                 </div>
-                <h3 className="mb-8 font-medium font-serif text-3xl text-gray-900">Customer-Favorite Products</h3>
-                <SpecialButton className="w-fit">Know More</SpecialButton>
+                <h3 className='mb-8 font-medium font-serif text-3xl text-gray-900'>
+                  Customer-Favorite Products
+                </h3>
+                <SpecialButton className='w-fit'>Know More</SpecialButton>
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ export default async function BlogDetailPage({ params }: Props) {
   await delay(1000);
 
   return (
-    <PageLayout className="mx-auto min-h-screen w-full max-w-6xl px-4 md:px-0">
+    <PageLayout className='mx-auto min-h-screen w-full max-w-6xl px-4 md:px-0'>
       <BlogDetailView slug={slug} />
     </PageLayout>
   );

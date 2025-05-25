@@ -77,7 +77,10 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
 
   const productsPerPage = 4;
   const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
-  const currentProducts = relatedProducts.slice(currentPage * productsPerPage, (currentPage + 1) * productsPerPage);
+  const currentProducts = relatedProducts.slice(
+    currentPage * productsPerPage,
+    (currentPage + 1) * productsPerPage,
+  );
 
   const nextPage = () => {
     setCurrentPage((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
@@ -108,56 +111,56 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
   };
 
   return (
-    <div className="relative">
+    <div className='relative'>
       {/* Navigation Buttons */}
       {totalPages > 1 && (
-        <div className="-mt-14 absolute top-0 right-0 flex space-x-2">
-          <Button variant="outline" size="icon" onClick={prevPage} className="h-8 w-8 rounded-full">
-            <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Previous page</span>
+        <div className='-mt-14 absolute top-0 right-0 flex space-x-2'>
+          <Button variant='outline' size='icon' onClick={prevPage} className='h-8 w-8 rounded-full'>
+            <ChevronLeft className='h-4 w-4' />
+            <span className='sr-only'>Previous page</span>
           </Button>
-          <Button variant="outline" size="icon" onClick={nextPage} className="h-8 w-8 rounded-full">
-            <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Next page</span>
+          <Button variant='outline' size='icon' onClick={nextPage} className='h-8 w-8 rounded-full'>
+            <ChevronRight className='h-4 w-4' />
+            <span className='sr-only'>Next page</span>
           </Button>
         </div>
       )}
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {currentProducts.map((product) => (
-          <div key={product.id} className="group relative">
-            <div className="aspect-square w-full overflow-hidden rounded-md bg-gray-100 group-hover:opacity-75">
+          <div key={product.id} className='group relative'>
+            <div className='aspect-square w-full overflow-hidden rounded-md bg-gray-100 group-hover:opacity-75'>
               <Link href={`/product/${product.id}`}>
-                <div className="relative h-full w-full">
+                <div className='relative h-full w-full'>
                   <Image
                     src={product.image_primary || "/placeholder.svg"}
                     alt={product.name}
                     fill
-                    className="h-full w-full object-cover object-center"
+                    className='h-full w-full object-cover object-center'
                   />
                 </div>
               </Link>
             </div>
-            <div className="mt-4 flex justify-between">
+            <div className='mt-4 flex justify-between'>
               <div>
-                <h3 className="font-medium text-gray-900 text-sm">
+                <h3 className='font-medium text-gray-900 text-sm'>
                   <Link href={`/product/${product.id}`}>{product.name}</Link>
                 </h3>
               </div>
-              <p className="font-medium text-gray-900 text-sm">${product.price.toFixed(2)}</p>
+              <p className='font-medium text-gray-900 text-sm'>${product.price.toFixed(2)}</p>
             </div>
             <Button
-              variant="outline"
-              size="sm"
-              className="mt-2 w-full"
+              variant='outline'
+              size='sm'
+              className='mt-2 w-full'
               onClick={() => handleAddToCart(product)}
               disabled={addingToCart === product.id}
             >
               {addingToCart === product.id ? (
-                <Check className="mr-1 h-4 w-4" />
+                <Check className='mr-1 h-4 w-4' />
               ) : (
-                <ShoppingCart className="mr-1 h-4 w-4" />
+                <ShoppingCart className='mr-1 h-4 w-4' />
               )}
               {addingToCart === product.id ? "Added" : "Add to Cart"}
             </Button>

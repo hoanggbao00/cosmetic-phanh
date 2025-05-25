@@ -47,14 +47,14 @@ export default function SidebarBlog() {
     .slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-8'>
       {/* Search */}
       <div>
-        <h3 className="mb-4 font-medium text-lg">Search</h3>
+        <h3 className='mb-4 font-medium text-lg'>Search</h3>
         <Input
-          type="search"
-          placeholder="Search articles..."
-          className="pl-8"
+          type='search'
+          placeholder='Search articles...'
+          className='pl-8'
           defaultValue={defaultQuery}
           onChange={handleSearch}
           startIcon={SearchIcon}
@@ -63,12 +63,12 @@ export default function SidebarBlog() {
 
       {/* Categories */}
       <div>
-        <h3 className="mb-4 font-medium text-lg">Categories</h3>
-        <div className="space-y-2">
+        <h3 className='mb-4 font-medium text-lg'>Categories</h3>
+        <div className='space-y-2'>
           <Button
             variant={selectedCategory === null ? "default" : "outline"}
-            size="sm"
-            className="mr-2 mb-2"
+            size='sm'
+            className='mr-2 mb-2'
             onClick={() => handleChangeCategory(null)}
           >
             All
@@ -78,8 +78,8 @@ export default function SidebarBlog() {
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              className="mr-2 mb-2"
+              size='sm'
+              className='mr-2 mb-2'
               onClick={() => handleChangeCategory(category)}
             >
               {category}
@@ -90,22 +90,27 @@ export default function SidebarBlog() {
 
       {/* Recent Posts */}
       <div>
-        <h3 className="mb-4 font-medium text-lg">Recent Posts</h3>
-        <div className="space-y-4">
+        <h3 className='mb-4 font-medium text-lg'>Recent Posts</h3>
+        <div className='space-y-4'>
           {recentPosts.map((post) => (
-            <div key={post.id} className="flex items-start space-x-3">
+            <div key={post.id} className='flex items-start space-x-3'>
               <Image
                 src={post.coverImage || "/placeholder.svg"}
                 alt={post.title}
                 width={60}
                 height={60}
-                className="rounded-md object-cover"
+                className='rounded-md object-cover'
               />
               <div>
-                <Link href={`/blog/${post.id}`} className="line-clamp-2 font-medium text-sm hover:underline">
+                <Link
+                  href={`/blog/${post.id}`}
+                  className='line-clamp-2 font-medium text-sm hover:underline'
+                >
                   {post.title}
                 </Link>
-                <p className="mt-1 text-muted-foreground text-xs">{format(new Date(post.date), "MMMM d, yyyy")}</p>
+                <p className='mt-1 text-muted-foreground text-xs'>
+                  {format(new Date(post.date), "MMMM d, yyyy")}
+                </p>
               </div>
             </div>
           ))}

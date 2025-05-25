@@ -30,46 +30,48 @@ export default function AuthDialog() {
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <div className="cursor-pointer transition-colors duration-300 hover:text-primary">
-          <UserIcon className="size-4 md:size-6" />
+        <div className='cursor-pointer transition-colors duration-300 hover:text-primary'>
+          <UserIcon className='size-4 md:size-6' />
         </div>
       </DialogTrigger>
-      <DialogContent className="!rounded-3xl overflow-hidden border-none bg-accent shadow-none sm:max-w-sm">
-        <DialogHeader className="border-border border-b pb-4">
-          <DialogTitle className="flex items-center justify-center">
-            <img src="/images/logo-with-text.png" alt="logo" width={50} height={50} />
+      <DialogContent className='!rounded-3xl overflow-hidden border-none bg-accent shadow-none sm:max-w-sm'>
+        <DialogHeader className='border-border border-b pb-4'>
+          <DialogTitle className='flex items-center justify-center'>
+            <img src='/images/logo-with-text.png' alt='logo' width={50} height={50} />
           </DialogTitle>
-          <DialogDescription className="text-center">Login to get more discounts and rewards</DialogDescription>
+          <DialogDescription className='text-center'>
+            Login to get more discounts and rewards
+          </DialogDescription>
         </DialogHeader>
-        <AnimatePresence mode="wait" key={authType}>
+        <AnimatePresence mode='wait' key={authType}>
           {authType === "login" && <LoginContent />}
           {authType === "signup" && <SignUpContent />}
         </AnimatePresence>
-        <DialogFooter className="mt-4 sm:flex-col">
+        <DialogFooter className='mt-4 sm:flex-col'>
           <Button
-            className="w-full rounded-full"
-            size="sm"
-            effect="expandIcon"
+            className='w-full rounded-full'
+            size='sm'
+            effect='expandIcon'
             icon={ArrowRightIcon}
-            iconPlacement="right"
-            type="submit"
+            iconPlacement='right'
+            type='submit'
             form={authType === "login" ? "login-form" : "signup-form"}
           >
             {authType === "login" ? "Login" : "Continue"}
           </Button>
-          <AnimatePresence mode="wait" key={`${authType}-footer`}>
+          <AnimatePresence mode='wait' key={`${authType}-footer`}>
             {authType === "login" && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center justify-center gap-2"
+                className='flex items-center justify-center gap-2'
                 key={`${authType}-footer-login`}
               >
-                <div className="h-px w-full bg-border" />
-                <p className="text-muted-foreground text-xs">Or</p>
-                <div className="h-px w-full bg-border" />
+                <div className='h-px w-full bg-border' />
+                <p className='text-muted-foreground text-xs'>Or</p>
+                <div className='h-px w-full bg-border' />
               </motion.div>
             )}
 
@@ -82,9 +84,9 @@ export default function AuthDialog() {
                 key={`${authType}-footer-signup`}
               >
                 <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full rounded-full"
+                  variant='outline'
+                  size='sm'
+                  className='w-full rounded-full'
                   onClick={() => setAuthType("signup")}
                 >
                   Sign up
@@ -98,14 +100,14 @@ export default function AuthDialog() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.5 }}
-                className="mt-4 flex items-center justify-center gap-1 text-muted-foreground text-xs"
+                className='mt-4 flex items-center justify-center gap-1 text-muted-foreground text-xs'
                 key={`${authType}-footer-login-switch`}
               >
                 <p>Already have an account?</p>
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setAuthType("login")}
-                  className="cursor-pointer text-black transition-colors duration-300 hover:text-primary"
+                  className='cursor-pointer text-black transition-colors duration-300 hover:text-primary'
                 >
                   Go to login
                 </button>

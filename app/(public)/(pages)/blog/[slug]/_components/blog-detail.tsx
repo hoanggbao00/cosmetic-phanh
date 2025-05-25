@@ -132,79 +132,82 @@ export default function BlogDetailView({ slug }: Props) {
   };
 
   return (
-    <div className="relative">
+    <div className='relative'>
       <ReadingProgress />
 
-      <div className="mx-auto w-full px-4 py-8">
+      <div className='mx-auto w-full px-4 py-8'>
         {/* Back to Blog */}
-        <div className="mb-8">
-          <Link href="/blog" className="flex items-center font-medium text-sm hover:underline">
-            <ChevronLeft className="mr-1 h-4 w-4" />
+        <div className='mb-8'>
+          <Link href='/blog' className='flex items-center font-medium text-sm hover:underline'>
+            <ChevronLeft className='mr-1 h-4 w-4' />
             Back to Blog
           </Link>
         </div>
 
         {/* Article Header */}
-        <article className="mx-auto max-w-6xl">
-          <header className="mb-8">
+        <article className='mx-auto max-w-6xl'>
+          <header className='mb-8'>
             {/* Categories */}
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div className='mb-4 flex flex-wrap gap-2'>
               {blogPost.categories.map((category) => (
-                <Badge key={category} variant="secondary" className="text-xs">
+                <Badge key={category} variant='secondary' className='text-xs'>
                   {category}
                 </Badge>
               ))}
             </div>
 
             {/* Title */}
-            <h1 className="mb-4 font-bold text-3xl md:text-4xl lg:text-5xl">{blogPost.title}</h1>
+            <h1 className='mb-4 font-bold text-3xl md:text-4xl lg:text-5xl'>{blogPost.title}</h1>
 
             {/* Meta */}
-            <div className="mb-6 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
-              <div className="flex items-center">
-                <Calendar className="mr-1 h-4 w-4" />
+            <div className='mb-6 flex flex-wrap items-center gap-4 text-muted-foreground text-sm'>
+              <div className='flex items-center'>
+                <Calendar className='mr-1 h-4 w-4' />
                 <span>{format(new Date(blogPost.date), "MMMM d, yyyy")}</span>
               </div>
-              <div className="flex items-center">
-                <Clock className="mr-1 h-4 w-4" />
+              <div className='flex items-center'>
+                <Clock className='mr-1 h-4 w-4' />
                 <span>{blogPost.readTime} min read</span>
               </div>
               <div>
-                - by <span className="font-medium">{blogPost.author.name}</span>,{" "}
-                <span className="text-muted-foreground text-sm">{blogPost.author.role}</span>
+                - by <span className='font-medium'>{blogPost.author.name}</span>,{" "}
+                <span className='text-muted-foreground text-sm'>{blogPost.author.role}</span>
               </div>
             </div>
 
             {/* Cover Image */}
-            <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg">
+            <div className='relative mb-8 aspect-video w-full overflow-hidden rounded-lg'>
               <Image
                 src={blogPost.coverImage || "/placeholder.svg"}
                 alt={blogPost.title}
                 fill
-                className="object-cover"
+                className='object-cover'
                 priority
               />
             </div>
           </header>
 
           {/* Content and Sidebar Layout */}
-          <div className="flex flex-col gap-8 lg:flex-row">
+          <div className='flex flex-col gap-8 lg:flex-row'>
             {/* Main Content */}
-            <div className="lg:w-2/3">
+            <div className='lg:w-2/3'>
               {/* Article Content */}
-              <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={formatContent()} />
+              <div
+                className='prose prose-lg max-w-none'
+                dangerouslySetInnerHTML={formatContent()}
+              />
 
               {/* Share and Bookmark */}
-              <div className="my-12 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm">Share:</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8 rounded-full">
-                    <Facebook className="h-4 w-4" />
-                    <span className="sr-only">Share on Facebook</span>
+              <div className='my-12 flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <span className='font-medium text-sm'>Share:</span>
+                  <Button variant='outline' size='icon' className='h-8 w-8 rounded-full'>
+                    <Facebook className='h-4 w-4' />
+                    <span className='sr-only'>Share on Facebook</span>
                   </Button>
-                  <Button variant="outline" size="icon" className="h-8 w-8 rounded-full">
-                    <Twitter className="h-4 w-4" />
-                    <span className="sr-only">Share on Twitter</span>
+                  <Button variant='outline' size='icon' className='h-8 w-8 rounded-full'>
+                    <Twitter className='h-4 w-4' />
+                    <span className='sr-only'>Share on Twitter</span>
                   </Button>
                   <CopyPost />
                 </div>
@@ -213,30 +216,30 @@ export default function BlogDetailView({ slug }: Props) {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-8 lg:w-1/3">
-              <div className="sticky top-20">
+            <div className='space-y-8 lg:w-1/3'>
+              <div className='sticky top-20'>
                 {/* Related Posts */}
                 <div>
-                  <h3 className="mb-4 font-medium text-lg">Related Posts</h3>
-                  <div className="space-y-4">
+                  <h3 className='mb-4 font-medium text-lg'>Related Posts</h3>
+                  <div className='space-y-4'>
                     {relatedPosts.map((post) => (
-                      <div key={post.id} className="group flex gap-3">
-                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
+                      <div key={post.id} className='group flex gap-3'>
+                        <div className='relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md'>
                           <Image
                             src={post.coverImage || "/placeholder.svg"}
                             alt={post.title}
                             fill
-                            className="object-cover transition-all duration-300 group-hover:scale-105"
+                            className='object-cover transition-all duration-300 group-hover:scale-105'
                           />
                         </div>
                         <div>
                           <Link
                             href={`/blog/${post.id}`}
-                            className="line-clamp-2 font-medium text-sm transition-all duration-300 group-hover:text-primary"
+                            className='line-clamp-2 font-medium text-sm transition-all duration-300 group-hover:text-primary'
                           >
                             {post.title}
                           </Link>
-                          <div className="mt-1 text-muted-foreground text-xs">
+                          <div className='mt-1 text-muted-foreground text-xs'>
                             {format(new Date(post.date), "MMM d, yyyy")} • {post.author.name}
                           </div>
                         </div>

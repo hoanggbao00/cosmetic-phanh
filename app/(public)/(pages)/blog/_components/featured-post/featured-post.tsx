@@ -7,9 +7,9 @@ export const FeaturedPost = () => {
 
   return (
     featuredPosts.length > 0 && (
-      <div className="mb-12">
-        <h2 className="mb-6 font-bold text-2xl">Featured Posts</h2>
-        <FadeUpContainer className="grid grid-cols-1 gap-6 md:grid-cols-2" delay={0.1}>
+      <div className='mb-12'>
+        <h2 className='mb-6 font-bold text-2xl'>Featured Posts</h2>
+        <FadeUpContainer className='grid grid-cols-1 gap-6 md:grid-cols-2' delay={0.1}>
           {featuredPosts.map((post) => (
             <FadeUpItem key={post.id}>
               <FeaturedPostCard post={post} />

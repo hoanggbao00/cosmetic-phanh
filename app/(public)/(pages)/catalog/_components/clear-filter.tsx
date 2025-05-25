@@ -21,7 +21,7 @@ export const ClearFilter = ({ searchParams }: Props) => {
   };
 
   return (
-    <Button variant="link" onClick={handleClearFilter} className="mt-2">
+    <Button variant='link' onClick={handleClearFilter} className='mt-2'>
       Clear all filters
     </Button>
   );

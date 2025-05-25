@@ -34,7 +34,9 @@ export const useCartStore = create<CartStore>()(
         if (existingItem) {
           // If item exists, update quantity
           set({
-            items: items.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i)),
+            items: items.map((i) =>
+              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i,
+            ),
           });
         } else {
           // Add new item
@@ -54,7 +56,9 @@ export const useCartStore = create<CartStore>()(
       updateQuantity: (id: number, quantity: number) => {
         const { items } = get();
         set({
-          items: items.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item)),
+          items: items.map((item) =>
+            item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item,
+          ),
         });
       },
 

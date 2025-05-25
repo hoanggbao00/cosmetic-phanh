@@ -27,41 +27,41 @@ export const SectionCollections = ({ title, subTitle }: Props) => {
   };
 
   return (
-    <section className="w-full bg-white px-4 py-16 md:px-0">
-      <div className="">
+    <section className='w-full bg-white px-4 py-16 md:px-0'>
+      <div className=''>
         {/* Title */}
-        <div className="mx-auto mb-8 flex max-w-[1400px] items-center justify-between">
-          <div className="font-serif">
-            <div className="mb-2 flex items-center gap-2">
-              <StarIcon className="size-4 animate-spin text-primary" />
-              <span className="font-medium text-sm">{subTitle}</span>
+        <div className='mx-auto mb-8 flex max-w-[1400px] items-center justify-between'>
+          <div className='font-serif'>
+            <div className='mb-2 flex items-center gap-2'>
+              <StarIcon className='size-4 animate-spin text-primary' />
+              <span className='font-medium text-sm'>{subTitle}</span>
             </div>
-            <h2 className="font-semibold text-3xl text-primary md:text-4xl lg:text-5xl">{title}</h2>
+            <h2 className='font-semibold text-3xl text-primary md:text-4xl lg:text-5xl'>{title}</h2>
           </div>
 
           {/* Pagination */}
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             <Button
               onClick={handlePrevious}
               disabled={currentIndex === 0}
-              className="rounded-md p-3 text-white disabled:opacity-50"
-              size="icon"
+              className='rounded-md p-3 text-white disabled:opacity-50'
+              size='icon'
             >
-              <ChevronLeft className="size-5" />
+              <ChevronLeft className='size-5' />
             </Button>
             <Button
               onClick={handleNext}
               disabled={currentIndex >= products.length - 4}
-              className="rounded-md p-3 text-white disabled:opacity-50"
-              size="icon"
+              className='rounded-md p-3 text-white disabled:opacity-50'
+              size='icon'
             >
-              <ChevronRight className="size-5" />
+              <ChevronRight className='size-5' />
             </Button>
           </div>
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 font-serif md:grid-cols-3 lg:grid-cols-4">
+        <div className='grid grid-cols-2 font-serif md:grid-cols-3 lg:grid-cols-4'>
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

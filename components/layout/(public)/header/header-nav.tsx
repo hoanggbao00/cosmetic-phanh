@@ -8,31 +8,31 @@ import SearchDialog from "./search-dialog";
 
 export const HeaderNav = () => {
   return (
-    <div className="flex items-center justify-between gap-4 px-4 py-1 md:px-8">
+    <div className='flex items-center justify-between gap-4 px-4 py-1 md:px-8'>
       {/* Left */}
       <NavLinks />
 
       {/* Logo */}
-      <div className="">
-        <Link href="/" className="group flex items-center">
+      <div className=''>
+        <Link href='/' className='group flex items-center'>
           <img
-            src="/images/logo-with-text.png"
+            src='/images/logo-with-text.png'
             alt={APP_NAME}
             width={50}
             height={50}
-            className="transition-all duration-300 group-hover:scale-110"
+            className='transition-all duration-300 group-hover:scale-110'
           />
         </Link>
       </div>
 
       {/* Right */}
-      <div className="flex flex-1 items-center justify-end gap-8">
-        <div className="flex items-center gap-4">
-          <SearchDialog key="search-dialog" />
-          <AuthDialog key="auth-dialog" />
+      <div className='flex flex-1 items-center justify-end gap-8'>
+        <div className='flex items-center gap-4'>
+          <SearchDialog key='search-dialog' />
+          <AuthDialog key='auth-dialog' />
           <CartCount />
         </div>
-        <SpecialButton className="hidden md:flex">Special Offers</SpecialButton>
+        <SpecialButton className='hidden md:flex'>Special Offers</SpecialButton>
       </div>
     </div>
   );

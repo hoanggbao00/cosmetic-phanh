@@ -11,7 +11,7 @@ export default async function ProductDetailPage({ params }: Props) {
   await delay(1000);
 
   return (
-    <PageLayout className="min-h-screen">
+    <PageLayout className='min-h-screen'>
       <ProductDetail productId={slug} />
     </PageLayout>
   );

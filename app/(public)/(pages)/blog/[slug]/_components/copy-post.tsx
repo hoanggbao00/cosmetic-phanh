@@ -22,15 +22,15 @@ export const CopyPost = () => {
       <Tooltip open={isHovering || isCopied}>
         <TooltipTrigger asChild>
           <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-full"
+            variant='outline'
+            size='icon'
+            className='h-8 w-8 rounded-full'
             onClick={copyLinkToClipboard}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
-            {isCopied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
-            <span className="sr-only">Copy link</span>
+            {isCopied ? <Check className='h-4 w-4' /> : <Link2 className='h-4 w-4' />}
+            <span className='sr-only'>Copy link</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>{isCopied ? "Copied" : "Copy link"}</TooltipContent>

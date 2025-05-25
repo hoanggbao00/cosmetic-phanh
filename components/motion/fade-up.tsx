@@ -22,7 +22,7 @@ export function FadeUpContainer({ children, className, stagger = 0.05, delay = 0
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className={className}>
+    <motion.div variants={container} initial='hidden' animate='show' className={className}>
       {children}
     </motion.div>
   );

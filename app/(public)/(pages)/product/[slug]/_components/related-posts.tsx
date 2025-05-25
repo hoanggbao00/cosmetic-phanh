@@ -83,12 +83,13 @@ export default function RelatedPosts({ productCategory }: RelatedPostsProps) {
   // Filter posts related to the product category
   const relatedPosts = blogPosts.filter(
     (post) =>
-      post.categories.some((category) => category.toLowerCase() === productCategory.toLowerCase()) ||
-      post.title.includes(productCategory),
+      post.categories.some(
+        (category) => category.toLowerCase() === productCategory.toLowerCase(),
+      ) || post.title.includes(productCategory),
   );
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
       {relatedPosts.map((post) => (
         <BlogPostCard key={post.id} post={post} />
       ))}

@@ -50,22 +50,26 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6 shadow-sm">
-      <h2 className="mb-4 font-medium text-lg">Order Summary</h2>
+    <div className='rounded-lg border bg-white p-6 shadow-sm'>
+      <h2 className='mb-4 font-medium text-lg'>Order Summary</h2>
 
       {/* Promo Code */}
-      <div className="mb-6">
-        <div className="flex gap-2">
+      <div className='mb-6'>
+        <div className='flex gap-2'>
           <Input
-            placeholder="Promo code"
+            placeholder='Promo code'
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
-            className="flex-1"
+            className='flex-1'
           />
-          <Button variant="outline" onClick={handleApplyPromo} disabled={isApplyingPromo || !promoCode.trim()}>
+          <Button
+            variant='outline'
+            onClick={handleApplyPromo}
+            disabled={isApplyingPromo || !promoCode.trim()}
+          >
             {isApplyingPromo ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                 Applying
               </>
             ) : (
@@ -75,39 +79,44 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
         </div>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className='my-4' />
 
       {/* Order Details */}
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Subtotal</span>
+      <div className='space-y-3'>
+        <div className='flex justify-between text-sm'>
+          <span className='text-muted-foreground'>Subtotal</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Shipping</span>
+        <div className='flex justify-between text-sm'>
+          <span className='text-muted-foreground'>Shipping</span>
           <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Discount</span>
+        <div className='flex justify-between text-sm'>
+          <span className='text-muted-foreground'>Discount</span>
           <span>${discount.toFixed(2)}</span>
         </div>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className='my-4' />
 
       {/* Total */}
-      <div className="mb-6 flex items-center justify-between">
-        <span className="font-medium text-base">Total</span>
-        <span className="font-bold text-xl">${total.toFixed(2)}</span>
+      <div className='mb-6 flex items-center justify-between'>
+        <span className='font-medium text-base'>Total</span>
+        <span className='font-bold text-xl'>${total.toFixed(2)}</span>
       </div>
 
       {/* Checkout Button */}
-      <Button className="w-full" size="lg" onClick={handleCheckout} disabled={isCheckingOut || subtotal === 0}>
+      <Button
+        className='w-full'
+        size='lg'
+        onClick={handleCheckout}
+        disabled={isCheckingOut || subtotal === 0}
+      >
         {isCheckingOut ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
             Processing...
           </>
         ) : (
@@ -117,14 +126,14 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
 
       {/* Shipping Note */}
       {subtotal < 100 && (
-        <p className="mt-4 text-center text-muted-foreground text-xs">
+        <p className='mt-4 text-center text-muted-foreground text-xs'>
           Add ${(100 - subtotal).toFixed(2)} more to qualify for free shipping
         </p>
       )}
 
       {/* Secure Checkout Message */}
-      <div className="mt-6 text-center">
-        <p className="text-muted-foreground text-xs">Secure checkout powered by Stripe</p>
+      <div className='mt-6 text-center'>
+        <p className='text-muted-foreground text-xs'>Secure checkout powered by Stripe</p>
       </div>
     </div>
   );

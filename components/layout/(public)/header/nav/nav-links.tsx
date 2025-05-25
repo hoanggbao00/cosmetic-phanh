@@ -39,8 +39,8 @@ export const NavLinks = () => {
 
   if (!isMobile) {
     return (
-      <nav className="flex-1">
-        <ul className="flex items-center gap-4">
+      <nav className='flex-1'>
+        <ul className='flex items-center gap-4'>
           {navItems.map((item) => (
             <li key={item.href}>
               <NavItem href={item.href} isActive={pathname === item.href}>
@@ -54,23 +54,27 @@ export const NavLinks = () => {
   }
 
   return (
-    <div className="order-2">
+    <div className='order-2'>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant='ghost' size='icon'>
             <MenuIcon />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right">
+        <SheetContent side='right'>
           <SheetHeader>
             <SheetTitle>{APP_NAME}</SheetTitle>
             <SheetDescription hidden>{APP_DESCRIPTION}</SheetDescription>
-            <div className="p-4">
+            <div className='p-4'>
               <ul>
                 {navItems.map((item) => (
                   <SheetClose asChild key={item.href}>
                     <li>
-                      <NavItem href={item.href} isActive={pathname === item.href} className="text-2xl tracking-wide">
+                      <NavItem
+                        href={item.href}
+                        isActive={pathname === item.href}
+                        className='text-2xl tracking-wide'
+                      >
                         {item.label}
                       </NavItem>
                     </li>

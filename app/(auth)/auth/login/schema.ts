@@ -6,8 +6,14 @@ export const loginSchema = z.object({
 });
 
 export const defaultLoginValues: LoginSchema = {
-  email: "",
-  password: "",
+  email:
+    process.env.NODE_ENV === "development"
+      ? (process.env.NEXT_PUBLIC_DEV_DEFAULT_USER_EMAIL as string)
+      : "",
+  password:
+    process.env.NODE_ENV === "development"
+      ? (process.env.NEXT_PUBLIC_DEV_DEFAULT_USER_PASSWORD as string)
+      : "",
 };
 
 export type LoginSchema = z.infer<typeof loginSchema>;

@@ -29,8 +29,8 @@ const Input = ({ className, type, startIcon, endIcon, ref, size = "md", ...props
           size === "sm" && "h-8 px-2",
           size === "md" && "h-10 px-4",
           size === "lg" && "h-12 px-6",
-          startIcon ? "pl-7" : "",
-          endIcon ? "pr-7" : "",
+          startIcon ? "pl-8" : "",
+          endIcon ? "pr-8" : "",
           className,
         )}
         ref={ref}

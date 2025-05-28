@@ -7,8 +7,8 @@ export const DATA_SIDEBAR = [
         href: "/admin",
       },
       {
-        title: "Categories",
-        href: "/admin/categories",
+        title: "Catalogs",
+        href: "/admin/catalog",
       },
       {
         title: "Products",

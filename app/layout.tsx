@@ -1,6 +1,6 @@
 import "@/assets/styles/tailwind.css";
 import { Toaster } from "@/components/ui/sonner";
-import { OpenGraph } from "@/lib/og";
+import { OpenGraph } from "@/lib/config/open-graph";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";

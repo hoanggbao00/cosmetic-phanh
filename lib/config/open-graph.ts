@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { APP_DESCRIPTION } from "./config/app.config";
-import { APP_DEFAULT_TITLE } from "./config/app.config";
-import { APP_NAME } from "./config/app.config";
+import { APP_DEFAULT_TITLE, APP_DESCRIPTION, APP_NAME } from "./app.config";
 
 const APP_TITLE_TEMPLATE = `%s - ${APP_NAME}`;
 

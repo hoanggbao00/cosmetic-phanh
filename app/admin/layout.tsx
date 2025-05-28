@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/layout/private/app-sidebar";
+import QueryProvider from "@/components/providers/query-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
@@ -32,7 +33,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <QueryProvider>{children}</QueryProvider>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -12,9 +12,6 @@
   },
 
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["@radix-ui", "next/router"],
-  "tailwindCSS.experimental.classRegex": [
-    "tw`([^`*])"
-  ],
   "cSpell.words": [
     "Phanh"
   ]

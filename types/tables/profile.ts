@@ -1,36 +1,36 @@
 export interface Profiles {
-  id: string;
+  avatar_url: string | null;
+  created_at: string | null;
+  date_of_birth: string | null;
   email: string;
   full_name: string | null;
-  avatar_url: string | null;
+  gender: string | null;
+  id: string;
   phone: string | null;
-  date_of_birth: string | null;
-  gender: "male" | "female" | "other" | null;
-  role: "user" | "admin";
-  created_at: string;
-  updated_at: string;
+  role: string | null;
+  updated_at: string | null;
 }
 export interface ProfilesInsert {
-  id: string;
+  avatar_url?: string | null;
+  created_at?: string | null;
+  date_of_birth?: string | null;
   email: string;
   full_name?: string | null;
-  avatar_url?: string | null;
+  gender?: string | null;
+  id: string;
   phone?: string | null;
-  date_of_birth?: string | null;
-  gender?: "male" | "female" | "other" | null;
-  role?: "user" | "admin";
-  created_at?: string;
-  updated_at?: string;
+  role?: string | null;
+  updated_at?: string | null;
 }
 export interface ProfilesUpdate {
-  id?: string;
+  avatar_url?: string | null;
+  created_at?: string | null;
+  date_of_birth?: string | null;
   email?: string;
   full_name?: string | null;
-  avatar_url?: string | null;
+  gender?: string | null;
+  id?: string;
   phone?: string | null;
-  date_of_birth?: string | null;
-  gender?: "male" | "female" | "other" | null;
-  role?: "user" | "admin";
-  created_at?: string;
-  updated_at?: string;
+  role?: string | null;
+  updated_at?: string | null;
 }

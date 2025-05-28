@@ -1,3 +1,5 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -27,5 +29,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   // Nếu hợp lệ, render dashboard
-  return <div>{children}</div>;
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
+  );
 }

@@ -1,14 +1,10 @@
 import type { SVGIcon } from "@/assets/icons/type"
 import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
-import type { ComponentProps } from "react"
-import type { Control, FieldValues, Path } from "react-hook-form"
+import type { Control, ControllerRenderProps, FieldValues, Path } from "react-hook-form"
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../form"
-import { Input } from "../input"
-import { InputPassword } from "./input-password"
 
-interface InputFieldProps<T extends FieldValues, P extends Path<T>>
-  extends Omit<ComponentProps<"input">, "size"> {
+interface FieldWrapperProps<T extends FieldValues, P extends Path<T>> {
   control: Control<T>
   name: P
   label?: string
@@ -18,21 +14,18 @@ interface InputFieldProps<T extends FieldValues, P extends Path<T>>
   endIcon?: LucideIcon | SVGIcon
   size?: "sm" | "md" | "lg"
   required?: boolean
+  children: React.ReactNode | ((field: ControllerRenderProps<T, P>) => React.ReactNode)
 }
 
-export const InputField = <T extends FieldValues, P extends Path<T>>({
+export const FieldWrapper = <T extends FieldValues, P extends Path<T>>({
   control,
   name,
   label,
-  type = "text",
   description,
   parentClassName,
-  size,
   required,
-  ...props
-}: InputFieldProps<T, P>) => {
-  const Comp = type === "password" ? InputPassword : Input
-
+  children,
+}: FieldWrapperProps<T, P>) => {
   return (
     <FormField
       control={control}
@@ -45,9 +38,7 @@ export const InputField = <T extends FieldValues, P extends Path<T>>({
             </FormLabel>
           )}
           {description && <FormDescription>{description}</FormDescription>}
-          <FormControl>
-            <Comp {...field} {...props} size={size} />
-          </FormControl>
+          <FormControl>{typeof children === "function" ? children(field) : children}</FormControl>
           <FormMessage className="mt-1" />
         </FormItem>
       )}

@@ -8,7 +8,7 @@ import type { HeaderContext } from "@tanstack/react-table"
 import { ArrowDownAZ, ArrowUpZA } from "lucide-react"
 
 interface DefaultHeaderProps<T> {
-  info: HeaderContext<T, T>
+  info: HeaderContext<T, unknown>
   name: string
 }
 

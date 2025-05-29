@@ -3,21 +3,31 @@
 import { DataTable } from "@/components/shared/data-table"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger } from "@/components/ui/sheet"
-import { useCatalogDeleteMutation, useCatalogQuery } from "@/queries/catalog"
-import type { Category } from "@/types/tables/categories"
+import { useBrandQuery } from "@/queries/brand"
+import { useCatalogQuery } from "@/queries/catalog"
+import {
+  useProductDeleteMutation,
+  useProductQuery,
+  useProductUpdateMutation,
+} from "@/queries/product"
+import type { Product } from "@/types/tables/products"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Loader2, PlusCircleIcon } from "lucide-react"
 import { useRef, useState } from "react"
-import { getCatalogColumns } from "./columns"
-import SheetCatalog from "./sheet-catalog"
+import { getProductColumns } from "./columns"
+import SheetProduct from "./sheet-product"
 
-export default function CatalogTable() {
-  const { data, isLoading } = useCatalogQuery()
+export default function ProductTable() {
+  const { data, isLoading } = useProductQuery()
+  const { data: catalogData } = useCatalogQuery()
+  const { data: brandData } = useBrandQuery()
+
   const openSheetRef = useRef<HTMLButtonElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
 
-  const { mutate: deleteCatalog } = useCatalogDeleteMutation()
+  const { mutate: deleteProduct } = useProductDeleteMutation()
+  const { mutate: updateProduct } = useProductUpdateMutation()
 
   const handleAdd = () => {
     setId("new")
@@ -29,15 +39,21 @@ export default function CatalogTable() {
     setIsOpen(true)
   }
 
-  const handleClose = (value: boolean) => {
-    if (!value) {
-      setId(null)
-      setIsOpen(false)
-    }
+  const handleClose = () => {
+    setId(null)
+    setIsOpen(false)
   }
 
   const handleDelete = (id: string) => {
-    deleteCatalog(id)
+    deleteProduct(id)
+  }
+
+  const handleToggleActive = (id: string, isActive: boolean) => {
+    updateProduct({ id, is_active: isActive })
+  }
+
+  const handleToggleFeatured = (id: string, isFeatured: boolean) => {
+    updateProduct({ id, is_featured: isFeatured })
   }
 
   if (isLoading)
@@ -48,13 +64,17 @@ export default function CatalogTable() {
       </div>
     )
 
-  const columns = getCatalogColumns({
+  const columns = getProductColumns({
+    catalogData: catalogData || [],
+    brandData: brandData || [],
     onEdit: handleEdit,
     onDelete: handleDelete,
-  }) as ColumnDef<Category>[]
+    onToggleActive: handleToggleActive,
+    onToggleFeatured: handleToggleFeatured,
+  }) as ColumnDef<Product>[]
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleClose}>
+    <Sheet open={isOpen} modal={false}>
       <div className="flex size-full flex-col gap-2">
         <div className="flex items-center justify-end">
           <SheetTrigger asChild>
@@ -66,7 +86,7 @@ export default function CatalogTable() {
         </div>
         {data && <DataTable columns={columns} data={data} className="h-[700px]" />}
       </div>
-      <SheetCatalog id={id} />
+      <SheetProduct id={id} handleClose={handleClose} />
     </Sheet>
   )
 }

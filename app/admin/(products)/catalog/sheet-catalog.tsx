@@ -44,16 +44,21 @@ export default function SheetCatalog({ id }: { id: string | null }) {
   }
 
   useEffect(() => {
+    if (id === "new") {
+      form.reset()
+      return
+    }
+
     if (detailCatalog) {
       form.reset(detailCatalog)
     }
-  }, [detailCatalog, form])
+  }, [detailCatalog, form, id])
 
   return (
     <SheetContent className="p-4">
       <SheetClose ref={closeSheetRef} />
       <SheetTitle>{title}</SheetTitle>
-      {!isLoadingDetail && (
+      {!isLoadingDetail ? (
         <div className="size-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex size-full flex-col gap-4">
@@ -78,12 +83,18 @@ export default function SheetCatalog({ id }: { id: string | null }) {
                 placeholder="Enter description"
                 disabled={isLoading}
               />
+
+              {/* Submit */}
               <Button type="submit" className="mt-6 w-full" disabled={isLoading}>
                 {isLoading && <Loader2Icon className="size-4 animate-spin" />}
                 {isEdit ? "Update" : "Create"}
               </Button>
             </form>
           </Form>
+        </div>
+      ) : (
+        <div className="flex size-full items-center justify-center">
+          <Loader2Icon className="size-10 animate-spin" />
         </div>
       )}
     </SheetContent>

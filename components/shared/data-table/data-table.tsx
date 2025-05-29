@@ -20,17 +20,12 @@ import {
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
-interface DataTableProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
-  columns: ColumnDef<TData, TValue>[]
+interface DataTableProps<TData> extends React.HTMLAttributes<HTMLDivElement> {
+  columns: ColumnDef<TData>[]
   data: TData[]
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-  className,
-  ...props
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TData>({ columns, data, className, ...props }: DataTableProps<TData>) {
   "use no memo"
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])

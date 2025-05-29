@@ -17,6 +17,7 @@
 
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["@radix-ui", "next/router"],
   "cSpell.words": [
-    "Phanh"
+    "Phanh",
+    "Shadcn"
   ]
 }

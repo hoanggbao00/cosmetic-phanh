@@ -18,7 +18,8 @@ export const productSchema = z.object({
   is_active: z.boolean().optional(),
   is_featured: z.boolean().optional(),
   images: z.array(z.string()).optional(),
-  tags: z.array(z.string()).optional(),
+  brand_id: z.string().optional(),
+  category_id: z.string().optional(),
 })
 
 export type ProductSchema = z.infer<typeof productSchema>
@@ -37,8 +38,8 @@ export const defaultProductValues: ProductSchema = {
   ingredients: "",
   how_to_use: "",
   is_active: true,
-  images: [
-    "/images/promotions/promotion-1.jpg",
-    "https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Model-with-product.jpg",
-  ],
+  is_featured: false,
+  images: [],
+  brand_id: "",
+  category_id: "",
 }

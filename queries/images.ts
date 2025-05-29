@@ -6,7 +6,7 @@ import { toast } from "sonner"
 const QUERY_KEY = "images"
 const TABLE_NAME = "images"
 
-export const useImageQuery = () => {
+export const useImageQuery = ({ enabled }: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: [QUERY_KEY],
     queryFn: async () => {
@@ -15,8 +15,9 @@ export const useImageQuery = () => {
         .select("*")
         .order("created_at", { ascending: false })
       if (error) throw error
-      return data
+      return data as Image[]
     },
+    enabled,
   })
 }
 

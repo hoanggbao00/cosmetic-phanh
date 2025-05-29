@@ -37,9 +37,9 @@ export const InputField = <T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-1", parentClassName)}>
+        <FormItem className={cn("w-full space-y-1", parentClassName)}>
           {label && (
-            <FormLabel className="gap-1">
+            <FormLabel className="mb-0 gap-1">
               {label} {required && <span className="text-error-foreground">*</span>}
             </FormLabel>
           )}

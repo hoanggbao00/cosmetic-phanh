@@ -1,53 +1,43 @@
 "use client"
 
 import { DataTable } from "@/components/shared/data-table"
-import DefaultHeader from "@/components/shared/data-table/default-header"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useCatalogQuery } from "@/queries/catalog"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetTrigger } from "@/components/ui/sheet"
+import { useCatalogDeleteMutation, useCatalogQuery } from "@/queries/catalog"
 import type { Category } from "@/types/tables/categories"
-import { createColumnHelper } from "@tanstack/react-table"
-import { Loader2 } from "lucide-react"
-
-const columnHelper = createColumnHelper<Category>()
-
-const columns = [
-  columnHelper.display({
-    id: "action",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  }),
-  columnHelper.accessor("name", {
-    header: (info) => <DefaultHeader info={info} name="Name" />,
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor("slug", {
-    header: (info) => <DefaultHeader info={info} name="Slug" />,
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor("created_at", {
-    header: (info) => <DefaultHeader info={info} name="Created At" />,
-    cell: (info) => new Date(info.getValue()).toLocaleString(),
-  }),
-]
+import { Loader2, PlusCircleIcon } from "lucide-react"
+import { useRef, useState } from "react"
+import { getCatalogColumns } from "./columns"
+import SheetCatalog from "./sheet-catalog"
 
 export default function CatalogTable() {
   const { data, isLoading } = useCatalogQuery()
+  const openSheetRef = useRef<HTMLButtonElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [id, setId] = useState<string | null>(null)
+
+  const { mutate: deleteCatalog } = useCatalogDeleteMutation()
+
+  const handleAdd = () => {
+    setId("new")
+    setIsOpen(true)
+  }
+
+  const handleEdit = (id: string) => {
+    setId(id)
+    setIsOpen(true)
+  }
+
+  const handleClose = (value: boolean) => {
+    if (!value) {
+      setId(null)
+      setIsOpen(false)
+    }
+  }
+
+  const handleDelete = (id: string) => {
+    deleteCatalog(id)
+  }
 
   if (isLoading)
     return (
@@ -57,9 +47,24 @@ export default function CatalogTable() {
       </div>
     )
 
+  const columns = getCatalogColumns({ onEdit: handleEdit, onDelete: handleDelete })
+
   return (
-    <div className="flex size-full items-center justify-center">
-      {data && <DataTable<Category, string> columns={columns} data={data} className="h-[800px]" />}
-    </div>
+    <Sheet open={isOpen} onOpenChange={handleClose}>
+      <div className="flex size-full flex-col gap-2">
+        <div className="flex items-center justify-end">
+          <SheetTrigger asChild>
+            <Button icon={PlusCircleIcon} iconPlacement="right" size="sm" onClick={handleAdd}>
+              Add
+            </Button>
+          </SheetTrigger>
+          <SheetTrigger ref={openSheetRef} />
+        </div>
+        {data && (
+          <DataTable<Category, string> columns={columns} data={data} className="h-[700px]" />
+        )}
+      </div>
+      <SheetCatalog id={id} />
+    </Sheet>
   )
 }

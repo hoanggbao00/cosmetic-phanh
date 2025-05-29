@@ -9,24 +9,28 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 import { createSupabaseServerClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import type React from "react"
+import type { ComponentProps } from "react"
 import UserDropdown from "./user-dropdown"
 
-interface PrivateLayoutProps {
-  children: React.ReactNode
+interface PrivateLayoutProps extends ComponentProps<"div"> {
   parentBreadcrumb: {
     title: string
     href: string
   }
   currentBreadcrumb: string
+  title?: string
 }
 
 export default async function PrivateLayout({
   children,
   parentBreadcrumb,
   currentBreadcrumb,
+  className,
+  title,
+  ...props
 }: PrivateLayoutProps) {
   const supabase = await createSupabaseServerClient()
   const { data: session } = await supabase.auth.getUser()
@@ -62,7 +66,10 @@ export default async function PrivateLayout({
           )}
         </div>
       </header>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">{children}</div>
+      <div className={cn("flex min-h-0 flex-1 flex-col gap-4 p-4", className)} {...props}>
+        {title && <h2 className="font-bold text-2xl">{title}</h2>}
+        {children}
+      </div>
     </>
   )
 }

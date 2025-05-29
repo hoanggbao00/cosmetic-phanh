@@ -1,20 +1,20 @@
-import { AppSidebar } from "@/components/layout/private/app-sidebar";
-import QueryProvider from "@/components/providers/query-provider";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { AppSidebar } from "@/components/layout/private/app-sidebar"
+import QueryProvider from "@/components/providers/query-provider"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { createSupabaseServerClient } from "@/utils/supabase/server"
+import { redirect } from "next/navigation"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient()
 
   // Lấy user từ session
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
     // Nếu chưa đăng nhập -> chuyển về trang login
-    redirect("/auth/login");
+    redirect("/auth/login")
   }
 
   // Lấy role từ profiles
@@ -22,11 +22,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .single()
 
   // Không phải admin, redirect về login
   if (!profile || profile.role !== "admin") {
-    redirect("/auth/login");
+    redirect("/auth/login")
   }
 
   // Nếu hợp lệ, render dashboard
@@ -37,5 +37,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <QueryProvider>{children}</QueryProvider>
       </SidebarInset>
     </SidebarProvider>
-  );
+  )
 }

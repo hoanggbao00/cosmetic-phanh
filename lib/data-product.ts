@@ -64,4 +64,4 @@ export const products = [
     colors: ["Black", "White", "Red", "Pink", "Beige", "Clear", "Multi"],
     rating: 4.5,
   },
-];
+]

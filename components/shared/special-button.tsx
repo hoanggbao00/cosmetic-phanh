@@ -1,10 +1,10 @@
-import { StarIcon } from "@/assets/icons/star-icon";
-import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { StarIcon } from "@/assets/icons/star-icon"
+import { cn } from "@/lib/utils"
+import { Button } from "../ui/button"
 
 interface SpecialButtonProps extends React.ComponentProps<"button"> {
-  children: string;
-  className?: string;
+  children: string
+  className?: string
 }
 
 export const SpecialButton = ({ children, className, ...props }: SpecialButtonProps) => {
@@ -12,14 +12,14 @@ export const SpecialButton = ({ children, className, ...props }: SpecialButtonPr
     <Button
       className={cn(
         "group select-none rounded-full bg-primary px-4 py-2 text-white tracking-wide",
-        className,
+        className
       )}
-      effect='shine'
+      effect="shine"
       {...props}
     >
-      <StarIcon className='icon !size-3 transition-transform duration-500 group-hover:rotate-45' />
+      <StarIcon className="icon !size-3 transition-transform duration-500 group-hover:rotate-45" />
       {children}
-      <StarIcon className='icon !size-3 transition-transform duration-500 group-hover:rotate-45' />
+      <StarIcon className="icon !size-3 transition-transform duration-500 group-hover:rotate-45" />
     </Button>
-  );
-};
+  )
+}

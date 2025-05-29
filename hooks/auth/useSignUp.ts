@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { supabase } from "@/utils/supabase/client";
-import { useRouter } from "nextjs-toploader/app";
-import { useState } from "react";
-import { toast } from "sonner";
+import { supabase } from "@/utils/supabase/client"
+import { useRouter } from "nextjs-toploader/app"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export const useSignUp = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
-  const router = useRouter();
+  const router = useRouter()
 
   async function handleSignUp({
     email,
@@ -16,7 +16,7 @@ export const useSignUp = () => {
     fullName,
     callbackUrl,
   }: { email: string; password: string; fullName: string; callbackUrl?: string }) {
-    setLoading(true);
+    setLoading(true)
 
     // Đăng ký tài khoản với Supabase Auth
     const { data, error } = await supabase.auth.signUp({
@@ -27,12 +27,12 @@ export const useSignUp = () => {
           full_name: fullName,
         },
       },
-    });
+    })
 
     if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
+      toast.error(error.message)
+      setLoading(false)
+      return
     }
 
     // Sau khi đăng ký, tạo bản ghi profile
@@ -42,21 +42,21 @@ export const useSignUp = () => {
         email,
         full_name: fullName,
         role: "user",
-      });
+      })
 
       if (res.error) {
-        toast.error(res.error.message);
-        setLoading(false);
-        return;
+        toast.error(res.error.message)
+        setLoading(false)
+        return
       }
 
       if (callbackUrl) {
-        router.push(callbackUrl);
+        router.push(callbackUrl)
       }
     }
 
-    setLoading(false);
+    setLoading(false)
   }
 
-  return { handleSignUp, loading };
-};
+  return { handleSignUp, loading }
+}

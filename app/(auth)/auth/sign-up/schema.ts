@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const signUpSchema = z
   .object({
@@ -10,13 +10,13 @@ export const signUpSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",
-  });
+  })
 
 export const defaultSignUpValues: SignUpSchema = {
   fullName: "",
   email: "",
   password: "",
   confirmPassword: "",
-};
+}
 
-export type SignUpSchema = z.infer<typeof signUpSchema>;
+export type SignUpSchema = z.infer<typeof signUpSchema>

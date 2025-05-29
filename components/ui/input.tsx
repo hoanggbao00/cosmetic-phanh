@@ -1,25 +1,25 @@
-import type { SVGIcon } from "@/assets/icons/type";
-import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
-import type { ComponentProps } from "react";
+import type { SVGIcon } from "@/assets/icons/type"
+import { cn } from "@/lib/utils"
+import type { LucideIcon } from "lucide-react"
+import type { ComponentProps } from "react"
 
 export interface InputProps extends Omit<ComponentProps<"input">, "size"> {
-  startIcon?: LucideIcon | SVGIcon;
-  endIcon?: LucideIcon | SVGIcon;
-  size?: "sm" | "md" | "lg";
+  startIcon?: LucideIcon | SVGIcon
+  endIcon?: LucideIcon | SVGIcon
+  size?: "sm" | "md" | "lg"
 }
 
 const Input = ({ className, type, startIcon, endIcon, ref, size = "md", ...props }: InputProps) => {
-  const StartIcon = startIcon;
-  const EndIcon = endIcon;
+  const StartIcon = startIcon
+  const EndIcon = endIcon
 
-  const iconSize = size === "sm" ? 16 : size === "md" ? 18 : 20;
+  const iconSize = size === "sm" ? 16 : size === "md" ? 18 : 20
 
   return (
-    <div className='relative w-full'>
+    <div className="relative w-full">
       {StartIcon && (
-        <div className='-translate-y-1/2 absolute top-1/2 left-2 transform'>
-          <StartIcon size={iconSize} className='text-muted-foreground' />
+        <div className="-translate-y-1/2 absolute top-1/2 left-2 transform">
+          <StartIcon size={iconSize} className="text-muted-foreground" />
         </div>
       )}
       <input
@@ -31,20 +31,20 @@ const Input = ({ className, type, startIcon, endIcon, ref, size = "md", ...props
           size === "lg" && "h-12 px-6",
           startIcon ? "pl-8" : "",
           endIcon ? "pr-8" : "",
-          className,
+          className
         )}
         ref={ref}
         {...props}
       />
       {EndIcon && (
-        <div className='-translate-y-1/2 absolute top-1/2 right-3 transform'>
-          <EndIcon className='text-muted-foreground' size={iconSize} />
+        <div className="-translate-y-1/2 absolute top-1/2 right-3 transform">
+          <EndIcon className="text-muted-foreground" size={iconSize} />
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-Input.displayName = "Input";
+Input.displayName = "Input"
 
-export { Input };
+export { Input }

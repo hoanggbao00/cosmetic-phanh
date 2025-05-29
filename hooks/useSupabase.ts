@@ -1,98 +1,98 @@
-import type { Database } from "@/types/supabase";
-import { supabase } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
+import type { Database } from "@/types/supabase"
+import { supabase } from "@/utils/supabase/client"
+import { useEffect, useState } from "react"
 
 // Hook for products
 export function useProducts(options?: {
-  category?: string;
-  brand?: string;
-  limit?: number;
-  offset?: number;
+  category?: string
+  brand?: string
+  limit?: number
+  offset?: number
 }) {
-  const [products, setProducts] = useState<Database["public"]["Tables"]["products"]["Row"][]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [products, setProducts] = useState<Database["public"]["Tables"]["products"]["Row"][]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true
     async function fetchProducts() {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
       try {
         let query = supabase
           .from("products")
           .select("*, category:categories(*), brand:brands(*)")
-          .eq("is_active", true);
+          .eq("is_active", true)
 
         if (options?.category) {
-          query = query.eq("category.slug", options.category);
+          query = query.eq("category.slug", options.category)
         }
         if (options?.brand) {
-          query = query.eq("brand.slug", options.brand);
+          query = query.eq("brand.slug", options.brand)
         }
         if (options?.limit) {
-          query = query.limit(options.limit);
+          query = query.limit(options.limit)
         }
         if (options?.offset) {
-          query = query.range(options.offset, (options.offset || 0) + (options?.limit || 20) - 1);
+          query = query.range(options.offset, (options.offset || 0) + (options?.limit || 20) - 1)
         }
 
-        const { data, error } = await query;
-        if (error) throw error;
-        if (isMounted) setProducts(data || []);
+        const { data, error } = await query
+        if (error) throw error
+        if (isMounted) setProducts(data || [])
       } catch (e) {
-        if (isMounted) setError(e as Error);
+        if (isMounted) setError(e as Error)
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) setLoading(false)
       }
     }
-    fetchProducts();
+    fetchProducts()
     return () => {
-      isMounted = false;
-    };
-  }, [options?.category, options?.brand, options?.limit, options?.offset]);
+      isMounted = false
+    }
+  }, [options?.category, options?.brand, options?.limit, options?.offset])
 
-  return { products, loading, error };
+  return { products, loading, error }
 }
 
 // Hook for user profile
 export function useProfile() {
   const [profile, setProfile] = useState<Database["public"]["Tables"]["profiles"]["Row"] | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+    null
+  )
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true
     async function fetchProfile() {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
       try {
         const {
           data: { user },
           error: userError,
-        } = await supabase.auth.getUser();
-        if (userError) throw userError;
-        if (!user) throw new Error("No user found");
+        } = await supabase.auth.getUser()
+        if (userError) throw userError
+        if (!user) throw new Error("No user found")
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
-          .single();
-        if (error) throw error;
-        if (isMounted) setProfile(data);
+          .single()
+        if (error) throw error
+        if (isMounted) setProfile(data)
       } catch (e) {
-        if (isMounted) setError(e as Error);
+        if (isMounted) setError(e as Error)
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) setLoading(false)
       }
     }
-    fetchProfile();
+    fetchProfile()
     return () => {
-      isMounted = false;
-    };
-  }, []);
+      isMounted = false
+    }
+  }, [])
 
-  return { profile, loading, error };
+  return { profile, loading, error }
 }

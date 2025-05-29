@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { motion } from "framer-motion";
-import type { ComponentProps } from "react";
+import { motion } from "framer-motion"
+import type { ComponentProps } from "react"
 
 interface FadeUpProps extends ComponentProps<typeof motion.div> {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  stagger?: number;
+  children: React.ReactNode
+  className?: string
+  delay?: number
+  stagger?: number
 }
 
 export function FadeUpContainer({ children, className, stagger = 0.05, delay = 0.2 }: FadeUpProps) {
@@ -19,16 +19,16 @@ export function FadeUpContainer({ children, className, stagger = 0.05, delay = 0
         delayChildren: delay,
       },
     },
-  };
+  }
 
   return (
-    <motion.div variants={container} initial='hidden' animate='show' className={className}>
+    <motion.div variants={container} initial="hidden" animate="show" className={className}>
       {children}
     </motion.div>
-  );
+  )
 }
 
-FadeUpContainer.displayName = "FadeUpContainer";
+FadeUpContainer.displayName = "FadeUpContainer"
 
 export function FadeUpItem({ children, className }: React.HTMLProps<HTMLDivElement>) {
   const item = {
@@ -49,11 +49,11 @@ export function FadeUpItem({ children, className }: React.HTMLProps<HTMLDivEleme
         mass: 1.2,
       },
     },
-  };
+  }
 
   return (
     <motion.div variants={item} className={className}>
       {children}
     </motion.div>
-  );
+  )
 }

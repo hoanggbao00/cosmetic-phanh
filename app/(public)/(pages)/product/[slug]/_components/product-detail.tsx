@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useCartStore } from "@/stores/cart-store";
-import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
-import ProductGallery from "./product-gallery";
-import ProductInfo from "./product-info";
-import RelatedPosts from "./related-posts";
-import RelatedProducts from "./related-products";
+import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useCartStore } from "@/stores/cart-store"
+import { ChevronDown } from "lucide-react"
+import { useEffect, useState } from "react"
+import ProductGallery from "./product-gallery"
+import ProductInfo from "./product-info"
+import RelatedPosts from "./related-posts"
+import RelatedProducts from "./related-products"
 
 interface ProductDetailProps {
-  productId: string;
+  productId: string
 }
 
 export default function ProductDetail({ productId }: ProductDetailProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const addItem = useCartStore((state) => state.addItem);
+  const [quantity, setQuantity] = useState(1)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const addItem = useCartStore((state) => state.addItem)
 
   // Fetch product data (simulated)
   const product = {
@@ -90,21 +90,21 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     ],
     ingredients:
       "Aqua/Water/Eau, Ascorbic Acid, Glycerin, Niacinamide, Propanediol, Butylene Glycol, Sodium Hyaluronate, Acetyl Hexapeptide-8, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Centella Asiatica Extract, Panthenol, Tocopherol, Adenosine, Sodium Citrate, Citric Acid, Disodium EDTA, Phenoxyethanol, Ethylhexylglycerin.",
-  };
+  }
 
   // Handle size selection
   useEffect(() => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      setSelectedSize(product.sizes[0].name);
+      setSelectedSize(product.sizes[0].name)
     }
-  }, [product.sizes, selectedSize]);
+  }, [product.sizes, selectedSize])
 
   // Get current price based on selected size
   const getCurrentPrice = () => {
-    if (!selectedSize) return product.price;
-    const size = product.sizes.find((s) => s.name === selectedSize);
-    return size ? size.price : product.price;
-  };
+    if (!selectedSize) return product.price
+    const size = product.sizes.find((s) => s.name === selectedSize)
+    return size ? size.price : product.price
+  }
 
   // Handle add to cart
   const handleAddToCart = () => {
@@ -115,21 +115,21 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
       image: product.images[0],
       quantity: quantity,
       size: selectedSize || undefined,
-    });
-  };
+    })
+  }
 
   return (
-    <div className='bg-white'>
-      <div className='container mx-auto px-4 py-8'>
+    <div className="bg-white">
+      <div className="container mx-auto px-4 py-8">
         {/* Product Detail Section */}
-        <div className='mb-16 flex flex-col gap-8 lg:flex-row'>
+        <div className="mb-16 flex flex-col gap-8 lg:flex-row">
           {/* Product Gallery */}
-          <div className='lg:w-1/2'>
+          <div className="lg:w-1/2">
             <ProductGallery images={product.images} productName={product.name} />
           </div>
 
           {/* Product Info */}
-          <div className='lg:w-1/2'>
+          <div className="lg:w-1/2">
             <ProductInfo
               product={product}
               quantity={quantity}
@@ -143,36 +143,36 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         </div>
 
         {/* Product Description */}
-        <div className='mb-16'>
-          <Collapsible className='rounded-lg border border-accent'>
+        <div className="mb-16">
+          <Collapsible className="rounded-lg border border-accent">
             <CollapsibleTrigger asChild>
               <Button
-                variant='ghost'
+                variant="ghost"
                 icon={ChevronDown}
-                iconPlacement='right'
-                className='w-full justify-between'
+                iconPlacement="right"
+                className="w-full justify-between"
               >
-                <h2 className='font-bold text-2xl'>Product Details</h2>
+                <h2 className="font-bold text-2xl">Product Details</h2>
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className='p-4'>
+            <CollapsibleContent className="p-4">
               <div dangerouslySetInnerHTML={{ __html: product.description }} />
             </CollapsibleContent>
           </Collapsible>
         </div>
 
         {/* Related Products */}
-        <div className='mb-16'>
-          <h2 className='mb-6 font-bold text-2xl'>You May Also Like</h2>
+        <div className="mb-16">
+          <h2 className="mb-6 font-bold text-2xl">You May Also Like</h2>
           <RelatedProducts currentProductId={Number.parseInt(productId)} />
         </div>
 
         {/* Related Posts */}
-        <div className='mb-16'>
-          <h2 className='mb-6 font-bold text-2xl'>Related Articles</h2>
-          <RelatedPosts productCategory='Skincare' />
+        <div className="mb-16">
+          <h2 className="mb-6 font-bold text-2xl">Related Articles</h2>
+          <RelatedPosts productCategory="Skincare" />
         </div>
       </div>
     </div>
-  );
+  )
 }

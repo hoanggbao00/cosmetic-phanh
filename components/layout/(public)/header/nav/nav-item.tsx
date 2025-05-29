@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 interface NavItemProps {
-  href: string;
-  children: React.ReactNode;
-  isActive?: boolean;
-  className?: string;
+  href: string
+  children: React.ReactNode
+  isActive?: boolean
+  className?: string
 }
 
 export const NavItem = ({ href, children, isActive = false, className }: NavItemProps) => {
@@ -19,7 +19,7 @@ export const NavItem = ({ href, children, isActive = false, className }: NavItem
           "group-hover:-left-1 left-4",
           "opacity-0 group-hover:opacity-100",
           "transition-all duration-300",
-          isActive && "-left-1 opacity-100",
+          isActive && "-left-1 opacity-100"
         )}
       >
         ✦
@@ -28,11 +28,11 @@ export const NavItem = ({ href, children, isActive = false, className }: NavItem
         className={cn(
           "pl-4 transition-colors duration-300 group-hover:text-primary",
           isActive && "text-primary",
-          "delay-100",
+          "delay-100"
         )}
       >
         {children}
       </p>
     </Link>
-  );
-};
+  )
+}

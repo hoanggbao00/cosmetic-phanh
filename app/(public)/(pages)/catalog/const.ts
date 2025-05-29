@@ -1,1 +1,1 @@
-export const DEFAULT_SORT_OPTION = "featured";
+export const DEFAULT_SORT_OPTION = "featured"

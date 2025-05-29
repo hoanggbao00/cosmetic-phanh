@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
-import { Slot, Slottable } from "@radix-ui/react-slot";
-import { type VariantProps, cva } from "class-variance-authority";
-import type * as React from "react";
+import { cn } from "@/lib/utils"
+import { Slot, Slottable } from "@radix-ui/react-slot"
+import { type VariantProps, cva } from "class-variance-authority"
+import type * as React from "react"
 
 const buttonVariants = cva(
   "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -47,20 +47,20 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
-);
+  }
+)
 
 interface IconProps {
-  icon: React.ElementType;
-  iconPlacement: "left" | "right";
+  icon: React.ElementType
+  iconPlacement: "left" | "right"
 }
 
 interface IconRefProps {
-  icon?: never;
-  iconPlacement?: undefined;
+  icon?: never
+  iconPlacement?: undefined
 }
 
-export type ButtonIconProps = IconProps | IconRefProps;
+export type ButtonIconProps = IconProps | IconRefProps
 
 function Button({
   className,
@@ -75,16 +75,16 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> &
   ButtonIconProps & {
-    asChild?: boolean;
+    asChild?: boolean
   }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? Slot : "button"
 
   return (
     <Comp className={cn(buttonVariants({ variant, effect, size, className }))} {...props}>
       {Icon &&
         iconPlacement === "left" &&
         (effect === "expandIcon" ? (
-          <div className='w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pr-2 group-hover:opacity-100'>
+          <div className="w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pr-2 group-hover:opacity-100">
             <Icon />
           </div>
         ) : (
@@ -94,14 +94,14 @@ function Button({
       {Icon &&
         iconPlacement === "right" &&
         (effect === "expandIcon" ? (
-          <div className='w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100'>
+          <div className="w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100">
             <Icon />
           </div>
         ) : (
           <Icon />
         ))}
     </Comp>
-  );
+  )
 }
 
-export { Button, buttonVariants };
+export { Button, buttonVariants }

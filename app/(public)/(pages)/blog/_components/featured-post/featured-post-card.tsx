@@ -1,26 +1,26 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import type { BlogPost } from "@/types/blog.types";
-import { format } from "date-fns";
-import { Calendar, ChevronRight, Clock } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import type { BlogPost } from "@/types/blog.types"
+import { format } from "date-fns"
+import { Calendar, ChevronRight, Clock } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
   return (
-    <Card key={post.id} className='group gap-4 overflow-hidden'>
-      <div className='px-4'>
+    <Card key={post.id} className="group gap-4 overflow-hidden">
+      <div className="px-4">
         <Link href={`/blog/${post.id}`}>
-          <div className='relative h-48 w-full overflow-hidden rounded-lg'>
+          <div className="relative h-48 w-full overflow-hidden rounded-lg">
             <Image
               src={post.coverImage || "/placeholder.svg"}
               alt={post.title}
               fill
-              className='rounded-lg object-cover transition-all duration-300 group-hover:scale-105'
+              className="rounded-lg object-cover transition-all duration-300 group-hover:scale-105"
             />
             <Badge
-              variant='secondary'
-              className='absolute top-2 left-2 bg-black/70 text-white hover:bg-black/80'
+              variant="secondary"
+              className="absolute top-2 left-2 bg-black/70 text-white hover:bg-black/80"
             >
               Featured
             </Badge>
@@ -29,48 +29,48 @@ export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
       </div>
 
       {/* Categories and Title */}
-      <CardHeader className='px-4'>
-        <div className='space-y-1'>
-          <div className='flex flex-wrap gap-2'>
+      <CardHeader className="px-4">
+        <div className="space-y-1">
+          <div className="flex flex-wrap gap-2">
             {post.categories.map((category) => (
-              <Badge key={category} variant='outline'>
+              <Badge key={category} variant="outline">
                 {category}
               </Badge>
             ))}
           </div>
           <Link
             href={`/blog/${post.id}`}
-            className='line-clamp-2 transition-all duration-300 hover:text-primary hover:underline'
+            className="line-clamp-2 transition-all duration-300 hover:text-primary hover:underline"
           >
-            <h3 className='font-bold text-xl'>{post.title}</h3>
+            <h3 className="font-bold text-xl">{post.title}</h3>
           </Link>
         </div>
       </CardHeader>
 
       {/* Excerpt */}
-      <CardContent className='px-4'>
-        <p className='line-clamp-2 text-muted-foreground'>{post.excerpt}</p>
+      <CardContent className="px-4">
+        <p className="line-clamp-2 text-muted-foreground">{post.excerpt}</p>
       </CardContent>
 
       {/* Author and Date */}
-      <CardFooter className='flex items-center justify-between p-4 pt-0'>
+      <CardFooter className="flex items-center justify-between p-4 pt-0">
         <div>
-          <p className='font-medium text-sm'>{post.author.name}</p>
-          <div className='flex items-center text-muted-foreground text-xs'>
-            <Calendar className='mr-1 h-3 w-3' />
+          <p className="font-medium text-sm">{post.author.name}</p>
+          <div className="flex items-center text-muted-foreground text-xs">
+            <Calendar className="mr-1 h-3 w-3" />
             <span>{format(new Date(post.date), "MMMM d, yyyy")}</span>
-            <span className='mx-1'>•</span>
-            <Clock className='mr-1 h-3 w-3' />
+            <span className="mx-1">•</span>
+            <Clock className="mr-1 h-3 w-3" />
             <span>{post.readTime} min read</span>
           </div>
         </div>
         <Link
           href={`/blog/${post.id}`}
-          className='flex items-center font-medium text-sm hover:underline'
+          className="flex items-center font-medium text-sm hover:underline"
         >
-          Read more <ChevronRight className='ml-1 h-4 w-4' />
+          Read more <ChevronRight className="ml-1 h-4 w-4" />
         </Link>
       </CardFooter>
     </Card>
-  );
-};
+  )
+}

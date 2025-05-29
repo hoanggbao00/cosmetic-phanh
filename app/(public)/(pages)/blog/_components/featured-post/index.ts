@@ -1,1 +1,1 @@
-export * from "./featured-post";
+export * from "./featured-post"

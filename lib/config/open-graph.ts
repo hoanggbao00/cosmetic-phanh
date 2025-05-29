@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import { APP_DEFAULT_TITLE, APP_DESCRIPTION, APP_NAME } from "./app.config";
+import type { Metadata } from "next"
+import { APP_DEFAULT_TITLE, APP_DESCRIPTION, APP_NAME } from "./app.config"
 
-const APP_TITLE_TEMPLATE = `%s - ${APP_NAME}`;
+const APP_TITLE_TEMPLATE = `%s - ${APP_NAME}`
 
 export const OpenGraph: Metadata = {
   applicationName: APP_NAME,
@@ -57,4 +57,4 @@ export const OpenGraph: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
-};
+}

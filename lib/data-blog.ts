@@ -1,4 +1,4 @@
-import type { BlogPost } from "@/types/blog.types";
+import type { BlogPost } from "@/types/blog.types"
 
 export const blogPosts: BlogPost[] = [
   {
@@ -93,6 +93,6 @@ export const blogPosts: BlogPost[] = [
     },
     categories: ["Vegan", "Product Reviews"],
   },
-];
+]
 
-export const allCategories = Array.from(new Set(blogPosts.flatMap((post) => post.categories)));
+export const allCategories = Array.from(new Set(blogPosts.flatMap((post) => post.categories)))

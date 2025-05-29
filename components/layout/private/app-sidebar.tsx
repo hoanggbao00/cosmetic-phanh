@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Sidebar,
@@ -10,15 +10,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type * as React from "react";
-import { DATA_SIDEBAR } from "./data-sidebar";
-import { SidebarHeader } from "./sidebar-header";
+} from "@/components/ui/sidebar"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import type * as React from "react"
+import { DATA_SIDEBAR } from "./data-sidebar"
+import { SidebarHeader } from "./sidebar-header"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
     <Sidebar {...props}>
@@ -44,5 +44,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

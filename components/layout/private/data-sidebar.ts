@@ -15,8 +15,16 @@ export const DATA_SIDEBAR = [
         href: "/admin/products",
       },
       {
+        title: "Product Variants",
+        href: "/admin/variants",
+      },
+      {
         title: "Orders",
         href: "/admin/orders",
+      },
+      {
+        title: "Vouchers",
+        href: "/admin/vouchers",
       },
     ],
   },
@@ -30,6 +38,23 @@ export const DATA_SIDEBAR = [
       {
         title: "Blogs",
         href: "/admin/blogs",
+      },
+    ],
+  },
+  {
+    title: "Users",
+    items: [
+      {
+        title: "Users",
+        href: "/admin/users",
+      },
+      {
+        title: "Support Tickets",
+        href: "/admin/support-tickets",
+      },
+      {
+        title: "Reviews",
+        href: "/admin/reviews",
       },
     ],
   },

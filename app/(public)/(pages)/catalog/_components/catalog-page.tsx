@@ -4,7 +4,6 @@ import { DEFAULT_SORT_OPTION } from "../const"
 import { ClearFilter } from "./clear-filter"
 import { FilterPanel } from "./filter-pannel"
 import { ProductCard } from "./product-card"
-import ProductList from "./product-list"
 import { SortSection } from "./sort-section"
 
 export type FilterAndSortParams = {
@@ -103,7 +102,7 @@ export default function CatalogPageView({ searchParams }: Props) {
           )}
         </div>
 
-        <ProductList />
+        {/* <ProductList /> */}
       </div>
     </div>
   )

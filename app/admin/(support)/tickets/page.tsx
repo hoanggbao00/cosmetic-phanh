@@ -1,14 +1,14 @@
 import PrivateLayout from "@/components/layout/private/private-layout"
-import BlogPostsTable from "./blog-posts-table"
+import TicketTable from "./ticket-table"
 
-export default function BlogPosts() {
+export default function TicketPage() {
   return (
     <PrivateLayout
       parentBreadcrumb={{ title: "Admin", href: "/admin" }}
-      currentBreadcrumb="Blog Posts"
-      title="Blog Posts"
+      currentBreadcrumb="Support Tickets"
+      title="Support Tickets"
     >
-      <BlogPostsTable />
+      <TicketTable />
     </PrivateLayout>
   )
-} 
+}

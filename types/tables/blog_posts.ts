@@ -7,7 +7,7 @@ export interface BlogPost {
   featured_image: string | null
   category_id: string | null
   author_id: string | null
-  status: "draft" | "published" | "archived"
+  status?: "draft" | "published" | "archived"
   is_featured: boolean
   tags: string[] | null
   view_count: number

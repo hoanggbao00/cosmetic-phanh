@@ -1,0 +1,296 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# NextJS App Router + Supabase Cosmetics Store Rules
+
+## Architecture & Tech Stack
+- NextJS 14+ with App Router
+- Supabase for backend (auth, database, storage)
+- TypeScript throughout
+- Tailwind CSS for styling
+- shadcn/ui components in `@/components/ui`
+- TanStack Query for data fetching
+- Zustand for state management
+- Cloudinary for image uploads
+- Icon use from `lucide-react` with suffix `Icon`
+
+## Project Structure
+```
+/app
+  /admin/[table-name] - Admin CRUD pages
+  /auth - Authentication pages
+  /shop - Product browsing
+  /blog - Blog pages
+  /cart - Shopping cart
+  /profile - User profile
+/components
+  /ui - shadcn/ui components
+  /forms - Form components
+  /layout - Layout components
+/queries - TanStack Query hooks by table
+/stores - Zustand stores
+/hooks - Custom React hooks
+/lib - Utilities and configurations
+/types - TypeScript type definitions
+/types/tables/* - for all entity types
+/shared/data-table/data-table.tsx - for data table component
+```
+
+## Database Schema (Supabase)
+Based on the file structure, we have tables:
+- blog_categories, blog_posts, blog_types
+- brands, categories, products, product_reviews, product_variants
+- cart_items, orders, order_items, order_status_history
+- users, profiles, user_addresses, user_voucher_usage
+- vouchers, images, notification_logs
+- support_tickets, support_ticket_replies
+- system_settings, wishlist_items, supabases
+Client Supabase from `import { supabase } from "@/utils/supabase/client"`
+Server Supabase from `import { createSupabaseServerClient } from "@/utils/supabase/server"; const supabase = await createSupabaseServerClient()`
+
+## Coding Standards
+
+### Data-Table Usage
+```tsx
+// columns example from file [columns.tsx](mdc:app/admin/(products)/catalog/columns.tsx)
+```
+
+
+```tsx
+<DataTable
+    columns={columns}
+    data={categories || []}
+/>
+```
+
+### File Naming
+- Components: PascalCase (e.g., `ProductCard.tsx`)
+- Pages: kebab-case (e.g., `product-detail.tsx`)
+- Utilities: camelCase (e.g., `formatPrice.ts`)
+- Types: PascalCase with Type suffix (e.g., `ProductType.ts`)
+
+### Component Structure
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { useProductStore } from '@/stores/product-store'
+
+interface ComponentProps {
+  // Props with clear TypeScript types
+}
+
+export default function Component({ prop }: ComponentProps) {
+  // 1. Hooks (state, queries, mutations)
+  // 2. Event handlers
+  // 3. Computed values
+  // 4. Effects
+  // 5. Early returns
+  // 6. Main render
+
+  return (
+    <div className="space-y-4">
+      {/* Content */}
+    </div>
+  )
+}
+```
+
+### Data Fetching Patterns
+```tsx
+// queries/products.ts
+export const useProducts = (filters?: ProductFilters) => {
+  return useQuery({
+    queryKey: ['products', filters],
+    queryFn: () => fetchProducts(filters),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
+  })
+}
+```
+
+### State Management (Zustand)
+```tsx
+// stores/cart-store.ts
+interface CartState {
+  items: CartItem[]
+  total: number
+  addItem: (product: Product, quantity: number) => void
+  removeItem: (productId: string) => void
+  clearCart: () => void
+}
+
+export const useCartStore = create<CartState>((set, get) => ({
+  items: [],
+  total: 0,
+  addItem: (product, quantity) => {
+    // Implementation
+  },
+  // ... other actions
+}))
+```
+
+## UI/UX Guidelines
+
+### Design Principles
+- Mobile-first responsive design
+- Clean, minimalist aesthetic suitable for cosmetics
+- Consistent spacing using Tailwind's scale (4, 8, 16, 24, 32px)
+- Use brand colors consistently
+- Accessible components (proper ARIA labels, keyboard navigation)
+
+### Color Scheme (Cosmetics Brand)
+```css
+:root {
+  --primary: #E91E63; /* Pink */
+  --secondary: #F8BBD9; /* Light Pink */
+  --accent: #FF6B9D; /* Rose */
+  --neutral: #F5F5F5; /* Light Gray */
+  --dark: #2D2D2D; /* Dark Gray */
+}
+```
+
+### Typography
+- Headings: font-semibold to font-bold
+- Body: font-normal
+- Captions: font-light text-sm
+- Use consistent text sizing: text-sm, text-base, text-lg, text-xl, text-2xl
+
+### Component Usage
+- Always use shadcn/ui components as base
+- Extend with custom styling using Tailwind
+- Create compound components for complex UI patterns
+- Use loading states and error boundaries
+
+## Authentication & Authorization
+
+### Auth Patterns
+```tsx
+// Check authentication
+const { data: user, isLoading } = useUser()
+
+// Protect admin routes
+if (!user?.role === 'admin') {
+  redirect('/unauthorized')
+}
+
+// Role-based rendering
+{user?.role === 'admin' && (
+  <AdminPanel />
+)}
+```
+
+### Route Protection
+- Public routes: /, /shop, /blog, /auth/*
+- User routes: /profile, /cart, /orders
+- Admin routes: /admin/* (require admin role)
+
+## Data Table Implementation
+```tsx
+// components/shared/data-table/DataTable.tsx
+interface DataTableProps<T> {
+  data: T[]
+  columns: ColumnDef<T>[]
+  searchKey?: string
+  actions?: (row: T) => React.ReactNode
+}
+
+export function DataTable<T>({ data, columns, searchKey, actions }: DataTableProps<T>) {
+  // Implementation with sorting, filtering, pagination
+}
+```
+
+## Image Handling (Cloudinary)
+```tsx
+// For product images, user avatars, blog images
+const uploadImage = async (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', 'cosmetics_store')
+  
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+  
+  return response.json()
+}
+```
+
+## Performance Optimizations
+- Use Next.js Image component for all images
+- Implement lazy loading for product lists
+- Cache frequently accessed data with TanStack Query
+- Use Suspense boundaries for loading states
+- Optimize bundle size with dynamic imports
+
+## Error Handling
+```tsx
+// Global error boundary
+// Specific error handling for mutations
+// Toast notifications for user feedback
+// Fallback UI for failed data fetches
+```
+
+## Best Practices
+
+### Code Quality
+- Write TypeScript types for all props and API responses
+- Use BiomeJs (instead of ESLint and Prettier) configurations
+- Follow React best practices (hooks rules, key props, etc.)
+- Implement proper error boundaries
+- Use semantic HTML elements
+
+### User Experience
+- Smooth transitions and animations
+- Loading states for all async operations
+- Empty states with clear messaging
+- Form validation with helpful error messages
+- Responsive design for all screen sizes
+
+### Admin Features
+- Bulk operations for data management
+- Advanced filtering and search
+- Export functionality for reports
+- Real-time updates for order status
+- Dashboard with key metrics
+
+### Customer Features
+- Product search and filtering
+- Wishlist functionality
+- Shopping cart with persistence
+- Order tracking
+- Product reviews and ratings
+- Blog for beauty tips and trends
+
+## Security Considerations
+- Input validation on all forms
+- SQL injection prevention (use Supabase RLS)
+- XSS protection
+- CSRF protection
+- Rate limiting for API endpoints
+- Secure image upload validation
+
+## Testing Strategy
+- Unit tests for utilities and hooks
+- Integration tests for key user flows
+- Component testing with React Testing Library
+- E2E tests for critical paths (checkout, admin operations)
+
+
+
+Remember: Focus on creating a delightful shopping experience for cosmetics customers while providing powerful admin tools for store management.

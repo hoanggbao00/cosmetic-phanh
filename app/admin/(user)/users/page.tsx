@@ -1,14 +1,14 @@
 import PrivateLayout from "@/components/layout/private/private-layout"
-import BlogPostsTable from "./blog-posts-table"
+import UsersTable from "./users-table"
 
-export default function BlogPosts() {
+export default function UsersPage() {
   return (
     <PrivateLayout
       parentBreadcrumb={{ title: "Admin", href: "/admin" }}
-      currentBreadcrumb="Blog Posts"
-      title="Blog Posts"
+      currentBreadcrumb="Users"
+      title="Users"
     >
-      <BlogPostsTable />
+      <UsersTable />
     </PrivateLayout>
   )
-} 
+}

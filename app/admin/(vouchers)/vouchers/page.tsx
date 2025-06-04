@@ -1,14 +1,14 @@
 import PrivateLayout from "@/components/layout/private/private-layout"
-import BlogPostsTable from "./blog-posts-table"
+import VoucherTable from "./voucher-table"
 
-export default function BlogPosts() {
+export default function VoucherPage() {
   return (
     <PrivateLayout
       parentBreadcrumb={{ title: "Admin", href: "/admin" }}
-      currentBreadcrumb="Blog Posts"
-      title="Blog Posts"
+      currentBreadcrumb="Vouchers"
+      title="Vouchers"
     >
-      <BlogPostsTable />
+      <VoucherTable />
     </PrivateLayout>
   )
-} 
+}

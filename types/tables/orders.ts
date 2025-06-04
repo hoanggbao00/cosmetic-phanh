@@ -1,4 +1,16 @@
 import type { Json } from "../supabase"
+import type { OrderItem } from "./order_items"
+
+export interface AddressType {
+  full_name: string
+  address_line1: string
+  address_line2: string | null
+  city: string
+  state: string
+  postal_code: string
+  country: string
+  phone: string | null
+}
 
 export interface Order {
   id: string
@@ -14,14 +26,12 @@ export interface Order {
     | "cancelled"
     | "refunded"
   payment_status: "pending" | "paid" | "failed" | "refunded" | "partially_refunded"
-  subtotal: number
   shipping_amount: number
   discount_amount: number
   total_amount: number
   voucher_id: string | null
   voucher_code: string | null
-  shipping_address: Json
-  billing_address: Json | null
+  shipping_address: AddressType
   payment_method: string | null
   payment_details: Json | null
   tracking_number: string | null
@@ -31,7 +41,9 @@ export interface Order {
   admin_notes: string | null
   created_at: string
   updated_at: string
+  order_items?: OrderItem[] | null
 }
+
 export interface OrderInsert {
   id?: string
   order_number?: string
@@ -46,14 +58,12 @@ export interface OrderInsert {
     | "cancelled"
     | "refunded"
   payment_status?: "pending" | "paid" | "failed" | "refunded" | "partially_refunded"
-  subtotal: number
   shipping_amount?: number
   discount_amount?: number
   total_amount: number
   voucher_id?: string | null
   voucher_code?: string | null
-  shipping_address: Json
-  billing_address?: Json | null
+  shipping_address: AddressType
   payment_method?: string | null
   payment_details?: Json | null
   tracking_number?: string | null
@@ -64,6 +74,7 @@ export interface OrderInsert {
   created_at?: string
   updated_at?: string
 }
+
 export interface OrderUpdate {
   id?: string
   order_number?: string
@@ -78,14 +89,12 @@ export interface OrderUpdate {
     | "cancelled"
     | "refunded"
   payment_status?: "pending" | "paid" | "failed" | "refunded" | "partially_refunded"
-  subtotal?: number
   shipping_amount?: number
   discount_amount?: number
   total_amount?: number
   voucher_id?: string | null
   voucher_code?: string | null
-  shipping_address?: Json
-  billing_address?: Json | null
+  shipping_address?: AddressType
   payment_method?: string | null
   payment_details?: Json | null
   tracking_number?: string | null

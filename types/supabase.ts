@@ -38,11 +38,6 @@ import type {
   SupportTicketInsert,
   SupportTicketUpdate,
 } from "./tables/support_tickets"
-import type {
-  SystemSetting,
-  SystemSettingInsert,
-  SystemSettingUpdate,
-} from "./tables/system_settings"
 import type { UserAddress, UserAddressInsert, UserAddressUpdate } from "./tables/user_addresses"
 import type {
   UserVoucherUsage,
@@ -372,12 +367,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      system_settings: {
-        Row: SystemSetting
-        Insert: SystemSettingInsert
-        Update: SystemSettingUpdate
-        Relationships: []
       }
       user_addresses: {
         Row: UserAddress

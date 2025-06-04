@@ -10,6 +10,7 @@ export interface OrderItem {
   total_price: number
   created_at: string
 }
+
 export interface OrderItemInsert {
   id?: string
   order_id: string

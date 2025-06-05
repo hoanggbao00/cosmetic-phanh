@@ -9,13 +9,15 @@ interface CartStoreWithSet {
 }
 
 interface CartItemFromDB {
+  id: string
   quantity: number
-  price: number
-  size: string | null
+  product_id: string
+  variant_id: string | null
   products: {
     id: string
     name: string
     images: string[]
+    price: number
   }
 }
 
@@ -34,13 +36,15 @@ export function useSyncCart() {
         const { data: cartItems } = await supabase
           .from("cart_items")
           .select(`
+            id,
             quantity,
-            price,
-            size,
+            product_id,
+            variant_id,
             products (
               id,
               name,
-              images
+              images,
+              price
             )
           `)
           .eq("user_id", session.user.id)
@@ -48,12 +52,13 @@ export function useSyncCart() {
 
         if (cartItems) {
           const formattedItems = cartItems.map((item) => ({
-            id: item.products.id,
+            id: item.id,
+            productId: item.product_id,
             name: item.products.name,
-            price: item.price,
+            price: item.products.price,
             image: item.products.images[0] || "",
             quantity: item.quantity,
-            ...(item.size && { size: item.size }),
+            variantId: item.variant_id || undefined,
           }))
 
           // Update local cart state

@@ -33,13 +33,6 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-medium text-base text-gray-900">{item.name}</h3>
 
-          {(item.color || item.size) && (
-            <div className="mt-1 text-muted-foreground text-sm">
-              {item.color && <span className="mr-2">Color: {item.color}</span>}
-              {item.size && <span>Size: {item.size}</span>}
-            </div>
-          )}
-
           <button
             type="button"
             onClick={() => removeItem(item.id)}

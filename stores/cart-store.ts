@@ -10,7 +10,6 @@ export interface CartItem {
   price: number
   image: string
   quantity: number
-  size?: string
   variantId?: string
 }
 
@@ -35,8 +34,7 @@ export const useCartStore = create<CartStore>()(
         } = await supabase.auth.getSession()
         const currentItems = get().items
         const existingItemIndex = currentItems.findIndex(
-          (i) =>
-            i.productId === item.productId && i.size === item.size && i.variantId === item.variantId
+          (i) => i.productId === item.productId && i.variantId === item.variantId
         )
 
         let newItems: CartItem[]
@@ -73,7 +71,6 @@ export const useCartStore = create<CartStore>()(
               .eq("user_id", userId)
               .eq("product_id", item.productId)
               .eq("variant_id", item.variantId || null)
-              .eq("size", item.size || null)
           } else {
             // Insert new item
             await supabase.from("cart_items").insert({
@@ -82,7 +79,7 @@ export const useCartStore = create<CartStore>()(
               product_id: item.productId,
               variant_id: item.variantId || null,
               quantity: item.quantity,
-              size: item.size || null,
+              price: item.price,
             })
           }
         }

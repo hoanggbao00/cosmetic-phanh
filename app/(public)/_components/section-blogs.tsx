@@ -2,110 +2,27 @@
 
 import { StarIcon } from "@/assets/icons/star-icon"
 import { Button } from "@/components/ui/button"
-import type { BlogPost } from "@/types/blog.types"
+import { formatDate } from "@/lib/utils"
+import { useBlogPosts } from "@/queries/blog-posts"
+import type { BlogPost } from "@/types/tables"
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 
-const blogPosts: BlogPost[] = [
-  {
-    id: 1,
-    title: "The Best Foundation Creams",
-    excerpt:
-      "Aptent Arcu In Hendrerit Maximus Sed Porta Tempor; Ullamcorper Gravida.Curabitur Quis Nullam Nascetur Auctor.",
-    date: "November 8, 2024",
-    author: {
-      name: "John Doe",
-      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
-      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
-      role: "Skincare Expert",
-    },
-    coverImage: "/images/blogs/blog-1.jpg",
-    content: "This is the content of the blog post",
-    readTime: 5,
-    categories: ["Skincare"],
-  },
-  {
-    id: 2,
-    title: "Nude Palette Eyeshadow",
-    excerpt:
-      "Praesent At Felis Nibh Pharetra Ligula Nascetur Lobortis; Semper Nostra Feugiat. At Lectus Bibendum Mus Netus Dis Gravida.",
-    date: "November 8, 2024",
-    author: {
-      name: "John Doe",
-      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
-      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
-      role: "Skincare Expert",
-    },
-    coverImage: "/images/blogs/blog-2.jpg",
-    content: "This is the content of the blog post",
-    readTime: 5,
-    categories: ["Skincare"],
-  },
-  {
-    id: 3,
-    title: "Healthy Skin Assure Healthy Smile",
-    excerpt:
-      "Convallis Ullamcorper At Montes Habitant Fringilla Dapibus Nam. Id Blandit Nisl Euismod Cras Sed Porta Scelerisque.",
-    date: "November 8, 2024",
-    author: {
-      name: "John Doe",
-      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
-      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
-      role: "Skincare Expert",
-    },
-    coverImage: "/images/blogs/blog-3.jpg",
-    content: "This is the content of the blog post",
-    readTime: 5,
-    categories: ["Skincare"],
-  },
-  {
-    id: 4,
-    title: "Summer Skincare Essentials",
-    excerpt:
-      "Vestibulum Ante Ipsum Primis In Faucibus Orci Luctus Et Ultrices Posuere Cubilia Curae; Donec Velit Neque, Auctor Sit Amet Aliquam Vel.",
-    date: "November 8, 2024",
-    author: {
-      name: "John Doe",
-      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
-      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
-      role: "Skincare Expert",
-    },
-    coverImage: "/images/blogs/blog-4.jpg",
-    content: "This is the content of the blog post",
-    readTime: 5,
-    categories: ["Skincare"],
-  },
-  {
-    id: 5,
-    title: "Trending Lip Colors This Season",
-    excerpt:
-      "Mauris Blandit Aliquet Elit, Eget Tincidunt Nibh Pulvinar A. Curabitur Non Nulla Sit Amet Nisl Tempus Convallis Quis Ac Lectus.",
-    date: "November 8, 2024",
-    author: {
-      name: "John Doe",
-      avatar: "/placeholder.svg?height=400&width=600&text=Avatar",
-      bio: "John Doe is a skincare expert with a passion for helping people achieve healthy, radiant skin.",
-      role: "Skincare Expert",
-    },
-    coverImage: "/images/blogs/blog-1.jpg",
-    content: "This is the content of the blog post",
-    readTime: 5,
-    categories: ["Skincare"],
-  },
-]
-
 export default function SectionBlogs() {
+  const { data: blogPosts } = useBlogPosts()
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  const visiblePosts = blogPosts.slice(currentIndex, currentIndex + 3)
+  const visiblePosts = blogPosts?.data.slice(currentIndex, currentIndex + 3)
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => Math.max(0, prev - 1))
   }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(blogPosts.length - 3, prev + 1))
+    setCurrentIndex((prev) =>
+      blogPosts?.data.length ? Math.min(blogPosts.data.length - 3, prev + 1) : prev
+    )
   }
 
   return (
@@ -135,7 +52,7 @@ export default function SectionBlogs() {
             </Button>
             <Button
               onClick={handleNext}
-              disabled={currentIndex >= blogPosts.length - 3}
+              disabled={currentIndex >= (blogPosts?.data.length || 0) - 3}
               className="rounded-md p-3 text-white disabled:opacity-50"
               size="icon"
             >
@@ -146,7 +63,7 @@ export default function SectionBlogs() {
 
         {/* Blog Posts Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {visiblePosts.map((post) => (
+          {visiblePosts?.map((post) => (
             <BlogPostCard key={post.id} post={post} />
           ))}
         </div>
@@ -162,7 +79,7 @@ function BlogPostCard({ post }: { post: BlogPost }) {
         <Button effect="shineHover" variant="ghost" className="h-full p-0">
           <div className="overflow-hidden rounded-lg">
             <img
-              src={post.coverImage || "/placeholder.svg"}
+              src={post.featured_image || "/placeholder.svg"}
               alt={post.title}
               width={600}
               height={400}
@@ -174,9 +91,9 @@ function BlogPostCard({ post }: { post: BlogPost }) {
 
       <div className="mb-2 flex items-center justify-center gap-2 text-primary text-sm">
         <CalendarIcon className="size-4" />
-        <span>{post.date}</span>
+        <span>{formatDate(post.created_at)}</span>
         <span>—</span>
-        <span>{post.author.name}</span>
+        <span>Admin</span>
       </div>
 
       <Link href="#" className="block px-4">

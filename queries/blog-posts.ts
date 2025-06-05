@@ -2,17 +2,58 @@ import type { BlogPost, BlogPostInsert, BlogPostUpdate } from "@/types/tables/bl
 import { supabase } from "@/utils/supabase/client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-export const useBlogPosts = () => {
+interface BlogPostsParams {
+  page?: number
+  limit?: number
+  searchQuery?: string
+  categoryId?: string
+}
+
+export const useBlogPosts = (params?: BlogPostsParams) => {
+  const { page = 1, limit = 10, searchQuery = "", categoryId } = params || {}
+  const from = (page - 1) * limit
+  const to = from + limit - 1
+
   return useQuery({
-    queryKey: ["blog-posts"],
+    queryKey: ["blog-posts", { page, limit, searchQuery, categoryId }],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("blog_posts")
-        .select("*")
+        .select(
+          `
+          *,
+          category:blog_categories(
+            id,
+            name
+          ),
+          author:profiles(
+            id,
+            full_name,
+            avatar_url
+          )
+        `,
+          { count: "exact" }
+        )
         .order("created_at", { ascending: false })
+        .range(from, to)
+
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`)
+      }
+
+      if (categoryId) {
+        query = query.eq("category_id", categoryId)
+      }
+
+      const { data, error, count } = await query
 
       if (error) throw error
-      return data as BlogPost[]
+      return {
+        data: data as BlogPost[],
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        currentPage: page,
+      }
     },
   })
 }

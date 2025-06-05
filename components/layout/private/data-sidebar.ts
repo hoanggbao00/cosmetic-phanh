@@ -36,7 +36,7 @@ export const DATA_SIDEBAR = [
         href: "/admin/blog-categories",
       },
       {
-        title: "Blogs",
+        title: "Posts",
         href: "/admin/blogs",
       },
     ],

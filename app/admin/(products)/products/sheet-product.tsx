@@ -10,6 +10,7 @@ import { SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { CLOUDINARY_UPLOAD_PRESET } from "@/lib/config/app.config"
+import { slugify } from "@/lib/utils"
 import { useBrandQuery } from "@/queries/brand"
 import { useCatalogQuery } from "@/queries/catalog"
 import { useImageCreateMutation } from "@/queries/images"
@@ -152,6 +153,10 @@ export default function SheetProduct({
                   label="Name"
                   placeholder="Enter name"
                   disabled={isLoading}
+                  onChange={(e) => {
+                    form.setValue("name", e.target.value)
+                    form.setValue("slug", slugify(e.target.value))
+                  }}
                 />
                 <div className="flex gap-4">
                   <FieldWrapper

@@ -1,5 +1,5 @@
 export interface BlogPost {
-  id: number
+  id: string
   title: string
   excerpt: string
   content: string
@@ -9,9 +9,7 @@ export interface BlogPost {
   author: {
     name: string
     avatar: string
-    bio?: string
-    role?: string
   }
-  categories: string[]
+  category_id: string
   featured?: boolean
 }

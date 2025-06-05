@@ -3,7 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { blogPosts } from "@/lib/data-blog"
-import { ChevronLeftIcon, ChevronRightIcon, Menu } from "lucide-react"
+import type { BlogPost } from "@/types/tables"
+import type { BlogCategory } from "@/types/tables/blog_categories"
+import { Menu } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { FeaturedPost } from "./featured-post"
@@ -11,12 +13,24 @@ import { ListPost } from "./list-post"
 import { EmptyPost } from "./list-post/empty-post"
 import SidebarBlog from "./sidebar-blog"
 
-export default function BlogListPage() {
+interface BlogListPageProps {
+  categories: BlogCategory[]
+  featuredPosts: BlogPost[]
+  recentPosts: BlogPost[]
+}
+
+export default function BlogListPage({
+  categories,
+  featuredPosts,
+  recentPosts,
+}: BlogListPageProps) {
   const searchParams = useSearchParams()
   const searchQuery = searchParams.get("search") || ""
-  const selectedCategory = searchParams.get("category") || ""
+  const selectedCategoryId = searchParams.get("category") || ""
+
+  const selectedCategory = categories.find((c) => c.id === selectedCategoryId)
   const title = selectedCategory
-    ? `${selectedCategory} Posts`
+    ? `${selectedCategory.name} Posts`
     : searchQuery
       ? "Search Results"
       : "Our Blog"
@@ -29,7 +43,7 @@ export default function BlogListPage() {
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesCategory = selectedCategory ? post.categories.includes(selectedCategory) : true
+    const matchesCategory = selectedCategoryId ? post.category_id === selectedCategoryId : true
 
     return matchesSearch && matchesCategory
   })
@@ -57,11 +71,11 @@ export default function BlogListPage() {
               <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="p-4">
             <SheetHeader className="mb-4">
               <SheetTitle>Blog Options</SheetTitle>
             </SheetHeader>
-            <SidebarBlog />
+            <SidebarBlog categories={categories} recentPosts={recentPosts} />
           </SheetContent>
         </Sheet>
       </div>
@@ -70,48 +84,29 @@ export default function BlogListPage() {
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Blog Posts */}
         <div className="lg:w-2/3">
-          {!selectedCategory && !searchQuery && <FeaturedPost />}
+          {!selectedCategoryId && !searchQuery && <FeaturedPost featuredPosts={featuredPosts} />}
 
           {/* All Posts or Filtered Posts */}
           <div>
             <h2 className="mb-6 font-bold text-2xl">
               {selectedCategory
-                ? `${selectedCategory} Posts`
+                ? `${selectedCategory.name} Posts`
                 : searchQuery
                   ? "Search Results"
                   : "All Posts"}
             </h2>
 
             {filteredPosts.length > 0 ? (
-              <ListPost searchQuery={searchQuery} selectedCategory={selectedCategory} />
+              <ListPost searchQuery={searchQuery} selectedCategory={selectedCategoryId} />
             ) : (
-              <EmptyPost searchQuery={searchQuery} selectedCategory={selectedCategory} />
+              <EmptyPost searchQuery={searchQuery} selectedCategory={selectedCategoryId} />
             )}
           </div>
-
-          {/* Pagination */}
-          {filteredPosts.length > 0 && (
-            <div className="mt-12 flex justify-center">
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon" disabled>
-                  <ChevronLeftIcon />
-                </Button>
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <Button key={index} variant={index === 0 ? "default" : "outline"} size="icon">
-                    {index + 1}
-                  </Button>
-                ))}
-                <Button variant="outline" size="icon">
-                  <ChevronRightIcon />
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Sidebar - Desktop */}
         <div className="sticky top-52 hidden space-y-8 lg:block lg:w-1/3">
-          <SidebarBlog />
+          <SidebarBlog categories={categories} recentPosts={recentPosts} />
         </div>
       </div>
     </div>

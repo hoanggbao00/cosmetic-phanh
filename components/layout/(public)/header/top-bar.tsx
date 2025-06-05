@@ -1,5 +1,4 @@
 import { FacebookIcon, InstagramIcon, TwitterIcon } from "lucide-react"
-import { LanguageSelect } from "./language-select"
 
 const socialLinks = [
   {
@@ -36,7 +35,6 @@ export const TopBar = () => {
         <p className="hidden max-w-2/3 text-center font-semibold font-serif md:block">
           🔥 Save upto 60% OFF to all Cosmetic Products | Free Shipping on Orders Over $75
         </p>
-        <LanguageSelect />
       </div>
     </div>
   )

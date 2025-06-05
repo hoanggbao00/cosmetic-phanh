@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { format } from "date-fns"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -7,6 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export function tw(s: string) {
   return s
+}
+
+export function formatDate(date: string | Date) {
+  return format(new Date(date), "MMMM d, yyyy")
 }
 
 export async function delay(ms: number) {

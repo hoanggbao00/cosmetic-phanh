@@ -1,27 +1,29 @@
+"use client"
+
 import { StarIcon } from "@/assets/icons/star-icon"
 import { SpecialButton } from "@/components/shared/special-button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { useCatalogQuery } from "@/queries/catalog"
 import Link from "next/link"
 import { CategoryList } from "./category-list"
 
 export function SectionCategory() {
-  const categories = [
-    "Blenders",
-    "Body Spray",
-    "Concealer",
-    "Exfoliators",
-    "Eyeshadow",
-    "Face Masks",
-    "Facial Rollers",
-    "Foundation",
-    "Highlighter",
-    "Sunscream",
-    "Toners",
-    "Body Lotion",
-    "Blushes",
-    "Nail Polishes",
-    "Lipsticks",
-    "Body Scrubs",
-  ]
+  const { data: categories = [], isLoading } = useCatalogQuery()
+
+  // Take only first 15 categories
+  const displayCategories = categories.slice(0, 15).map((category) => category.name)
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
+  if (categories.length === 0) {
+    return null
+  }
 
   return (
     <section className="w-full bg-background px-4 py-16" id="scroll-down-section">
@@ -38,7 +40,7 @@ export function SectionCategory() {
         </div>
 
         {/* Categories */}
-        <CategoryList categories={categories} />
+        <CategoryList categories={displayCategories} />
 
         {/* View All Button */}
         <div className="mt-12 flex justify-center">

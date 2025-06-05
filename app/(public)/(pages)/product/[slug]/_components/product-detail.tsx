@@ -109,7 +109,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   // Handle add to cart
   const handleAddToCart = () => {
     addItem({
-      id: Number.parseInt(productId),
+      id: productId,
       name: product.name,
       price: getCurrentPrice(),
       image: product.images[0],
@@ -164,7 +164,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         {/* Related Products */}
         <div className="mb-16">
           <h2 className="mb-6 font-bold text-2xl">You May Also Like</h2>
-          <RelatedProducts currentProductId={Number.parseInt(productId)} />
+          <RelatedProducts currentProductId={productId} />
         </div>
 
         {/* Related Posts */}

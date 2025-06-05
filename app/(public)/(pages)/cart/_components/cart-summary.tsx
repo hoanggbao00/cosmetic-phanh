@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/stores/cart-store"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -44,7 +45,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
     setTimeout(() => {
       clearCart()
       setIsCheckingOut(false)
-      alert("Order placed successfully!")
+      toast.success("Order placed successfully!")
       router.push("/")
     }, 1500)
   }
@@ -85,17 +86,17 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatPrice(subtotal)}</span>
         </div>
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Shipping</span>
-          <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+          <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
         </div>
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Discount</span>
-          <span>${discount.toFixed(2)}</span>
+          <span>{formatPrice(discount)}</span>
         </div>
       </div>
 
@@ -104,7 +105,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
       {/* Total */}
       <div className="mb-6 flex items-center justify-between">
         <span className="font-medium text-base">Total</span>
-        <span className="font-bold text-xl">${total.toFixed(2)}</span>
+        <span className="font-bold text-xl">{formatPrice(total)}</span>
       </div>
 
       {/* Checkout Button */}
@@ -130,11 +131,6 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           Add ${(100 - subtotal).toFixed(2)} more to qualify for free shipping
         </p>
       )}
-
-      {/* Secure Checkout Message */}
-      <div className="mt-6 text-center">
-        <p className="text-muted-foreground text-xs">Secure checkout powered by Stripe</p>
-      </div>
     </div>
   )
 }

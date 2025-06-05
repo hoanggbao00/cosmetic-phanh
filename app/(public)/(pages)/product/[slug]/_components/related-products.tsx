@@ -4,23 +4,22 @@ import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/stores/cart-store"
 import type { Product } from "@/types/product.types"
 import { Check, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 
 interface RelatedProductsProps {
-  currentProductId: number
+  currentProductId: string
 }
 
 export default function RelatedProducts({ currentProductId }: RelatedProductsProps) {
   const [currentPage, setCurrentPage] = useState(0)
-  const [addingToCart, setAddingToCart] = useState<number | null>(null)
+  const [addingToCart, setAddingToCart] = useState<string | null>(null)
   const addItem = useCartStore((state) => state.addItem)
 
   // Sample related products data
   const relatedProducts: Product[] = [
     {
-      id: 101,
+      id: "101",
       name: "Hydrating Facial Cleanser",
       price: 28.99,
       rating: 4.7,
@@ -29,7 +28,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
       category: ["Facial Cleanser"],
     },
     {
-      id: 102,
+      id: "102",
       name: "Vitamin C Brightening Moisturizer",
       price: 42.99,
       rating: 4.9,
@@ -38,7 +37,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
       category: ["Moisturizer"],
     },
     {
-      id: 103,
+      id: "103",
       name: "Retinol Night Cream",
       price: 54.99,
       rating: 4.6,
@@ -47,7 +46,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
       category: ["Night Cream"],
     },
     {
-      id: 104,
+      id: "104",
       name: "Hyaluronic Acid Booster",
       price: 36.99,
       rating: 4.8,
@@ -56,7 +55,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
       category: ["Acid Booster"],
     },
     {
-      id: 105,
+      id: "105",
       name: "Exfoliating Facial Scrub",
       price: 24.99,
       rating: 4.5,
@@ -65,7 +64,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
       category: ["Facial Scrub"],
     },
     {
-      id: 106,
+      id: "106",
       name: "Peptide Eye Cream",
       price: 38.99,
       rating: 4.7,
@@ -96,7 +95,7 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
     // Simulate a slight delay for better UX
     setTimeout(() => {
       addItem({
-        id: product.id,
+        id: product.id.toString(),
         name: product.name,
         price: product.price,
         image: product.image_primary,
@@ -133,11 +132,10 @@ export default function RelatedProducts({ currentProductId }: RelatedProductsPro
             <div className="aspect-square w-full overflow-hidden rounded-md bg-gray-100 group-hover:opacity-75">
               <Link href={`/product/${product.id}`}>
                 <div className="relative h-full w-full">
-                  <Image
+                  <img
                     src={product.image_primary || "/placeholder.svg"}
                     alt={product.name}
-                    fill
-                    className="h-full w-full object-cover object-center"
+                    className="absolute inset-0 size-full object-cover"
                   />
                 </div>
               </Link>

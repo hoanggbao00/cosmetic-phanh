@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react"
-import Image from "next/image"
 import { useState } from "react"
 
 interface ProductGalleryProps {
@@ -35,12 +34,10 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
     <div>
       {/* Main Image */}
       <div className="relative mb-4 aspect-square overflow-hidden rounded-lg bg-gray-100">
-        <Image
+        <img
           src={images[currentImage] || "/placeholder.svg"}
-          alt={`${productName} - Image ${currentImage + 1}`}
-          fill
-          className="object-contain"
-          priority
+          alt={`${productName} - ${currentImage + 1}`}
+          className="absolute inset-0 size-full object-cover"
         />
 
         {/* Navigation Arrows */}
@@ -82,11 +79,10 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] w-[90vw] max-w-4xl overflow-hidden p-0">
             <div className="relative h-[80vh] w-full">
-              <Image
+              <img
                 src={zoomImage || images[currentImage]}
-                alt={`${productName} - Zoomed Image`}
-                fill
-                className="object-contain"
+                alt={`${productName} - Zoomed im`}
+                className="absolute inset-0 size-full object-cover"
               />
             </div>
           </DialogContent>
@@ -105,11 +101,10 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
               }`}
               onClick={() => handleThumbnailClick(index)}
             >
-              <Image
+              <img
                 src={image || "/placeholder.svg"}
                 alt={`${productName} - Thumbnail ${index + 1}`}
-                fill
-                className="object-cover"
+                className="absolute inset-0 size-full object-cover"
               />
             </button>
           ))}

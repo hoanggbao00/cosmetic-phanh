@@ -2,7 +2,7 @@ import type { BlogPost } from "@/types/blog.types"
 
 export const blogPosts: BlogPost[] = [
   {
-    id: 1,
+    id: "1",
     title: "10 Essential Skincare Tips for Healthy Glowing Skin",
     excerpt:
       "Discover the secrets to maintaining healthy, radiant skin with these expert-approved skincare tips that you can easily incorporate into your daily routine.",
@@ -14,11 +14,11 @@ export const blogPosts: BlogPost[] = [
       name: "Emma Johnson",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Skincare", "Beauty Tips"],
+    category_id: "skincare",
     featured: true,
   },
   {
-    id: 2,
+    id: "2",
     title: "The Ultimate Guide to Sustainable Beauty Products",
     excerpt:
       "Learn how to make environmentally conscious choices with our comprehensive guide to sustainable beauty products and brands that are making a difference.",
@@ -30,10 +30,10 @@ export const blogPosts: BlogPost[] = [
       name: "Michael Chen",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Sustainability", "Product Reviews"],
+    category_id: "sustainability",
   },
   {
-    id: 3,
+    id: "3",
     title: "How to Create the Perfect Makeup Look for Summer",
     excerpt:
       "Get ready for the summer season with these fresh makeup techniques that will keep you looking fabulous even in the heat and humidity.",
@@ -45,10 +45,10 @@ export const blogPosts: BlogPost[] = [
       name: "Sophia Rodriguez",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Makeup", "Seasonal"],
+    category_id: "makeup",
   },
   {
-    id: 4,
+    id: "4",
     title: "The Science Behind Anti-Aging Ingredients",
     excerpt:
       "Dive deep into the scientific research behind popular anti-aging ingredients and discover which ones actually deliver on their promises.",
@@ -60,11 +60,11 @@ export const blogPosts: BlogPost[] = [
       name: "Dr. James Wilson",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Skincare", "Science"],
+    category_id: "skincare",
     featured: true,
   },
   {
-    id: 5,
+    id: "5",
     title: "Hair Care Mistakes You Might Be Making",
     excerpt:
       "Are you unknowingly damaging your hair? Learn about common hair care mistakes and how to correct them for healthier, more beautiful locks.",
@@ -76,10 +76,10 @@ export const blogPosts: BlogPost[] = [
       name: "Olivia Thompson",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Hair Care"],
+    category_id: "hair-care",
   },
   {
-    id: 6,
+    id: "6",
     title: "Vegan Beauty: A Beginner's Guide",
     excerpt:
       "Interested in transitioning to vegan beauty products? This beginner-friendly guide will help you understand what to look for and which brands to try.",
@@ -91,8 +91,6 @@ export const blogPosts: BlogPost[] = [
       name: "Emma Johnson",
       avatar: "/images/feedbacks/avatar-1.png",
     },
-    categories: ["Vegan", "Product Reviews"],
+    category_id: "vegan",
   },
 ]
-
-export const allCategories = Array.from(new Set(blogPosts.flatMap((post) => post.categories)))

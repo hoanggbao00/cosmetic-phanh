@@ -3,7 +3,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import type { BlogPost } from "@/types/blog.types"
 import { format } from "date-fns"
 import { Calendar, ChevronRight, Clock } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
@@ -12,11 +11,10 @@ export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
       <div className="px-4">
         <Link href={`/blog/${post.id}`}>
           <div className="relative h-48 w-full overflow-hidden rounded-lg">
-            <Image
+            <img
               src={post.coverImage || "/placeholder.svg"}
               alt={post.title}
-              fill
-              className="rounded-lg object-cover transition-all duration-300 group-hover:scale-105"
+              className="absolute inset-0 size-full object-cover transition-all duration-300 group-hover:scale-105"
             />
             <Badge
               variant="secondary"
@@ -31,13 +29,6 @@ export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
       {/* Categories and Title */}
       <CardHeader className="px-4">
         <div className="space-y-1">
-          <div className="flex flex-wrap gap-2">
-            {post.categories.map((category) => (
-              <Badge key={category} variant="outline">
-                {category}
-              </Badge>
-            ))}
-          </div>
           <Link
             href={`/blog/${post.id}`}
             className="line-clamp-2 transition-all duration-300 hover:text-primary hover:underline"

@@ -8,7 +8,7 @@ import Link from "next/link"
 
 interface ProductCardProps {
   product: Product
-  categories: Category[]
+  categories?: Category[]
 }
 
 export const ProductCard = ({ product, categories }: ProductCardProps) => {
@@ -60,13 +60,15 @@ export const ProductCard = ({ product, categories }: ProductCardProps) => {
         </div>
         <div className="mt-4 text-center">
           <div className="text-muted-foreground text-xs md:text-sm">
-            <Link
-              key={product.category_id}
-              href={`/products?category=${product.category_id}`}
-              className="transition-colors duration-300 hover:text-primary"
-            >
-              {categories?.find((c) => c.id === product.category_id)?.name}
-            </Link>
+            {categories && (
+              <Link
+                key={product.category_id}
+                href={`/products?category=${product.category_id}`}
+                className="transition-colors duration-300 hover:text-primary"
+              >
+                {categories?.find((c) => c.id === product.category_id)?.name}
+              </Link>
+            )}
           </div>
           <Link
             href={`/product/${product.id}`}

@@ -20,6 +20,22 @@ export const useProductQuery = () => {
   })
 }
 
+export const useFeaturedProductsQuery = (limit = 3) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "featured", limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .select("*")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return data as Product[]
+    },
+  })
+}
+
 export const useProductQueryById = (id: string | null) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],

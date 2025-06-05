@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { formatPrice } from "@/lib/utils"
 import { type CartItem as CartItemType, useCartStore } from "@/stores/cart-store"
 import { Minus, Plus, X } from "lucide-react"
-import Image from "next/image"
 
 interface CartItemProps {
   item: CartItemType
@@ -23,11 +23,10 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Product Image and Info */}
       <div className="flex items-start gap-4 md:w-1/2">
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
-          <Image
+          <img
             src={item.image || "/placeholder.svg?height=80&width=80"}
             alt={item.name}
-            fill
-            className="object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
 
@@ -95,12 +94,12 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Total - Mobile */}
       <div className="flex items-center justify-between md:hidden">
         <span className="font-medium text-sm">Total:</span>
-        <span className="font-medium text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+        <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
       </div>
 
       {/* Total - Desktop */}
       <div className="hidden text-right md:block md:w-1/6">
-        <span className="font-medium text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+        <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
       </div>
     </div>
   )

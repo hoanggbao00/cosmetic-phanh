@@ -1,6 +1,8 @@
 import "@/assets/styles/tailwind.css"
+import CartSync from "@/components/cart-sync"
 import { Toaster } from "@/components/ui/sonner"
 import { OpenGraph } from "@/lib/config/open-graph"
+import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
@@ -17,6 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   ...OpenGraph,
+  title: "Cosmetic Store",
+  description: "Your one-stop shop for all your cosmetic needs",
 }
 
 export default function RootLayout({
@@ -26,7 +30,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={cn(
+          "min-h-screen bg-background antialiased",
+          `${geist.variable} ${geistMono.variable}`
+        )}
+      >
+        <CartSync />
         {children}
         <NextTopLoader showSpinner={false} color="#E19D7D" />
         <Toaster richColors theme="system" position="bottom-right" duration={2000} closeButton />

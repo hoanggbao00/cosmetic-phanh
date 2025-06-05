@@ -3,7 +3,7 @@
 import { StarIcon } from "@/assets/icons/star-icon"
 import { Button } from "@/components/ui/button"
 import {} from "@/components/ui/card"
-import { products } from "@/lib/data-product"
+import type { Product } from "@/types/tables/products"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from "react"
 import { ProductCard } from "../(pages)/catalog/_components/product-card"
@@ -11,9 +11,10 @@ import { ProductCard } from "../(pages)/catalog/_components/product-card"
 interface Props {
   title: string
   subTitle: string
+  products: Product[]
 }
 
-export const SectionCollections = ({ title, subTitle }: Props) => {
+export const SectionCollections = ({ title, subTitle, products }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const visibleProducts = products.slice(currentIndex, currentIndex + 4)

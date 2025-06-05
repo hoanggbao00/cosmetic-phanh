@@ -1,63 +1,43 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
-import type { BlogPost } from "@/types/blog.types"
-import { formatDate } from "date-fns"
-import { Calendar, ChevronRight, Clock } from "lucide-react"
-import Image from "next/image"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { formatDate } from "@/lib/utils"
+import type { Tables } from "@/types/supabase"
 import Link from "next/link"
 
-interface Props {
-  post: BlogPost
+interface PostCardProps {
+  post: Tables<"blog_posts">
 }
 
-export const PostCard = ({ post }: Props) => {
+export function PostCard({ post }: PostCardProps) {
   return (
-    <article key={post.id} className="group flex flex-col gap-4 border-b pb-4 md:flex-row">
-      <div className="md:w-1/3">
-        <Link href={`/blog/${post.id}`}>
-          <div className="relative h-48 w-full overflow-hidden rounded-lg md:h-full">
-            <Image
-              src={post.coverImage || "/placeholder.svg"}
-              alt={post.title}
-              fill
-              className="object-cover transition-all duration-300 group-hover:scale-105"
-            />
-          </div>
-        </Link>
-      </div>
-      <div className="flex flex-col md:w-2/3">
-        <div className="mb-2 flex flex-wrap gap-2">
-          {post.categories.map((category) => (
-            <Badge key={category} variant="outline" className="text-xs">
-              {category}
-            </Badge>
-          ))}
-        </div>
-        <Link
-          href={`/blog/${post.id}`}
-          className="line-clamp-2 transition-all duration-300 hover:text-primary hover:underline"
-        >
-          <h3 className="mb-2 font-bold text-xl">{post.title}</h3>
-        </Link>
-        <p className="mb-4 flex-grow text-muted-foreground">{post.excerpt}</p>
-        <div className="mt-auto flex items-center justify-between">
-          <div>
-            <p className="font-medium text-sm">{post.author.name}</p>
-            <div className="flex items-center text-muted-foreground text-xs">
-              <Calendar className="mr-1 h-3 w-3" />
-              <span>{formatDate(new Date(post.date), "MMMM d, yyyy")}</span>
-              <span className="mx-1">•</span>
-              <Clock className="mr-1 h-3 w-3" />
-              <span>{post.readTime} min read</span>
+    <Link href={`/blog/${post.slug}`}>
+      <Card className="group overflow-hidden transition-colors hover:border-primary">
+        <div className="flex flex-col gap-4 md:flex-row">
+          {post.featured_image && (
+            <div className="relative aspect-video w-full overflow-hidden md:w-72">
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
+          )}
+          <div className="flex flex-1 flex-col justify-between p-6">
+            <CardHeader className="space-y-2 p-0">
+              <h3 className="line-clamp-2 font-bold text-xl transition-colors group-hover:text-primary">
+                {post.title}
+              </h3>
+              {post.excerpt && <p className="line-clamp-2 text-muted-foreground">{post.excerpt}</p>}
+            </CardHeader>
+            <CardContent className="mt-4 flex items-center justify-between p-0">
+              <div className="text-muted-foreground text-sm">{formatDate(post.created_at)}</div>
+              {post.is_featured && <Badge variant="secondary">Featured</Badge>}
+            </CardContent>
           </div>
-          <Link
-            href={`/blog/${post.id}`}
-            className="flex items-center font-medium text-sm hover:underline"
-          >
-            Read more <ChevronRight className="ml-1 h-4 w-4" />
-          </Link>
         </div>
-      </div>
-    </article>
+      </Card>
+    </Link>
   )
 }

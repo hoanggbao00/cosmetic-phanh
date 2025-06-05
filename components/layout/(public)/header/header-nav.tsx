@@ -1,10 +1,10 @@
 import { SpecialButton } from "@/components/shared/special-button"
 import { APP_NAME } from "@/lib/config/app.config"
 import Link from "next/link"
-import { AuthDialog } from "./auth-dialog"
 import { CartCount } from "./cart-count"
 import { NavLinks } from "./nav/nav-links"
 import SearchDialog from "./search-dialog"
+import { UserDropdown } from "./user-dropdown"
 
 export const HeaderNav = () => {
   return (
@@ -29,7 +29,7 @@ export const HeaderNav = () => {
       <div className="flex flex-1 items-center justify-end gap-8">
         <div className="flex items-center gap-4">
           <SearchDialog key="search-dialog" />
-          <AuthDialog key="auth-dialog" />
+          <UserDropdown />
           <CartCount />
         </div>
         <SpecialButton className="hidden md:flex">Special Offers</SpecialButton>

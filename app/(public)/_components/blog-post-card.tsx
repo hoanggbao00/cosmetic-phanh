@@ -1,16 +1,17 @@
 import { Button } from "@/components/ui/button"
-import type { BlogPost } from "@/types/blog.types"
+import { formatDate } from "@/lib/utils"
+import type { BlogPost } from "@/types/tables"
 import { CalendarIcon } from "lucide-react"
 import Link from "next/link"
 
 export default function BlogPostCard({ post }: { post: BlogPost }) {
   return (
     <article className="group">
-      <Link href="#" className="mb-4 block">
+      <Link href={`/blog/${post.slug}`} className="mb-4 block">
         <Button effect="shineHover" variant="ghost" className="h-full p-0">
           <div className="overflow-hidden rounded-lg">
             <img
-              src={post.coverImage || "/placeholder.svg"}
+              src={post.featured_image || "/placeholder.svg"}
               alt={post.title}
               width={600}
               height={400}
@@ -22,12 +23,12 @@ export default function BlogPostCard({ post }: { post: BlogPost }) {
 
       <div className="mb-2 flex items-center justify-center gap-2 text-primary text-sm">
         <CalendarIcon className="size-4" />
-        <span>{post.date}</span>
+        <span>{formatDate(post.created_at)}</span>
         <span>—</span>
-        <span>{post.author.name}</span>
+        <span>Admin</span>
       </div>
 
-      <Link href="#" className="block px-4">
+      <Link href={`/blog/${post.slug}`} className="block px-4">
         <h3 className="mb-3 text-center font-semibold text-xl transition-colors hover:text-primary">
           {post.title}
         </h3>
@@ -38,7 +39,7 @@ export default function BlogPostCard({ post }: { post: BlogPost }) {
       </p>
 
       <Link
-        href="#"
+        href={`/blog/${post.slug}`}
         className="mx-auto block w-fit border-gray-900 border-b text-center font-medium text-gray-900 text-sm transition-colors hover:border-primary hover:text-primary"
       >
         Read More

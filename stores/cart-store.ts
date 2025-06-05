@@ -1,19 +1,22 @@
 import { supabase } from "@/utils/supabase/client"
+import { toast } from "sonner"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 export interface CartItem {
   id: string
+  productId: string
   name: string
   price: number
   image: string
   quantity: number
   size?: string
+  variantId?: string
 }
 
 interface CartStore {
   items: CartItem[]
-  addItem: (item: CartItem) => Promise<void>
+  addItem: (item: Omit<CartItem, "id">) => Promise<void>
   removeItem: (itemId: string) => Promise<void>
   updateQuantity: (itemId: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
@@ -26,24 +29,29 @@ export const useCartStore = create<CartStore>()(
       items: [],
       total: 0,
 
-      addItem: async (item: CartItem) => {
+      addItem: async (item) => {
         const {
           data: { session },
         } = await supabase.auth.getSession()
         const currentItems = get().items
         const existingItemIndex = currentItems.findIndex(
-          (i) => i.id === item.id && i.size === item.size
+          (i) =>
+            i.productId === item.productId && i.size === item.size && i.variantId === item.variantId
         )
 
         let newItems: CartItem[]
+        let cartItemId: string
+
         if (existingItemIndex !== -1) {
           newItems = [...currentItems]
           newItems[existingItemIndex] = {
             ...newItems[existingItemIndex],
             quantity: newItems[existingItemIndex].quantity + item.quantity,
           }
+          cartItemId = newItems[existingItemIndex].id
         } else {
-          newItems = [...currentItems, item]
+          cartItemId = crypto.randomUUID()
+          newItems = [...currentItems, { ...item, id: cartItemId }]
         }
 
         // Update local state
@@ -63,19 +71,25 @@ export const useCartStore = create<CartStore>()(
                 quantity: newItems[existingItemIndex].quantity,
               })
               .eq("user_id", userId)
-              .eq("product_id", item.id)
+              .eq("product_id", item.productId)
+              .eq("variant_id", item.variantId || null)
               .eq("size", item.size || null)
           } else {
             // Insert new item
             await supabase.from("cart_items").insert({
+              id: cartItemId,
               user_id: userId,
-              product_id: item.id,
+              product_id: item.productId,
+              variant_id: item.variantId || null,
               quantity: item.quantity,
-              price: item.price,
               size: item.size || null,
             })
           }
         }
+
+        toast.success("Added to cart", {
+          description: `${item.name} added to cart`,
+        })
       },
 
       removeItem: async (itemId: string) => {
@@ -92,11 +106,7 @@ export const useCartStore = create<CartStore>()(
 
         // Remove from database if user is logged in
         if (session) {
-          await supabase
-            .from("cart_items")
-            .delete()
-            .eq("user_id", session.user.id)
-            .eq("product_id", itemId)
+          await supabase.from("cart_items").delete().eq("user_id", session.user.id).eq("id", itemId)
         }
       },
 
@@ -120,7 +130,7 @@ export const useCartStore = create<CartStore>()(
             .from("cart_items")
             .update({ quantity })
             .eq("user_id", session.user.id)
-            .eq("product_id", itemId)
+            .eq("id", itemId)
         }
       },
 
@@ -140,6 +150,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "cart-storage",
+      skipHydration: true,
     }
   )
 )

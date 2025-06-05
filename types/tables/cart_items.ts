@@ -7,6 +7,7 @@ export interface CartItem {
   quantity: number
   created_at: string
   updated_at: string
+  price: number
 }
 export interface CartItemInsert {
   id?: string
@@ -17,6 +18,7 @@ export interface CartItemInsert {
   quantity: number
   created_at?: string
   updated_at?: string
+  price: number
 }
 export interface CartItemUpdate {
   id?: string
@@ -27,4 +29,5 @@ export interface CartItemUpdate {
   quantity?: number
   created_at?: string
   updated_at?: string
+  price?: number
 }

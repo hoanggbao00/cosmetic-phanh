@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import type { BlogPost } from "@/types/blog.types"
+import type { BlogPost } from "@/types/tables"
 import { format } from "date-fns"
 import { Calendar, ChevronRight, Clock } from "lucide-react"
 import Link from "next/link"
@@ -12,7 +12,7 @@ export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
         <Link href={`/blog/${post.id}`}>
           <div className="relative h-48 w-full overflow-hidden rounded-lg">
             <img
-              src={post.coverImage || "/placeholder.svg"}
+              src={post.featured_image || "/placeholder.svg"}
               alt={post.title}
               className="absolute inset-0 size-full object-cover transition-all duration-300 group-hover:scale-105"
             />
@@ -46,13 +46,13 @@ export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
       {/* Author and Date */}
       <CardFooter className="flex items-center justify-between p-4 pt-0">
         <div>
-          <p className="font-medium text-sm">{post.author.name}</p>
+          <p className="font-medium text-sm">Admin</p>
           <div className="flex items-center text-muted-foreground text-xs">
             <Calendar className="mr-1 h-3 w-3" />
-            <span>{format(new Date(post.date), "MMMM d, yyyy")}</span>
+            <span>{format(new Date(post.created_at), "MMMM d, yyyy")}</span>
             <span className="mx-1">•</span>
             <Clock className="mr-1 h-3 w-3" />
-            <span>{post.readTime} min read</span>
+            <span>5 min read</span>
           </div>
         </div>
         <Link

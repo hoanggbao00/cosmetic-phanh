@@ -58,15 +58,21 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   // Handle add to cart
   const handleAddToCart = () => {
-    addItem({
+    const selectedVariant = selectedSize
+      ? product.variants.find((v) => v.name === selectedSize)
+      : undefined
+
+    const cartItem = {
       productId: product.id,
       name: product.name,
       price: getCurrentPrice(),
       image: product.images?.[0] || "",
       quantity: quantity,
       size: selectedSize || undefined,
-      variant: selectedSize ? product.variants?.find((v) => v.name === selectedSize) : undefined,
-    })
+      variant: selectedVariant,
+    }
+
+    addItem(cartItem)
   }
 
   return (
@@ -130,7 +136,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         {/* Related Posts */}
         <div className="mb-16">
           <h2 className="mb-6 font-bold text-2xl">Related Articles</h2>
-          <RelatedPosts productCategory={product.category?.name || ""} />
+          <RelatedPosts />
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import type { BlogCategory, BlogCategoryInsert, BlogCategoryUpdate } from "./tables/blog_categories"
 import type { BlogPost, BlogPostInsert, BlogPostUpdate } from "./tables/blog_posts"
 import type { Brand, BrandInsert, BrandUpdate } from "./tables/brands"
-import type { CartItem, CartItemInsert, CartItemUpdate } from "./tables/cart_items"
+import type {} from "./tables/cart_items"
 import type { Category, CategoryInsert, CategoryUpdate } from "./tables/categories"
 import type { Image, ImageInsert, ImageUpdate } from "./tables/images"
 import type { OrderItem, OrderItemInsert, OrderItemUpdate } from "./tables/order_items"
@@ -100,34 +100,6 @@ export type Database = {
         Update: BrandUpdate
         Relationships: []
       }
-      cart_items: {
-        Row: CartItem
-        Insert: CartItemInsert
-        Update: CartItemUpdate
-        Relationships: [
-          {
-            foreignKeyName: "cart_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cart_items_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cart_items_variant_id_fkey"
-            columns: ["variant_id"]
-            isOneToOne: false
-            referencedRelation: "product_variants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       categories: {
         Row: Category
         Insert: CategoryInsert
@@ -201,6 +173,61 @@ export type Database = {
             columns: ["voucher_id"]
             isOneToOne: false
             referencedRelation: "vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          quantity: number
+          session_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity: number
+          session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]

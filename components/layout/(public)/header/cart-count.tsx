@@ -6,6 +6,7 @@ import Link from "next/link"
 
 export const CartCount = () => {
   const { items } = useCartStore()
+
   return (
     <Link
       href="/cart"

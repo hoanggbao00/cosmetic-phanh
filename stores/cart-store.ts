@@ -1,7 +1,7 @@
 import { supabase } from "@/utils/supabase/client"
 import { toast } from "sonner"
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { createJSONStorage, persist } from "zustand/middleware"
 
 export interface CartItem {
   id: string
@@ -147,7 +147,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "cart-storage",
-      skipHydration: true,
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

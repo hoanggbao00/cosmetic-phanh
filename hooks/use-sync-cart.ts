@@ -79,9 +79,6 @@ export function useSyncCart() {
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
         loadCartItems()
-      } else if (event === "SIGNED_OUT") {
-        // Clear local cart when user signs out
-        store.set({ items: [], total: 0 })
       }
     })
 

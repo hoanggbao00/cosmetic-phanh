@@ -4,17 +4,7 @@ import type { Brand, BrandInsert, BrandUpdate } from "./tables/brands"
 import type { CartItem, CartItemInsert, CartItemUpdate } from "./tables/cart_items"
 import type { Category, CategoryInsert, CategoryUpdate } from "./tables/categories"
 import type { Image, ImageInsert, ImageUpdate } from "./tables/images"
-import type {
-  NotificationLog,
-  NotificationLogInsert,
-  NotificationLogUpdate,
-} from "./tables/notification_logs"
 import type { OrderItem, OrderItemInsert, OrderItemUpdate } from "./tables/order_items"
-import type {
-  OrderStatusHistory,
-  OrderStatusHistoryInsert,
-  OrderStatusHistoryUpdate,
-} from "./tables/order_status_history"
 import type { Order, OrderInsert, OrderUpdate } from "./tables/orders"
 import type {
   ProductReview,
@@ -166,20 +156,6 @@ export type Database = {
           },
         ]
       }
-      notification_logs: {
-        Row: NotificationLog
-        Insert: NotificationLogInsert
-        Update: NotificationLogUpdate
-        Relationships: [
-          {
-            foreignKeyName: "notification_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       order_items: {
         Row: OrderItem
         Insert: OrderItemInsert
@@ -204,27 +180,6 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      order_status_history: {
-        Row: OrderStatusHistory
-        Insert: OrderStatusHistoryInsert
-        Update: OrderStatusHistoryUpdate
-        Relationships: [
-          {
-            foreignKeyName: "order_status_history_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_status_history_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

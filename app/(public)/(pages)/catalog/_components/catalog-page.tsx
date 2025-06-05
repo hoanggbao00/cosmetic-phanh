@@ -1,5 +1,11 @@
+"use client"
+
 import { FadeUpContainer, FadeUpItem } from "@/components/motion/fade-up"
-import { products } from "@/lib/data-product"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { useCatalogQuery } from "@/queries/catalog"
+import { useProductQuery } from "@/queries/product"
+import { useProductVariantsQuery } from "@/queries/product-variants"
+import type { Product } from "@/types/tables/products"
 import { DEFAULT_SORT_OPTION } from "../const"
 import { ClearFilter } from "./clear-filter"
 import { FilterPanel } from "./filter-pannel"
@@ -10,7 +16,7 @@ export type FilterAndSortParams = {
   categories?: string
   priceFrom?: string
   priceTo?: string
-  colors?: string
+  variants?: string
   sort?: string
 }
 
@@ -19,7 +25,12 @@ interface Props {
 }
 
 export default function CatalogPageView({ searchParams }: Props) {
-  const maxPrice = Math.max(...products.map((product) => product.price))
+  const { data: products = [], isLoading: isLoadingProducts } = useProductQuery()
+  const { data: categories = [] } = useCatalogQuery()
+  const { data: variants = [] } = useProductVariantsQuery()
+
+  const maxPrice =
+    products.length > 0 ? Math.max(...products.map((product) => product.price)) : 1000
 
   const sortOption = searchParams.sort ?? DEFAULT_SORT_OPTION
 
@@ -27,27 +38,30 @@ export default function CatalogPageView({ searchParams }: Props) {
     categories: searchParams.categories?.split(",") ?? [],
     priceFrom: Number(searchParams.priceFrom) ?? 0,
     priceTo: Number(searchParams.priceTo) ?? maxPrice,
-    colors: searchParams.colors?.split(",") ?? [],
+    variants: searchParams.variants?.split(",") ?? [],
   }
 
   // Filter products
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products.filter((product: Product) => {
     // Filter by category
     if (
       filters.categories.length > 0 &&
-      !filters.categories.some((c) => product.category.includes(c))
+      !filters.categories.some((c) => product.category_id === c)
     ) {
       return false
     }
 
     // Filter by price
-    if (product.price < filters.priceFrom && product.price > filters.priceTo) {
+    if (product.price < filters.priceFrom || product.price > filters.priceTo) {
       return false
     }
 
-    // Filter by color
-    if (filters.colors.length > 0 && !filters.colors.some((c) => product.colors?.includes(c))) {
-      return false
+    // Filter by variants
+    if (filters.variants.length > 0) {
+      const productVariants = variants.filter((v) => v.product_id === product.id)
+      if (!productVariants.some((v) => filters.variants.includes(v.name))) {
+        return false
+      }
     }
 
     return true
@@ -69,13 +83,21 @@ export default function CatalogPageView({ searchParams }: Props) {
     }
   })
 
+  if (isLoadingProducts) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-6 font-bold text-2xl">Product Catalog</h1>
 
       <div className="flex flex-col gap-8 md:flex-row">
         {/* Filter Sidebar */}
-        <FilterPanel />
+        <FilterPanel categories={categories} />
 
         {/* Products Section */}
         <div className="flex-1">
@@ -90,7 +112,7 @@ export default function CatalogPageView({ searchParams }: Props) {
             >
               {sortedProducts.map((product) => (
                 <FadeUpItem key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} categories={categories} />
                 </FadeUpItem>
               ))}
             </FadeUpContainer>
@@ -101,8 +123,6 @@ export default function CatalogPageView({ searchParams }: Props) {
             </div>
           )}
         </div>
-
-        {/* <ProductList /> */}
       </div>
     </div>
   )

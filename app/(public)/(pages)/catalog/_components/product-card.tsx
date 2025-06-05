@@ -2,15 +2,16 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { useCartStore } from "@/stores/cart-store"
-import type { Product } from "@/types/product.types"
+import type { Category, Product } from "@/types/tables"
 import { ShoppingBagIcon } from "lucide-react"
 import Link from "next/link"
 
 interface ProductCardProps {
   product: Product
+  categories: Category[]
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, categories }: ProductCardProps) => {
   const { addItem } = useCartStore()
 
   function handleAddToCart() {
@@ -18,7 +19,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image_primary,
+      image: product.images?.[0] ?? "",
       quantity: 1,
     })
   }
@@ -31,13 +32,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="flex flex-col items-center p-0">
         <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-xl bg-secondary transition-all duration-300 group-hover:rounded-full">
           <img
-            src={product.image_primary}
+            src={product.images?.[0] ?? ""}
             alt={product.name}
             className="size-full object-contain transition-all duration-300 group-hover:scale-110"
           />
           <Link href={`/product/${product.id}`} className="absolute inset-0">
             <img
-              src={product.image_secondary}
+              src={product.images?.[1] ?? ""}
               alt={product.name}
               className="size-full scale-110 object-contain opacity-0 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
             />
@@ -59,16 +60,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <div className="mt-4 text-center">
           <div className="text-muted-foreground text-xs md:text-sm">
-            {product.category.map((category, index) => (
-              <Link
-                key={category}
-                href={`/products?category=${category}`}
-                className="transition-colors duration-300 hover:text-primary"
-              >
-                {category}
-                {product.category[index + 1] && ", "}
-              </Link>
-            ))}
+            <Link
+              key={product.category_id}
+              href={`/products?category=${product.category_id}`}
+              className="transition-colors duration-300 hover:text-primary"
+            >
+              {categories?.find((c) => c.id === product.category_id)?.name}
+            </Link>
           </div>
           <Link
             href={`/product/${product.id}`}

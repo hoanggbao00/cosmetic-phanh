@@ -1,6 +1,5 @@
 "use client"
 
-import { FadeUpContainer, FadeUpItem } from "@/components/motion/fade-up"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -12,7 +11,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
-import { products } from "@/lib/data-product"
+import { useProductVariantsQuery } from "@/queries/product-variants"
+import type { Category } from "@/types/tables/categories"
 import { Filter } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -22,26 +22,32 @@ export interface FilterState {
   categories: string
   priceFrom: number
   priceTo: number
-  colors: string
+  variants: string
 }
 
 type FilterKey = keyof FilterState
 
-export const FilterPanel = () => {
+interface FilterPanelProps {
+  categories?: Category[]
+}
+
+export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
   const [isMobile, setIsMobile] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: variants = [] } = useProductVariantsQuery()
 
-  const maxPrice = Math.max(...products.map((product) => product.price))
+  // Get unique variant names
+  const uniqueVariants = Array.from(new Set(variants.map((variant) => variant.name)))
 
   // Change filter will change url
   const handleFilterChange = useDebounceCallback((key: FilterKey, value: string) => {
     const params = new URLSearchParams(searchParams)
 
-    // Categories split by comma
+    // Categories or variants split by comma
     const currentValue = params.get(key)
 
-    if (key === "categories" && currentValue) {
+    if ((key === "categories" || key === "variants") && currentValue) {
       const values = currentValue.split(",")
       if (values.includes(value)) {
         values.splice(values.indexOf(value), 1)
@@ -75,7 +81,7 @@ export const FilterPanel = () => {
     params.delete("categories")
     params.delete("priceFrom")
     params.delete("priceTo")
-    params.delete("colors")
+    params.delete("variants")
     router.replace(`?${params.toString()}`)
   }
 
@@ -99,18 +105,18 @@ export const FilterPanel = () => {
         <h3 className="font-medium">Categories</h3>
 
         <div className="mt-2 space-y-2">
-          {["Makeup", "Skincare", "Body", "Fragrance"].map((category) => (
-            <div key={category} className="flex items-center space-x-2">
+          {categories.map((category) => (
+            <div key={category.id} className="flex items-center space-x-2">
               <Checkbox
-                id={`category-${category}`}
-                checked={searchParams.get("categories")?.includes(category)}
-                onCheckedChange={() => handleFilterChange("categories", category)}
+                id={`category-${category.id}`}
+                checked={searchParams.get("categories")?.includes(category.id)}
+                onCheckedChange={() => handleFilterChange("categories", category.id)}
               />
               <label
-                htmlFor={`category-${category}`}
+                htmlFor={`category-${category.id}`}
                 className="cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                {category}
+                {category.name}
               </label>
             </div>
           ))}
@@ -123,36 +129,36 @@ export const FilterPanel = () => {
 
         <div className="mt-4 space-y-4">
           <Slider
-            defaultValue={[0, maxPrice]}
-            max={maxPrice}
+            defaultValue={[0, 1000]}
+            max={1000}
             step={1}
             onValueChange={handlePriceChange}
             className="w-full"
           />
           <div className="flex items-center justify-between">
             <span className="text-sm">${searchParams.get("priceFrom") ?? 0}</span>
-            <span className="text-sm">${searchParams.get("priceTo") ?? maxPrice}</span>
+            <span className="text-sm">${searchParams.get("priceTo") ?? 1000}</span>
           </div>
         </div>
       </div>
 
-      {/* Colors */}
+      {/* Variants */}
       <div className="border-b pb-4">
-        <h3 className="font-medium">Colors</h3>
+        <h3 className="font-medium">Variants</h3>
 
         <div className="mt-2 space-y-2">
-          {["Black", "White", "Red", "Pink", "Beige", "Clear", "Multi"].map((color) => (
-            <div key={color} className="flex items-center space-x-2">
+          {uniqueVariants.map((variant) => (
+            <div key={variant} className="flex items-center space-x-2">
               <Checkbox
-                id={`color-${color}`}
-                defaultChecked={searchParams.get("colors")?.includes(color)}
-                onCheckedChange={() => handleFilterChange("colors", color)}
+                id={`variant-${variant}`}
+                checked={searchParams.get("variants")?.includes(variant)}
+                onCheckedChange={() => handleFilterChange("variants", variant)}
               />
               <label
-                htmlFor={`color-${color}`}
+                htmlFor={`variant-${variant}`}
                 className="cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                {color}
+                {variant}
               </label>
             </div>
           ))}
@@ -198,12 +204,7 @@ export const FilterPanel = () => {
             Reset All
           </Button>
         </div>
-
-        <FadeUpContainer stagger={0.05} delay={0.1}>
-          <FadeUpItem className="space-y-6">
-            <FilterItems />
-          </FadeUpItem>
-        </FadeUpContainer>
+        <FilterItems />
       </div>
     </div>
   )

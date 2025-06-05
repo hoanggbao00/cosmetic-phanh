@@ -1,5 +1,6 @@
 import ImagesPicker from "@/components/shared/image-picker"
 import Select from "@/components/shared/select"
+import TiptapEditor from "@/components/shared/tiptap-editor"
 import { Button } from "@/components/ui/button"
 import { Form, FormLabel } from "@/components/ui/form"
 import { FieldWrapper } from "@/components/ui/form-fields/field-wrapper"
@@ -8,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
 import { CLOUDINARY_UPLOAD_PRESET } from "@/lib/config/app.config"
 import { slugify } from "@/lib/utils"
 import { useBrandQuery } from "@/queries/brand"
@@ -208,13 +208,16 @@ export default function SheetProduct({
                   placeholder="Enter slug"
                   disabled={isLoading}
                 />
-                <InputField
-                  control={form.control}
-                  name="description"
-                  label="Description"
-                  placeholder="Enter description"
-                  disabled={isLoading}
-                />
+                <FieldWrapper control={form.control} name="description" label="Description">
+                  {(field) => (
+                    <TiptapEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter product description..."
+                      maxHeight={500}
+                    />
+                  )}
+                </FieldWrapper>
                 <InputField
                   control={form.control}
                   name="ingredients"
@@ -287,11 +290,11 @@ export default function SheetProduct({
                 </div>
                 <FieldWrapper control={form.control} name="how_to_use" label="How to use">
                   {(field) => (
-                    <Textarea
-                      placeholder="Enter how to use"
-                      disabled={isLoading}
-                      {...field}
-                      className="max-h-24 resize-none"
+                    <TiptapEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter how to use instructions..."
+                      maxHeight={500}
                     />
                   )}
                 </FieldWrapper>

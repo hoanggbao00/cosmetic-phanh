@@ -49,7 +49,7 @@ export default function BlogPostsTable() {
               status === "published" ? "default" : status === "draft" ? "secondary" : "destructive"
             }
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status ? status.charAt(0).toUpperCase() + status.slice(1) : "-"}
           </Badge>
         )
       },
@@ -131,7 +131,7 @@ export default function BlogPostsTable() {
           </Link>
         </Button>
       </div>
-      <DataTable columns={columns} data={posts || []} />
+      <DataTable columns={columns} data={posts?.data || []} />
     </div>
   )
 }

@@ -7,15 +7,16 @@ interface BlogPostsParams {
   limit?: number
   searchQuery?: string
   categoryId?: string
+  isPaginated?: boolean
 }
 
 export const useBlogPosts = (params?: BlogPostsParams) => {
-  const { page = 1, limit = 10, searchQuery = "", categoryId } = params || {}
+  const { page = 1, limit = 10, searchQuery = "", categoryId, isPaginated = true } = params || {}
   const from = (page - 1) * limit
   const to = from + limit - 1
 
   return useQuery({
-    queryKey: ["blog-posts", { page, limit, searchQuery, categoryId }],
+    queryKey: ["blog-posts", { page, limit, searchQuery, categoryId, isPaginated }],
     queryFn: async () => {
       let query = supabase
         .from("blog_posts")
@@ -32,10 +33,13 @@ export const useBlogPosts = (params?: BlogPostsParams) => {
             avatar_url
           )
         `,
-          { count: "exact" }
+          { count: isPaginated ? "exact" : "planned" }
         )
         .order("created_at", { ascending: false })
-        .range(from, to)
+
+      if (isPaginated) {
+        query = query.range(from, to)
+      }
 
       if (searchQuery) {
         query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`)
@@ -48,11 +52,21 @@ export const useBlogPosts = (params?: BlogPostsParams) => {
       const { data, error, count } = await query
 
       if (error) throw error
+
+      if (isPaginated) {
+        return {
+          data: data as BlogPost[],
+          total: count || 0,
+          totalPages: Math.ceil((count || 0) / limit),
+          currentPage: page,
+        }
+      }
+
       return {
         data: data as BlogPost[],
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-        currentPage: page,
+        total: data.length,
+        totalPages: 1,
+        currentPage: 1,
       }
     },
   })

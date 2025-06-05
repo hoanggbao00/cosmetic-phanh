@@ -1,5 +1,6 @@
 import PageLayout from "@/components/layout/(public)/page-layout"
-import { delay } from "@/lib/utils"
+import { createSupabaseServerClient } from "@/utils/supabase/server"
+import { notFound } from "next/navigation"
 import ProductDetail from "./_components/product-detail"
 
 interface Props {
@@ -8,11 +9,45 @@ interface Props {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params
-  await delay(1000)
+  const supabase = await createSupabaseServerClient()
+
+  const { data: product } = await supabase
+    .from("products")
+    .select(`
+      *,
+      brand:brands(
+        id,
+        name,
+        logo_url
+      ),
+      category:categories(
+        id,
+        name
+      ),
+      reviews:product_reviews(
+        id,
+        rating,
+        comment,
+        created_at,
+        user:profiles!product_reviews_user_id_fkey(
+          id,
+          full_name,
+          avatar_url
+        )
+      ),
+      variants:product_variants(*)
+    `)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single()
+
+  if (!product) {
+    notFound()
+  }
 
   return (
     <PageLayout className="min-h-screen">
-      <ProductDetail productId={slug} />
+      <ProductDetail product={product} />
     </PageLayout>
   )
 }

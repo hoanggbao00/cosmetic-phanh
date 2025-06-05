@@ -5,4 +5,5 @@ export interface Product {
   image_secondary: string
   price: number
   category: string[]
+  slug: string
 }

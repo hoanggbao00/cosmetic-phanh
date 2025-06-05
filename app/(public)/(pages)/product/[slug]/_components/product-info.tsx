@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useUser } from "@/hooks/use-user"
+import { useIsInWishlist, useToggleWishlistMutation } from "@/queries/wishlist"
 import { Heart, Minus, Plus, RotateCcw, Share2, ShieldCheck, Truck } from "lucide-react"
+import { toast } from "sonner"
 
 interface ProductInfoProps {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -26,8 +29,29 @@ export default function ProductInfo({
   currentPrice,
   onAddToCart,
 }: ProductInfoProps) {
+  const { data: user } = useUser()
+  const { data: isInWishlist } = useIsInWishlist(product.id, user?.id)
+  const { mutate: toggleWishlist } = useToggleWishlistMutation()
+
   const incrementQuantity = () => setQuantity(quantity + 1)
   const decrementQuantity = () => setQuantity(Math.max(1, quantity - 1))
+
+  const onWishlist = () => {
+    if (!user) {
+      toast.error("Please login to add items to your wishlist")
+      return
+    }
+
+    toggleWishlist({
+      productId: product.id,
+      userId: user.id,
+    })
+  }
+
+  const onShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+    toast.success("Link copied to clipboard")
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -100,11 +124,16 @@ export default function ProductInfo({
         <Button className="flex-1" size="lg" onClick={onAddToCart}>
           Add to Cart
         </Button>
-        <Button variant="outline" size="icon" className="h-12 w-12">
-          <Heart className="h-5 w-5" />
+        <Button
+          variant={isInWishlist ? "default" : "outline"}
+          size="icon"
+          className="h-12 w-12"
+          onClick={onWishlist}
+        >
+          <Heart className={isInWishlist ? "fill-current" : "h-5 w-5"} />
           <span className="sr-only">Add to wishlist</span>
         </Button>
-        <Button variant="outline" size="icon" className="h-12 w-12">
+        <Button variant="outline" size="icon" className="h-12 w-12" onClick={onShare}>
           <Share2 className="h-5 w-5" />
           <span className="sr-only">Share product</span>
         </Button>
@@ -163,13 +192,10 @@ export default function ProductInfo({
             <p className="leading-relaxed">{product.ingredients}</p>
           </TabsContent>
           <TabsContent value="how-to-use" className="mt-4 text-gray-600 text-sm">
-            <ol className="list-decimal space-y-2 pl-4">
-              <li>Apply to clean, dry skin in the morning and evening.</li>
-              <li>Dispense 3-4 drops onto fingertips.</li>
-              <li>Gently pat and press into face and neck.</li>
-              <li>Allow to absorb for 30 seconds before applying moisturizer.</li>
-              <li>For daytime use, always follow with SPF protection.</li>
-            </ol>
+            <div
+              className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto"
+              dangerouslySetInnerHTML={{ __html: product.how_to_use }}
+            />
           </TabsContent>
         </Tabs>
       </div>

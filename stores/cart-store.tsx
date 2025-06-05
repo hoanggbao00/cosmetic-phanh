@@ -1,25 +1,28 @@
+import type { Tables } from "@/types/supabase"
 import { toast } from "sonner"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 export interface CartItem {
   id: string
+  productId: string
   name: string
   price: number
   image: string
   quantity: number
-  color?: string
   size?: string
+  variant?: Tables<"product_variants">
 }
 
 interface CartStore {
   items: CartItem[]
-  addItem: (item: CartItem) => void
+  addItem: (item: Omit<CartItem, "id">) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
   itemCount: () => number
   totalPrice: () => number
+  getItemsByProduct: (productId: string) => CartItem[]
 }
 
 export const useCartStore = create<CartStore>()(
@@ -27,20 +30,29 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
 
-      addItem: (item: CartItem) => {
+      addItem: (item) => {
         const { items } = get()
-        const existingItem = items.find((i) => i.id === item.id)
+        const existingItem = items.find(
+          (i) =>
+            i.productId === item.productId &&
+            i.size === item.size &&
+            i.variant?.id === item.variant?.id
+        )
 
         if (existingItem) {
-          // If item exists, update quantity
+          // If item exists with same variant and size, update quantity
           set({
             items: items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+              i.id === existingItem.id ? { ...i, quantity: i.quantity + item.quantity } : i
             ),
           })
         } else {
-          // Add new item
-          set({ items: [...items, item] })
+          // Add new item with unique id
+          const newItem = {
+            ...item,
+            id: crypto.randomUUID(),
+          }
+          set({ items: [...items, newItem] })
         }
 
         toast.success("Product added to cart", {
@@ -73,10 +85,15 @@ export const useCartStore = create<CartStore>()(
         const { items } = get()
         return items.reduce((total, item) => total + item.price * item.quantity, 0)
       },
+
+      getItemsByProduct: (productId: string) => {
+        const { items } = get()
+        return items.filter((item) => item.productId === productId)
+      },
     }),
     {
-      name: "cart-storage", // name of the item in localStorage
-      skipHydration: true, // Skip hydration to prevent hydration mismatch errors
+      name: "cart-storage",
+      skipHydration: true,
     }
   )
 )

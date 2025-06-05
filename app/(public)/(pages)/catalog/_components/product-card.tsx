@@ -16,7 +16,7 @@ export const ProductCard = ({ product, categories }: ProductCardProps) => {
 
   function handleAddToCart() {
     addItem({
-      id: product.id,
+      productId: product.id,
       name: product.name,
       price: product.price,
       image: product.images?.[0] ?? "",
@@ -36,7 +36,7 @@ export const ProductCard = ({ product, categories }: ProductCardProps) => {
             alt={product.name}
             className="size-full object-contain transition-all duration-300 group-hover:scale-110"
           />
-          <Link href={`/product/${product.id}`} className="absolute inset-0">
+          <Link href={`/product/${product.slug}`} className="absolute inset-0">
             <img
               src={product.images?.[1] ?? ""}
               alt={product.name}
@@ -71,7 +71,7 @@ export const ProductCard = ({ product, categories }: ProductCardProps) => {
             )}
           </div>
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product.slug}`}
             className="transition-colors duration-300 hover:text-primary"
           >
             <h3 className="font-medium text-xl md:text-2xl">{product.name}</h3>

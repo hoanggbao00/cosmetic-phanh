@@ -8,6 +8,7 @@ export interface CartItem {
   price: number
   image: string
   quantity: number
+  size?: string
 }
 
 interface CartStore {
@@ -30,13 +31,17 @@ export const useCartStore = create<CartStore>()(
           data: { session },
         } = await supabase.auth.getSession()
         const currentItems = get().items
-        const existingItem = currentItems.find((i) => i.id === item.id)
+        const existingItemIndex = currentItems.findIndex(
+          (i) => i.id === item.id && i.size === item.size
+        )
 
         let newItems: CartItem[]
-        if (existingItem) {
-          newItems = currentItems.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
-          )
+        if (existingItemIndex !== -1) {
+          newItems = [...currentItems]
+          newItems[existingItemIndex] = {
+            ...newItems[existingItemIndex],
+            quantity: newItems[existingItemIndex].quantity + item.quantity,
+          }
         } else {
           newItems = [...currentItems, item]
         }
@@ -50,13 +55,16 @@ export const useCartStore = create<CartStore>()(
         // Sync with database if user is logged in
         if (session) {
           const userId = session.user.id
-          if (existingItem) {
+          if (existingItemIndex !== -1) {
             // Update quantity if item exists
             await supabase
               .from("cart_items")
-              .update({ quantity: existingItem.quantity + item.quantity })
+              .update({
+                quantity: newItems[existingItemIndex].quantity,
+              })
               .eq("user_id", userId)
               .eq("product_id", item.id)
+              .eq("size", item.size || null)
           } else {
             // Insert new item
             await supabase.from("cart_items").insert({
@@ -64,6 +72,7 @@ export const useCartStore = create<CartStore>()(
               product_id: item.id,
               quantity: item.quantity,
               price: item.price,
+              size: item.size || null,
             })
           }
         }

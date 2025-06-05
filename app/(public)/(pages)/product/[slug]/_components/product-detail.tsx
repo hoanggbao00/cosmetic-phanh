@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useCartStore } from "@/stores/cart-store"
+import type { Tables } from "@/types/supabase"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useState } from "react"
 import ProductGallery from "./product-gallery"
@@ -10,111 +11,61 @@ import ProductInfo from "./product-info"
 import RelatedPosts from "./related-posts"
 import RelatedProducts from "./related-products"
 
-interface ProductDetailProps {
-  productId: string
+type ProductWithRelations = Tables<"products"> & {
+  brand: Tables<"brands">
+  category: Tables<"categories">
+  reviews: (Tables<"product_reviews"> & {
+    user: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">
+  })[]
+  variants: Tables<"product_variants">[]
 }
 
-export default function ProductDetail({ productId }: ProductDetailProps) {
+interface ProductDetailProps {
+  product: ProductWithRelations
+}
+
+export default function ProductDetail({ product }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const addItem = useCartStore((state) => state.addItem)
 
-  // Fetch product data (simulated)
-  const product = {
-    id: productId,
-    name: "Luminous Radiance Serum",
-    price: 48.99,
-    rating: 4.8,
-    reviewCount: 124,
-    sizes: [
-      { id: 1, name: "30ml", price: 48.99 },
-      { id: 2, name: "50ml", price: 68.99 },
-      { id: 3, name: "100ml", price: 98.99 },
-    ],
-    images: [
-      "/images/products/product_1_primary.png",
-      "/images/products/product_1_secondary.png",
-      "/images/products/product_1_primary.png",
-      "/images/products/product_1_secondary.png",
-    ],
-    description: `
-      <div class="prose prose-sm md:prose-base lg:prose-lg max-w-none">
-        <p>Discover the transformative power of our <strong>Luminous Radiance Serum</strong>, a revolutionary formula designed to revitalize your skin and restore its natural glow. This lightweight, fast-absorbing serum is packed with potent ingredients that work synergistically to address multiple skin concerns simultaneously.</p>
-        
-        <h3>Key Benefits</h3>
-        <ul>
-          <li><strong>Brightens & Evens Skin Tone:</strong> Vitamin C and niacinamide work together to fade dark spots and hyperpigmentation, revealing a more even complexion.</li>
-          <li><strong>Hydrates & Plumps:</strong> Hyaluronic acid draws moisture into the skin, instantly plumping fine lines and wrinkles.</li>
-          <li><strong>Protects & Repairs:</strong> Antioxidant-rich ingredients neutralize free radicals and strengthen the skin's natural barrier.</li>
-          <li><strong>Soothes & Calms:</strong> Centella asiatica extract reduces redness and inflammation, making it suitable for sensitive skin.</li>
-        </ul>
-        
-        <h3>Key Ingredients</h3>
-        <p><strong>Stabilized Vitamin C (10%):</strong> A powerful antioxidant that brightens skin, boosts collagen production, and protects against environmental damage.</p>
-        <p><strong>Niacinamide (5%):</strong> Improves skin texture, minimizes pores, and strengthens the skin barrier while reducing inflammation.</p>
-        <p><strong>Hyaluronic Acid Complex:</strong> A blend of low, medium, and high molecular weight hyaluronic acid that hydrates at multiple skin layers.</p>
-        <p><strong>Peptide Complex:</strong> Signals the skin to produce more collagen, resulting in firmer, more resilient skin over time.</p>
-        <p><strong>Centella Asiatica Extract:</strong> Calms irritation and supports skin healing with its anti-inflammatory properties.</p>
-        
-        <h3>How to Use</h3>
-        <ol>
-          <li>Apply to clean, dry skin in the morning and evening.</li>
-          <li>Dispense 3-4 drops onto fingertips.</li>
-          <li>Gently pat and press into face and neck.</li>
-          <li>Allow to absorb for 30 seconds before applying moisturizer.</li>
-          <li>For daytime use, always follow with SPF protection.</li>
-        </ol>
-        
-        <h3>Perfect For</h3>
-        <p>All skin types, including sensitive skin. Especially beneficial for those concerned with dullness, uneven texture, fine lines, and dehydration.</p>
-        
-        <div class="bg-amber-50 p-4 rounded-md border border-amber-200 my-6">
-          <p class="text-amber-800 font-medium">Clinical Results</p>
-          <ul class="text-amber-700 mt-2">
-            <li>92% of users reported brighter, more radiant skin after 2 weeks</li>
-            <li>87% noticed improved skin texture and smoothness</li>
-            <li>94% experienced increased hydration and plumpness</li>
-          </ul>
-        </div>
-        
-        <h3>Formulated Without</h3>
-        <p>Parabens, sulfates, phthalates, mineral oil, synthetic fragrances, or artificial colors. Vegan and cruelty-free.</p>
-      </div>
-    `,
-    features: [
-      "Dermatologist tested",
-      "Non-comedogenic",
-      "Fragrance-free",
-      "Suitable for sensitive skin",
-      "Vegan & cruelty-free",
-    ],
-    ingredients:
-      "Aqua/Water/Eau, Ascorbic Acid, Glycerin, Niacinamide, Propanediol, Butylene Glycol, Sodium Hyaluronate, Acetyl Hexapeptide-8, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Centella Asiatica Extract, Panthenol, Tocopherol, Adenosine, Sodium Citrate, Citric Acid, Disodium EDTA, Phenoxyethanol, Ethylhexylglycerin.",
-  }
+  // Convert variants to sizes
+  const sizes = product.variants.map((variant) => ({
+    id: variant.id,
+    name: variant.name,
+    price: variant.price,
+  }))
 
   // Handle size selection
   useEffect(() => {
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      setSelectedSize(product.sizes[0].name)
+    if (sizes.length > 0 && !selectedSize) {
+      setSelectedSize(sizes[0].name)
     }
-  }, [product.sizes, selectedSize])
+  }, [sizes, selectedSize])
 
   // Get current price based on selected size
   const getCurrentPrice = () => {
     if (!selectedSize) return product.price
-    const size = product.sizes.find((s) => s.name === selectedSize)
+    const size = sizes.find((s) => s.name === selectedSize)
     return size ? size.price : product.price
   }
+
+  // Calculate average rating
+  const averageRating =
+    product.reviews.length > 0
+      ? product.reviews.reduce((acc, review) => acc + review.rating, 0) / product.reviews.length
+      : 0
 
   // Handle add to cart
   const handleAddToCart = () => {
     addItem({
-      id: productId,
+      productId: product.id,
       name: product.name,
       price: getCurrentPrice(),
-      image: product.images[0],
+      image: product.images?.[0] || "",
       quantity: quantity,
       size: selectedSize || undefined,
+      variant: selectedSize ? product.variants?.find((v) => v.name === selectedSize) : undefined,
     })
   }
 
@@ -125,13 +76,19 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         <div className="mb-16 flex flex-col gap-8 lg:flex-row">
           {/* Product Gallery */}
           <div className="lg:w-1/2">
-            <ProductGallery images={product.images} productName={product.name} />
+            <ProductGallery images={product.images || []} productName={product.name} />
           </div>
 
           {/* Product Info */}
           <div className="lg:w-1/2">
             <ProductInfo
-              product={product}
+              product={{
+                ...product,
+                sizes,
+                rating: averageRating,
+                reviewCount: product.reviews.length,
+                features: product.tags || [],
+              }}
               quantity={quantity}
               setQuantity={setQuantity}
               selectedSize={selectedSize}
@@ -156,7 +113,10 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="p-4">
-              <div dangerouslySetInnerHTML={{ __html: product.description }} />
+              <div
+                className="prose prose-sm md:prose-base lg:prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description || "" }}
+              />
             </CollapsibleContent>
           </Collapsible>
         </div>
@@ -164,13 +124,13 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         {/* Related Products */}
         <div className="mb-16">
           <h2 className="mb-6 font-bold text-2xl">You May Also Like</h2>
-          <RelatedProducts currentProductId={productId} />
+          <RelatedProducts currentProductId={product.id} categoryId={product.category_id} />
         </div>
 
         {/* Related Posts */}
         <div className="mb-16">
           <h2 className="mb-6 font-bold text-2xl">Related Articles</h2>
-          <RelatedPosts productCategory="Skincare" />
+          <RelatedPosts productCategory={product.category?.name || ""} />
         </div>
       </div>
     </div>

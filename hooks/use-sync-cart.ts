@@ -11,6 +11,7 @@ interface CartStoreWithSet {
 interface CartItemFromDB {
   quantity: number
   price: number
+  size: string | null
   products: {
     id: string
     name: string
@@ -35,6 +36,7 @@ export function useSyncCart() {
           .select(`
             quantity,
             price,
+            size,
             products (
               id,
               name,
@@ -51,6 +53,7 @@ export function useSyncCart() {
             price: item.price,
             image: item.products.images[0] || "",
             quantity: item.quantity,
+            ...(item.size && { size: item.size }),
           }))
 
           // Update local cart state

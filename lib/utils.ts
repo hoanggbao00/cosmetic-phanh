@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { format } from "date-fns"
 import { twMerge } from "tailwind-merge"
+import { currencySymbol } from "./consts"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -31,13 +32,14 @@ export function slugify(text: string) {
 export function formatPrice(price: number | null | undefined): string {
   if (price == null) return "-"
 
-  // Format for Vietnamese currency (VND)
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    minimumFractionDigits: 0, // VND doesn't use decimal places
+  // Format number without currency symbol first
+  const formattedNumber = new Intl.NumberFormat("vi-VN", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price)
+
+  // Append custom currency symbol
+  return `${formattedNumber}${currencySymbol}`
 }
 
 // Example usage:

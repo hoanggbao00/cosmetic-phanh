@@ -1,12 +1,8 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
-import { useFieldArray, useForm } from "react-hook-form"
-import type * as z from "zod"
-
 import { useMultipleProductVariants } from "@/app/admin/hooks/use-product-variants"
 import { useProducts } from "@/app/admin/hooks/use-products"
+import { calculateVoucherDiscount, useVouchers } from "@/app/admin/hooks/use-vouchers"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -27,16 +23,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { formatPrice } from "@/lib/utils"
 import type { Order } from "@/types/tables/orders"
 import type { ProductVariant } from "@/types/tables/product_variants"
 import type { Product } from "@/types/tables/products"
 import { supabase } from "@/utils/supabase/client"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { MinusIcon, PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { orderSchema } from "./schema"
-
-type OrderFormValues = z.infer<typeof orderSchema>
+import { type OrderFormValues, orderSchema } from "./schema"
 
 interface OrderFormProps {
   order?: Order
@@ -50,9 +48,9 @@ export default function OrderForm({ order }: OrderFormProps) {
     defaultValues: {
       order_number: order?.order_number || "",
       guest_email: order?.guest_email || null,
-      status: order?.status || "pending",
-      payment_status: order?.payment_status || "pending",
-      payment_method: order?.payment_method || "cash",
+      status: (order?.status as OrderFormValues["status"]) || "pending",
+      payment_status: (order?.payment_status as OrderFormValues["payment_status"]) || "pending",
+      payment_method: (order?.payment_method as OrderFormValues["payment_method"]) || "cash",
       shipping_amount: order?.shipping_amount || 0,
       discount_amount: order?.discount_amount || 0,
       total_amount: order?.total_amount || 0,
@@ -72,9 +70,12 @@ export default function OrderForm({ order }: OrderFormProps) {
           product_name: item.product_name,
           variant_id: item.variant_id || "",
           variant_name: item.variant_name || "",
+          variant_price: 0,
         })) || [],
       customer_notes: order?.customer_notes || "",
       admin_notes: order?.admin_notes || "",
+      voucher_id: order?.voucher_id || "",
+      voucher_code: order?.voucher_code || "",
     },
   })
 
@@ -84,6 +85,7 @@ export default function OrderForm({ order }: OrderFormProps) {
   })
 
   const { data: products, isLoading: isLoadingProducts, error: productsError } = useProducts()
+  const { data: vouchers } = useVouchers()
 
   // Get all product IDs from order items
   const orderItems = form.watch("order_items")
@@ -104,16 +106,25 @@ export default function OrderForm({ order }: OrderFormProps) {
     return map
   }, [productIds, variantQueries])
 
+  // Watch values for calculations
   const shippingAmount = form.watch("shipping_amount") || 0
-  const discountAmount = form.watch("discount_amount") || 0
+  const selectedVoucherId = form.watch("voucher_id")
 
-  // Calculate totals whenever order items, shipping, or discount changes
+  // Calculate subtotal
+  const subtotal = orderItems?.reduce((sum, item) => sum + (item.total_price || 0), 0) || 0
+
+  // Get selected voucher and calculate discount
+  const selectedVoucher = vouchers?.find((v) => v.id === selectedVoucherId) || null
+  const voucherDiscount = calculateVoucherDiscount(selectedVoucher, subtotal)
+
+  // Calculate final total
+  const finalTotal = subtotal + shippingAmount - voucherDiscount
+
+  // Update form values when calculations change
   useEffect(() => {
-    const subtotal = orderItems?.reduce((sum, item) => sum + (item.total_price || 0), 0) || 0
-    const total = subtotal + shippingAmount - discountAmount
-
-    form.setValue("total_amount", total)
-  }, [orderItems, shippingAmount, discountAmount, form])
+    form.setValue("total_amount", finalTotal)
+    form.setValue("discount_amount", voucherDiscount)
+  }, [finalTotal, voucherDiscount, form])
 
   const onSubmit = async (data: OrderFormValues) => {
     if (order) {
@@ -183,9 +194,6 @@ export default function OrderForm({ order }: OrderFormProps) {
     }
   }
 
-  // Calculate subtotal from order items
-  const subtotal = orderItems?.reduce((sum, item) => sum + (item.total_price || 0), 0) || 0
-
   if (isLoadingProducts) {
     return <div>Loading products...</div>
   }
@@ -202,40 +210,42 @@ export default function OrderForm({ order }: OrderFormProps) {
           <div className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Order Items</h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  append({
-                    product_id: "",
-                    product_name: "",
-                    variant_id: "",
-                    variant_name: "",
-                    price: 0,
-                    quantity: 1,
-                    total_price: 0,
-                    variant_price: 0,
-                  })
-                }
-                className="w-full"
-              >
-                <PlusIcon className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
-
               {fields.map((field, index) => {
                 const currentProductId = form.watch(`order_items.${index}.product_id`)
                 const variants = variantsMap.get(currentProductId) || []
 
                 return (
                   <div key={field.id} className="space-y-4 rounded-lg border p-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Product {index + 1}</h4>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => remove(index)}>
-                        <MinusIcon className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {form.watch(`order_items.${index}.product_id`) && (
+                      <div className="relative mb-4">
+                        {products?.find(
+                          (p) => p.id === form.watch(`order_items.${index}.product_id`)
+                        )?.images?.[0] && (
+                          <div className="relative aspect-square w-20 overflow-hidden rounded-lg border">
+                            <img
+                              src={
+                                products.find(
+                                  (p) => p.id === form.watch(`order_items.${index}.product_id`)
+                                )?.images[0] || ""
+                              }
+                              alt={
+                                form.watch(`order_items.${index}.product_name`) || "Product image"
+                              }
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-0 right-0"
+                          onClick={() => remove(index)}
+                        >
+                          <MinusIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
 
                     <div className="flex items-end gap-4">
                       <div className="flex-1">
@@ -345,8 +355,9 @@ export default function OrderForm({ order }: OrderFormProps) {
                         name={`order_items.${index}.total_price`}
                         render={({ field }) => (
                           <div className="space-y-1">
-                            <FormLabel>Total</FormLabel>
-                            <p className="font-medium text-lg">${field.value || 0}</p>
+                            <p className="font-medium text-lg">
+                              {field.value ? formatPrice(field.value) : 0}
+                            </p>
                           </div>
                         )}
                       />
@@ -354,6 +365,28 @@ export default function OrderForm({ order }: OrderFormProps) {
                   </div>
                 )
               })}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  append({
+                    product_id: "",
+                    product_name: "",
+                    variant_id: "",
+                    variant_name: "",
+                    price: 0,
+                    quantity: 1,
+                    total_price: 0,
+                    variant_price: 0,
+                  })
+                }
+                className="w-full"
+              >
+                <PlusIcon className="mr-2" />
+                Add Product
+              </Button>
             </div>
 
             <FormField
@@ -542,6 +575,44 @@ export default function OrderForm({ order }: OrderFormProps) {
               )}
             />
 
+            {/* Select Voucher here */}
+            <FormField
+              control={form.control}
+              name="voucher_id"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Voucher</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      const selectedVoucher = vouchers?.find((v) => v.id === value)
+                      field.onChange(value)
+                      if (selectedVoucher) {
+                        form.setValue("voucher_code", selectedVoucher.code)
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full border-border">
+                        <SelectValue placeholder="Select a voucher" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {vouchers?.map((voucher) => (
+                        <SelectItem key={voucher.id} value={voucher.id}>
+                          {voucher.name} -{" "}
+                          {voucher.type === "percentage"
+                            ? `${voucher.value}%`
+                            : formatPrice(voucher.value)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -580,10 +651,24 @@ export default function OrderForm({ order }: OrderFormProps) {
               />
             </div>
 
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between font-medium text-lg">
+            <div className="space-y-2 border-t pt-4">
+              <div className="flex items-center justify-between text-base">
+                <span>Subtotal:</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+              {selectedVoucher && voucherDiscount > 0 && (
+                <div className="flex items-center justify-between text-base text-green-600">
+                  <span>Voucher Discount ({selectedVoucher.code}):</span>
+                  <span>-{formatPrice(voucherDiscount)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-base">
+                <span>Shipping:</span>
+                <span>{formatPrice(shippingAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between border-t pt-2 font-medium text-lg">
                 <span>Total Amount:</span>
-                <span>${subtotal + shippingAmount - discountAmount}</span>
+                <span>{formatPrice(finalTotal)}</span>
               </div>
             </div>
           </div>

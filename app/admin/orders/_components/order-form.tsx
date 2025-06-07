@@ -1,8 +1,10 @@
 "use client"
-
-import { useMultipleProductVariants } from "@/app/admin/hooks/use-product-variants"
 import { useProducts } from "@/app/admin/hooks/use-products"
-import { calculateVoucherDiscount, useVouchers } from "@/app/admin/hooks/use-vouchers"
+import {
+  calculateVoucherDiscount,
+  useUpdateVoucherUsage,
+  useVouchers,
+} from "@/app/admin/hooks/use-vouchers"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -23,7 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { formatPrice } from "@/lib/utils"
+import { cn, formatPrice } from "@/lib/utils"
+import { useProductVariantsByProductQuery } from "@/queries/product-variants"
 import type { Order } from "@/types/tables/orders"
 import type { ProductVariant } from "@/types/tables/product_variants"
 import type { Product } from "@/types/tables/products"
@@ -31,7 +34,7 @@ import { supabase } from "@/utils/supabase/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { MinusIcon, PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type OrderFormValues, orderSchema } from "./schema"
@@ -79,52 +82,75 @@ export default function OrderForm({ order }: OrderFormProps) {
     },
   })
 
+  const [finalPrice, setFinalPrice] = useState(0)
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "order_items",
   })
 
-  const { data: products, isLoading: isLoadingProducts, error: productsError } = useProducts()
-  const { data: vouchers } = useVouchers()
+  // Get all product IDs from fields
+  const productIds = useMemo(
+    () => fields.map((_, index) => form.watch(`order_items.${index}.product_id`)).filter(Boolean),
+    [fields, form]
+  )
 
-  // Get all product IDs from order items
-  const orderItems = form.watch("order_items")
-  const productIds = orderItems.map((item) => item.product_id).filter(Boolean)
+  // Create variant queries for all products at once
+  const variantQueries = productIds.map((productId) => useProductVariantsByProductQuery(productId))
 
-  // Fetch variants for all products at once
-  const variantQueries = useMultipleProductVariants(productIds)
-
-  // Create a map to store variants for each product
+  // Create a map of variants for each product
   const variantsMap = useMemo(() => {
     const map = new Map<string, ProductVariant[]>()
     productIds.forEach((productId, index) => {
-      const { data: variants } = variantQueries[index]
-      if (variants) {
-        map.set(productId, variants)
-      }
+      const { data: variants = [] } = variantQueries[index] || { data: [] }
+      map.set(productId, variants)
     })
     return map
   }, [productIds, variantQueries])
+
+  const { data: products, isLoading: isLoadingProducts, error: productsError } = useProducts()
+  const { data: vouchers } = useVouchers()
+  const updateVoucherUsage = useUpdateVoucherUsage()
 
   // Watch values for calculations
   const shippingAmount = form.watch("shipping_amount") || 0
   const selectedVoucherId = form.watch("voucher_id")
 
-  // Calculate subtotal
-  const subtotal = orderItems?.reduce((sum, item) => sum + (item.total_price || 0), 0) || 0
+  // Calculate current subtotal
+  const subtotal = useMemo(() => {
+    return fields.reduce((sum, _, index) => {
+      const item = form.getValues(`order_items.${index}`)
+      const basePrice = item.price || 0
+      const variantPrice = item.variant_price || 0
+      const quantity = item.quantity || 0
+      const itemTotal = (basePrice + variantPrice) * quantity
+      return sum + itemTotal
+    }, 0)
+  }, [fields, form])
 
   // Get selected voucher and calculate discount
-  const selectedVoucher = vouchers?.find((v) => v.id === selectedVoucherId) || null
-  const voucherDiscount = calculateVoucherDiscount(selectedVoucher, subtotal)
+  const { discount: voucherDiscount, error: voucherError } = useMemo(() => {
+    const selectedVoucher = vouchers?.find((v) => v.id === selectedVoucherId) || null
+    return calculateVoucherDiscount(selectedVoucher, subtotal)
+  }, [vouchers, selectedVoucherId, subtotal])
 
-  // Calculate final total
-  const finalTotal = subtotal + shippingAmount - voucherDiscount
+  const updateFinalPrice = () => {
+    // Update each item's total price
+    fields.forEach((_, index) => {
+      const item = form.getValues(`order_items.${index}`)
+      const basePrice = item.price || 0
+      const variantPrice = item.variant_price || 0
+      const quantity = item.quantity || 0
+      const itemTotal = (basePrice + variantPrice) * quantity
+      form.setValue(`order_items.${index}.total_price`, itemTotal)
+    })
 
-  // Update form values when calculations change
-  useEffect(() => {
-    form.setValue("total_amount", finalTotal)
-    form.setValue("discount_amount", voucherDiscount)
-  }, [finalTotal, voucherDiscount, form])
+    // Calculate final total with shipping and discount
+    const finalAmount = subtotal + shippingAmount - (voucherDiscount || 0)
+    form.setValue("total_amount", finalAmount)
+    form.setValue("discount_amount", voucherDiscount || 0)
+    setFinalPrice(finalAmount)
+  }
 
   const onSubmit = async (data: OrderFormValues) => {
     if (order) {
@@ -150,7 +176,7 @@ export default function OrderForm({ order }: OrderFormProps) {
         const now = new Date()
         const orderNumber = `ORD-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`
 
-        const { error } = await supabase
+        const { error: orderError } = await supabase
           .from("orders")
           .insert({
             ...data,
@@ -159,7 +185,12 @@ export default function OrderForm({ order }: OrderFormProps) {
           .select()
           .single()
 
-        if (error) throw error
+        if (orderError) throw orderError
+
+        // Only update voucher usage when creating a new order
+        if (data.voucher_id) {
+          await updateVoucherUsage.mutateAsync(data.voucher_id)
+        }
 
         toast.success("Order created successfully")
         router.push("/admin/orders")
@@ -170,27 +201,19 @@ export default function OrderForm({ order }: OrderFormProps) {
     }
   }
 
-  // Function to update item total price when quantity or price changes
-  const updateItemTotalPrice = (index: number) => {
-    const item = form.getValues(`order_items.${index}`)
-    const basePrice = item.price || 0
-    const variantPrice = item.variant_price || 0
-    const totalPrice = (basePrice + variantPrice) * item.quantity
-    form.setValue(`order_items.${index}.total_price`, totalPrice)
-  }
-
   // Function to handle product selection
   const handleProductSelect = (index: number, productId: string) => {
     const product = products?.find((p: Product) => p.id === productId)
     if (product) {
+      const quantity = form.getValues(`order_items.${index}.quantity`) || 1
       form.setValue(`order_items.${index}.product_id`, product.id)
       form.setValue(`order_items.${index}.product_name`, product.name)
       form.setValue(`order_items.${index}.price`, product.price)
       form.setValue(`order_items.${index}.variant_id`, "")
       form.setValue(`order_items.${index}.variant_name`, "")
       form.setValue(`order_items.${index}.variant_price`, 0)
-      form.setValue(`order_items.${index}.quantity`, 1)
-      updateItemTotalPrice(index)
+      form.setValue(`order_items.${index}.quantity`, quantity)
+      updateFinalPrice()
     }
   }
 
@@ -210,111 +233,65 @@ export default function OrderForm({ order }: OrderFormProps) {
           <div className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Order Items</h3>
-              {fields.map((field, index) => {
-                const currentProductId = form.watch(`order_items.${index}.product_id`)
-                const variants = variantsMap.get(currentProductId) || []
+              <div className="max-h-[70svh] space-y-4 overflow-y-auto">
+                {fields.map((field, index) => {
+                  const currentProductId = form.watch(`order_items.${index}.product_id`)
+                  const variants = variantsMap.get(currentProductId) || []
 
-                return (
-                  <div key={field.id} className="space-y-4 rounded-lg border p-4">
-                    {form.watch(`order_items.${index}.product_id`) && (
-                      <div className="relative mb-4">
-                        {products?.find(
-                          (p) => p.id === form.watch(`order_items.${index}.product_id`)
-                        )?.images?.[0] && (
-                          <div className="relative aspect-square w-20 overflow-hidden rounded-lg border">
-                            <img
-                              src={
-                                products.find(
-                                  (p) => p.id === form.watch(`order_items.${index}.product_id`)
-                                )?.images[0] || ""
-                              }
-                              alt={
-                                form.watch(`order_items.${index}.product_name`) || "Product image"
-                              }
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-0 right-0"
-                          onClick={() => remove(index)}
-                        >
-                          <MinusIcon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-
-                    <div className="flex items-end gap-4">
-                      <div className="flex-1">
-                        <FormField
-                          control={form.control}
-                          name={`order_items.${index}.product_id`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Product</FormLabel>
-                              <Select
-                                value={field.value}
-                                onValueChange={(value) => handleProductSelect(index, value)}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="w-full border-border">
-                                    <SelectValue placeholder="Select a product" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {products?.map((product) => (
-                                    <SelectItem key={product.id} value={product.id}>
-                                      {product.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
+                  return (
+                    <div key={field.id} className="space-y-4 rounded-lg border p-4">
+                      {form.watch(`order_items.${index}.product_id`) && (
+                        <div className="relative mb-4">
+                          {products?.find(
+                            (p) => p.id === form.watch(`order_items.${index}.product_id`)
+                          )?.images?.[0] && (
+                            <div className="relative aspect-square w-20 overflow-hidden rounded-lg border">
+                              <img
+                                src={
+                                  products.find(
+                                    (p) => p.id === form.watch(`order_items.${index}.product_id`)
+                                  )?.images[0] || ""
+                                }
+                                alt={
+                                  form.watch(`order_items.${index}.product_name`) || "Product image"
+                                }
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
                           )}
-                        />
-                      </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0"
+                            onClick={() => remove(index)}
+                          >
+                            <MinusIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
 
-                      {variants.length > 0 && (
+                      <div className="flex items-end gap-4">
                         <div className="flex-1">
                           <FormField
                             control={form.control}
-                            name={`order_items.${index}.variant_id`}
+                            name={`order_items.${index}.product_id`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Variant</FormLabel>
+                                <FormLabel>Product</FormLabel>
                                 <Select
                                   value={field.value}
-                                  onValueChange={(value) => {
-                                    const variant = variants.find(
-                                      (v: ProductVariant) => v.id === value
-                                    )
-                                    if (variant) {
-                                      form.setValue(`order_items.${index}.variant_id`, variant.id)
-                                      form.setValue(
-                                        `order_items.${index}.variant_name`,
-                                        variant.name
-                                      )
-                                      form.setValue(
-                                        `order_items.${index}.variant_price`,
-                                        variant.price
-                                      )
-                                      updateItemTotalPrice(index)
-                                    }
-                                  }}
+                                  onValueChange={(value) => handleProductSelect(index, value)}
                                 >
                                   <FormControl>
                                     <SelectTrigger className="w-full border-border">
-                                      <SelectValue placeholder="Select a variant" />
+                                      <SelectValue placeholder="Select a product" />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {variants.map((variant: ProductVariant) => (
-                                      <SelectItem key={variant.id} value={variant.id}>
-                                        {variant.name} - ${variant.price}
+                                    {products?.map((product) => (
+                                      <SelectItem key={product.id} value={product.id}>
+                                        {product.name}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -324,47 +301,100 @@ export default function OrderForm({ order }: OrderFormProps) {
                             )}
                           />
                         </div>
-                      )}
 
-                      <div className="w-[100px]">
+                        {variants.length > 0 && (
+                          <div className="flex-1">
+                            <FormField
+                              control={form.control}
+                              name={`order_items.${index}.variant_id`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Variant</FormLabel>
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={(value) => {
+                                      const variant = variants.find(
+                                        (v: ProductVariant) => v.id === value
+                                      )
+                                      if (variant) {
+                                        form.setValue(`order_items.${index}.variant_id`, variant.id)
+                                        form.setValue(
+                                          `order_items.${index}.variant_name`,
+                                          variant.name
+                                        )
+                                        form.setValue(
+                                          `order_items.${index}.variant_price`,
+                                          variant.price
+                                        )
+                                        updateFinalPrice()
+                                      }
+                                    }}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="w-full border-border">
+                                        <SelectValue placeholder="Select a variant" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {variants.map((variant: ProductVariant) => (
+                                        <SelectItem key={variant.id} value={variant.id}>
+                                          {variant.name} - ${variant.price}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        )}
+
+                        <div className="w-[100px]">
+                          <FormField
+                            control={form.control}
+                            name={`order_items.${index}.quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    {...field}
+                                    onChange={(e) => {
+                                      const newQuantity = Math.max(
+                                        1,
+                                        Number.parseInt(e.target.value) || 0
+                                      )
+                                      field.onChange(newQuantity)
+                                      updateFinalPrice()
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-2 text-right">
                         <FormField
                           control={form.control}
-                          name={`order_items.${index}.quantity`}
+                          name={`order_items.${index}.total_price`}
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Quantity</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(Number.parseInt(e.target.value))
-                                    updateItemTotalPrice(index)
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                            <div className="space-y-1">
+                              <p className="font-medium text-lg">
+                                {field.value ? formatPrice(field.value) : 0}
+                              </p>
+                            </div>
                           )}
                         />
                       </div>
                     </div>
-                    <div className="mb-2 text-right">
-                      <FormField
-                        control={form.control}
-                        name={`order_items.${index}.total_price`}
-                        render={({ field }) => (
-                          <div className="space-y-1">
-                            <p className="font-medium text-lg">
-                              {field.value ? formatPrice(field.value) : 0}
-                            </p>
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
 
               <Button
                 type="button"
@@ -440,7 +470,7 @@ export default function OrderForm({ order }: OrderFormProps) {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>Order Status</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full border-border">
@@ -488,12 +518,12 @@ export default function OrderForm({ order }: OrderFormProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="shipping_address.full_name"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-2">
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -575,45 +605,51 @@ export default function OrderForm({ order }: OrderFormProps) {
               )}
             />
 
-            {/* Select Voucher here */}
-            <FormField
-              control={form.control}
-              name="voucher_id"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Voucher</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      const selectedVoucher = vouchers?.find((v) => v.id === value)
-                      field.onChange(value)
-                      if (selectedVoucher) {
-                        form.setValue("voucher_code", selectedVoucher.code)
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full border-border">
-                        <SelectValue placeholder="Select a voucher" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {vouchers?.map((voucher) => (
-                        <SelectItem key={voucher.id} value={voucher.id}>
-                          {voucher.name} -{" "}
-                          {voucher.type === "percentage"
-                            ? `${voucher.value}%`
-                            : formatPrice(voucher.value)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="voucher_id"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Voucher</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        const selectedVoucher = vouchers?.find((v) => v.id === value)
+                        field.onChange(value)
+                        if (selectedVoucher) {
+                          form.setValue("voucher_code", selectedVoucher.code)
+                        } else {
+                          form.setValue("voucher_code", "")
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full border-border">
+                          <SelectValue placeholder="Select a voucher" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {vouchers?.map((voucher) => (
+                          <SelectItem key={voucher.id} value={voucher.id}>
+                            {voucher.name} -{" "}
+                            {voucher.type === "percentage"
+                              ? `${voucher.value}%`
+                              : formatPrice(voucher.value)}
+                            {voucher.minimum_order_amount
+                              ? ` (Min: ${formatPrice(voucher.minimum_order_amount)})`
+                              : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {voucherError && (
+                      <p className="font-medium text-destructive text-sm">{voucherError}</p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="discount_amount"
@@ -656,19 +692,26 @@ export default function OrderForm({ order }: OrderFormProps) {
                 <span>Subtotal:</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              {selectedVoucher && voucherDiscount > 0 && (
-                <div className="flex items-center justify-between text-base text-green-600">
-                  <span>Voucher Discount ({selectedVoucher.code}):</span>
-                  <span>-{formatPrice(voucherDiscount)}</span>
-                </div>
-              )}
+              <div
+                className={cn(
+                  "flex items-center justify-between text-base",
+                  voucherDiscount > 0 ? "text-green-600" : "text-destructive"
+                )}
+              >
+                <span>
+                  Voucher ({vouchers?.find((v) => v.id === selectedVoucherId)?.code || ""}):
+                </span>
+                <span>
+                  {voucherDiscount > 0 ? `-${formatPrice(voucherDiscount)}` : voucherError}
+                </span>
+              </div>
               <div className="flex items-center justify-between text-base">
                 <span>Shipping:</span>
                 <span>{formatPrice(shippingAmount)}</span>
               </div>
               <div className="flex items-center justify-between border-t pt-2 font-medium text-lg">
                 <span>Total Amount:</span>
-                <span>{formatPrice(finalTotal)}</span>
+                <span>{formatPrice(finalPrice)}</span>
               </div>
             </div>
           </div>

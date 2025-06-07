@@ -52,7 +52,7 @@ export const useProductUpdateMutation = (onSuccess?: () => void) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: ProductUpdate) => {
+    mutationFn: async (payload: ProductUpdate & { id: string }) => {
       const { data, error } = await supabase.from(TABLE_NAME).update(payload).eq("id", payload.id)
       if (error) throw error
       return data

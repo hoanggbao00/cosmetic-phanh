@@ -11,7 +11,6 @@ export * from "./products"
 
 // Orders
 export * from "./order_items"
-export * from "./order_status_history"
 export * from "./orders"
 
 // Users
@@ -33,4 +32,3 @@ export * from "./support_tickets"
 
 // Others
 export * from "./images"
-export * from "./notification_logs"

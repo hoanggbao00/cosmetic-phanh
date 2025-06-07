@@ -47,12 +47,12 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Price - Mobile */}
       <div className="flex items-center justify-between md:hidden">
         <span className="font-medium text-sm">Price:</span>
-        <span className="text-sm">${item.price.toFixed(2)}</span>
+        <span className="text-sm">${formatPrice(item.price)}</span>
       </div>
 
       {/* Price - Desktop */}
       <div className="hidden text-center md:block md:w-1/6">
-        <span className="text-sm">${item.price.toFixed(2)}</span>
+        <span className="text-sm">${formatPrice(item.price)}</span>
       </div>
 
       {/* Quantity Controls */}

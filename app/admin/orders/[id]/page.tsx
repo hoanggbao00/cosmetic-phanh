@@ -1,38 +1,46 @@
 import PrivateLayout from "@/components/layout/private/private-layout"
 import { createSupabaseServerClient } from "@/utils/supabase/server"
+import { unstable_noStore as noStore } from "next/cache"
 import { notFound } from "next/navigation"
-import OrderForm from "../_components/order-form"
+import OrderDetail from "./_components/order-detail"
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
-export default async function EditOrderPage({ params }: Props) {
+export default async function OrderDetailPage({ params }: Props) {
+  noStore()
   const supabase = await createSupabaseServerClient()
-  const { data: order } = await supabase
+  const { id } = await params
+
+  const { data: order, error } = await supabase
     .from("orders")
     .select(`
       *,
-      order_items (*),
-      order_status_history (*)
+      order_items (
+        *,
+        product:products (
+          id,
+          name,
+          images
+        )
+      )
     `)
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
-  if (!order) {
+  if (error || !order) {
+    console.error("Error fetching order:", error)
     notFound()
   }
 
   return (
     <PrivateLayout
       parentBreadcrumb={{ title: "Orders", href: "/admin/orders" }}
-      currentBreadcrumb="Edit Order"
-      title="Edit Order"
-      className="mx-auto w-full max-w-7xl"
+      currentBreadcrumb={`Order #${order.order_number}`}
+      title={`Order #${order.order_number}`}
     >
-      <OrderForm order={order} />
+      <OrderDetail order={order} key={order.updated_at} />
     </PrivateLayout>
   )
 }

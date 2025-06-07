@@ -42,11 +42,11 @@ alwaysApply: true
 Based on the file structure, we have tables:
 - blog_categories, blog_posts, blog_types
 - brands, categories, products, product_reviews, product_variants
-- cart_items, orders, order_items, order_status_history
+- cart_items, orders, order_items
 - users, profiles, user_addresses, user_voucher_usage
-- vouchers, images, notification_logs
+- vouchers, images
 - support_tickets, support_ticket_replies
-- system_settings, wishlist_items, supabases
+- wishlist_items
 Client Supabase from `import { supabase } from "@/utils/supabase/client"`
 Server Supabase from `import { createSupabaseServerClient } from "@/utils/supabase/server"; const supabase = await createSupabaseServerClient()`
 

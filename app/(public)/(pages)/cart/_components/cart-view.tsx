@@ -9,7 +9,7 @@ import CartSummary from "./cart-summary"
 import EmptyCart from "./empty-cart"
 
 export default function CartView() {
-  const { items, itemCount, totalPrice } = useCartStore()
+  const { items, total } = useCartStore()
 
   // Hydrate the store on client side
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function CartView() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 flex items-center gap-2 font-bold text-2xl md:text-3xl">
         <ShoppingBag className="h-6 w-6" />
-        Your Shopping Cart ({itemCount()} {itemCount() === 1 ? "item" : "items"})
+        Your Shopping Cart ({items.length} {items.length === 1 ? "item" : "items"})
       </h1>
 
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -60,7 +60,7 @@ export default function CartView() {
 
         {/* Cart Summary */}
         <div className="lg:w-1/3">
-          <CartSummary subtotal={totalPrice()} />
+          <CartSummary subtotal={total} />
         </div>
       </div>
     </div>

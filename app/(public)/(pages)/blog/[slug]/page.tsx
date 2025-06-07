@@ -1,5 +1,4 @@
 import PageLayout from "@/components/layout/(public)/page-layout"
-import { delay } from "@/lib/utils"
 import { createSupabaseServerClient } from "@/utils/supabase/server"
 import { notFound } from "next/navigation"
 import BlogDetailView from "./_components/blog-detail"
@@ -10,7 +9,6 @@ interface Props {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params
-  await delay(1000)
 
   const supabase = await createSupabaseServerClient()
 

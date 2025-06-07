@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/lib/utils"
+import { useCreateOrderMutation } from "@/queries/orders"
+import { useValidateVoucher } from "@/queries/voucher"
 import { useCartStore } from "@/stores/cart-store"
-import { Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useOrderStore } from "@/stores/order-store"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import OrderForm, { type FormValues } from "./order-form"
+import PaymentQRDialog from "./payment-qr-dialog"
 
 interface CartSummaryProps {
   subtotal: number
@@ -16,38 +20,106 @@ interface CartSummaryProps {
 
 export default function CartSummary({ subtotal }: CartSummaryProps) {
   const [promoCode, setPromoCode] = useState("")
-  const [isApplyingPromo, setIsApplyingPromo] = useState(false)
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
-  const router = useRouter()
-  const clearCart = useCartStore((state) => state.clearCart)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [showOrderForm, setShowOrderForm] = useState(false)
+  const [showQRDialog, setShowQRDialog] = useState(false)
+  const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null)
+  const [discount, setDiscount] = useState(0)
+  const [voucherId, setVoucherId] = useState<string | null>(null)
+
+  const { items, clearCart } = useCartStore()
+  const { setCurrentOrderId } = useOrderStore()
 
   // Calculate order values
   const shipping = subtotal > 100 ? 0 : 10
-  const discount = 0
   const total = subtotal + shipping - discount
 
-  const handleApplyPromo = () => {
+  const validateVoucher = useValidateVoucher((discount) => {
+    setDiscount(discount)
+    setPromoError(null)
+    toast.success(`Promo code "${promoCode}" applied!`)
+  })
+
+  const createOrder = useCreateOrderMutation((orderId) => {
+    setCurrentOrderId(orderId)
+    if (lastSubmittedData?.payment_method === "online_banking") {
+      setShowQRDialog(true)
+      toast.success("Order placed successfully! Please complete your payment.", {
+        description: "Scan the QR code to complete your payment.",
+      })
+    } else {
+      clearCart()
+      toast.success("Order placed successfully!", {
+        description: "We will process your cash on delivery order shortly.",
+      })
+    }
+  })
+
+  const handleApplyPromo = async () => {
     if (!promoCode.trim()) return
 
-    setIsApplyingPromo(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsApplyingPromo(false)
-      toast.success(`Promo code "${promoCode}" applied!`)
-    }, 1000)
+    try {
+      const result = await validateVoucher.mutateAsync({
+        code: promoCode.trim().toUpperCase(),
+        subtotal,
+      })
+      setVoucherId(result.voucherId)
+    } catch (error) {
+      setPromoError((error as Error).message)
+      setDiscount(0)
+      setVoucherId(null)
+    }
   }
 
   const handleCheckout = () => {
-    setIsCheckingOut(true)
+    setShowOrderForm(true)
+  }
 
-    // Simulate checkout process
-    setTimeout(() => {
-      clearCart()
-      setIsCheckingOut(false)
-      toast.success("Order placed successfully!")
-      router.push("/")
-    }, 1500)
+  const handleBack = () => {
+    setShowOrderForm(false)
+    setPromoCode("")
+    setPromoError(null)
+    setDiscount(0)
+    setVoucherId(null)
+  }
+
+  const handleOrderSubmit = async (formData: FormValues) => {
+    setLastSubmittedData(formData)
+    try {
+      await createOrder.mutateAsync({
+        formData,
+        cartItems: items,
+        subtotal,
+        shipping,
+        discount,
+        total,
+        voucher_id: voucherId,
+        voucher_code: promoCode,
+      })
+    } catch (error) {
+      console.error("Failed to create order:", error)
+      toast.error("Failed to create order. Please try again.")
+    }
+  }
+
+  if (showOrderForm) {
+    return (
+      <div className="rounded-lg border bg-white p-6 shadow-sm">
+        <div className="mb-6">
+          <Button variant="ghost" className="mb-4" onClick={handleBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <OrderForm onSubmit={handleOrderSubmit} isLoading={createOrder.isPending} />
+        </div>
+        <PaymentQRDialog
+          open={showQRDialog}
+          onOpenChange={setShowQRDialog}
+          amount={total}
+          orderId={useOrderStore.getState().currentOrderId || ""}
+        />
+      </div>
+    )
   }
 
   return (
@@ -62,13 +134,14 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             className="flex-1"
+            disabled={validateVoucher.isPending}
           />
           <Button
             variant="outline"
             onClick={handleApplyPromo}
-            disabled={isApplyingPromo || !promoCode.trim()}
+            disabled={validateVoucher.isPending || !promoCode.trim()}
           >
-            {isApplyingPromo ? (
+            {validateVoucher.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Applying
@@ -78,6 +151,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
             )}
           </Button>
         </div>
+        {promoError && <p className="mt-2 text-red-500 text-sm">{promoError}</p>}
       </div>
 
       <Separator className="my-4" />
@@ -94,10 +168,12 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Discount</span>
-          <span>{formatPrice(discount)}</span>
-        </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Discount</span>
+            <span className="text-green-600">-{formatPrice(discount)}</span>
+          </div>
+        )}
       </div>
 
       <Separator className="my-4" />
@@ -109,20 +185,8 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
       </div>
 
       {/* Checkout Button */}
-      <Button
-        className="w-full"
-        size="lg"
-        onClick={handleCheckout}
-        disabled={isCheckingOut || subtotal === 0}
-      >
-        {isCheckingOut ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "Proceed to Checkout"
-        )}
+      <Button className="w-full" size="lg" onClick={handleCheckout} disabled={subtotal === 0}>
+        Proceed to Checkout
       </Button>
 
       {/* Shipping Note */}

@@ -1,12 +1,6 @@
-import { type CartItem, useCartStore } from "@/stores/cart-store"
+import { useCartStore } from "@/stores/cart-store"
 import { supabase } from "@/utils/supabase/client"
 import { useEffect } from "react"
-
-interface CartStoreWithSet {
-  items: CartItem[]
-  total: number
-  set: (state: { items: CartItem[]; total: number }) => void
-}
 
 interface CartItemFromDB {
   id: string
@@ -22,7 +16,7 @@ interface CartItemFromDB {
 }
 
 export function useSyncCart() {
-  const store = useCartStore() as unknown as CartStoreWithSet
+  const store = useCartStore()
   const { items } = store
 
   useEffect(() => {
@@ -61,8 +55,8 @@ export function useSyncCart() {
             variantId: item.variant_id || undefined,
           }))
 
-          // Update local cart state
-          store.set({
+          // Update local cart state using store's set method
+          useCartStore.setState({
             items: formattedItems,
             total: formattedItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
           })
@@ -85,7 +79,7 @@ export function useSyncCart() {
     return () => {
       subscription.unsubscribe()
     }
-  }, [store])
+  }, [])
 
   return items
 }

@@ -25,9 +25,6 @@ export default async function OrdersPage() {
           name,
           images
         )
-      ),
-      order_status_history(
-        *
       )
     `)
     .eq("user_id", session.user.id)

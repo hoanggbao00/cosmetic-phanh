@@ -99,25 +99,29 @@ export async function getSupportTicketsByUser(userId: string) {
   return data as SupportTicket[]
 }
 
-export async function createSupportTicket(
-  data: Omit<SupportTicketInsert, "id" | "ticket_number" | "created_at" | "updated_at">
-) {
+type CreateTicketInput = {
+  subject: string
+  message: string
+  priority: "low" | "medium" | "high"
+}
+
+export async function createSupportTicket(data: CreateTicketInput) {
   const supabase = await createSupabaseServerClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user && !data.guest_email) {
-    throw new Error("User must be logged in or provide guest email")
+  if (!user) {
+    throw new Error("User must be logged in to create a ticket")
   }
 
   const ticket: SupportTicketInsert = {
     ...data,
     ticket_number: `TKT-${nanoid(8)}`,
-    user_id: user?.id || null,
+    user_id: user.id,
+    guest_email: null,
     status: "open",
-    priority: data.priority || "medium",
   }
 
   const { data: newTicket, error } = await supabase
@@ -128,9 +132,8 @@ export async function createSupportTicket(
 
   if (error) throw error
 
-  revalidatePath("/admin/support")
-  revalidatePath("/support")
-  return newTicket
+  revalidatePath("/tickets")
+  return newTicket as SupportTicket
 }
 
 export async function updateSupportTicket(id: string, ticket: SupportTicketUpdate) {

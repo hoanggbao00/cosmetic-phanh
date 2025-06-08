@@ -28,7 +28,6 @@ const priorityColors = {
   low: "default",
   medium: "warning",
   high: "destructive",
-  urgent: "destructive",
 } as const
 
 const statusColors = {
@@ -59,6 +58,7 @@ export function getTicketColumns({
       cell: ({ row }) => {
         const priority = row.original.priority
         return (
+          // @ts-expect-error BadgeVariant is not exported
           <Badge variant={priorityColors[priority]}>
             {priority.charAt(0).toUpperCase() + priority.slice(1)}
           </Badge>
@@ -119,12 +119,6 @@ export function getTicketColumns({
                   <DropdownMenuItem onClick={() => onUpdateStatus(ticket.id, "open")}>
                     Open
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateStatus(ticket.id, "in_progress")}>
-                    In Progress
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdateStatus(ticket.id, "resolved")}>
-                    Resolved
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onUpdateStatus(ticket.id, "closed")}>
                     Closed
                   </DropdownMenuItem>
@@ -141,9 +135,6 @@ export function getTicketColumns({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onUpdatePriority(ticket.id, "high")}>
                     High
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUpdatePriority(ticket.id, "urgent")}>
-                    Urgent
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { supabase } from "@/utils/supabase/client"
-import { Loader2, LogOutIcon, ShoppingBag, UserIcon } from "lucide-react"
+import { Loader2, LogOutIcon, ShoppingBag, TicketIcon, UserIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -88,6 +88,12 @@ export function UserDropdown() {
             <Link href="/orders" className="cursor-pointer">
               <ShoppingBag className="mr-2 size-4" />
               <span>Orders</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/tickets" className="cursor-pointer">
+              <TicketIcon className="mr-2 size-4" />
+              <span>Tickets</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -37,12 +37,16 @@ export const useSupportTicketUpdateMutation = (onSuccess?: () => void) => {
 
   return useMutation({
     mutationFn: async (payload: SupportTicketUpdate) => {
-      const { data, error } = await supabase.from(TABLE_NAME).update(payload).eq("id", payload.id)
+      const { error } = await supabase.from(TABLE_NAME).update(payload).eq("id", payload.id)
       if (error) throw error
-      return data
+      return payload.id
     },
-    onSuccess: () => {
+    onSuccess: (id: string | undefined) => {
+      if (!id) return
+
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] })
+
       toast.success("Support ticket updated successfully")
       onSuccess?.()
     },

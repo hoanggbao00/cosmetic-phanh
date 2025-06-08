@@ -8,7 +8,11 @@ import CartItem from "./cart-item"
 import CartSummary from "./cart-summary"
 import EmptyCart from "./empty-cart"
 
-export default function CartView() {
+interface CartViewProps {
+  userId?: string
+}
+
+export default function CartView({ userId }: CartViewProps) {
   const { items, total } = useCartStore()
 
   // Hydrate the store on client side
@@ -60,7 +64,7 @@ export default function CartView() {
 
         {/* Cart Summary */}
         <div className="lg:w-1/3">
-          <CartSummary subtotal={total} />
+          <CartSummary subtotal={total} userId={userId} />
         </div>
       </div>
     </div>

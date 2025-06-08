@@ -7,28 +7,29 @@ import { formatPrice } from "@/lib/utils"
 import { useCreateOrderMutation } from "@/queries/orders"
 import { useValidateVoucher } from "@/queries/voucher"
 import { useCartStore } from "@/stores/cart-store"
+import type { OrderInsert } from "@/types/tables/orders"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-import OrderForm, { type FormValues } from "./order-form"
+import OrderForm from "./order-form"
 import PaymentQRDialog from "./payment-qr-dialog"
 
 interface CartSummaryProps {
   subtotal: number
+  userId?: string
 }
 
-export default function CartSummary({ subtotal }: CartSummaryProps) {
+export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
   const [promoCode, setPromoCode] = useState("")
   const [promoError, setPromoError] = useState<string | null>(null)
   const [showOrderForm, setShowOrderForm] = useState(false)
   const [showQRDialog, setShowQRDialog] = useState(false)
-  const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null)
-  const [discount, setDiscount] = useState(0)
-  const [voucherId, setVoucherId] = useState<string | null>(null)
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
   const [orderAmount, setOrderAmount] = useState(0)
+  const [discount, setDiscount] = useState(0)
+  const [voucherId, setVoucherId] = useState<string | null>(null)
 
-  const { items, clearCart } = useCartStore()
+  const { clearCart } = useCartStore()
 
   // Calculate order values
   const shipping = subtotal > 100 ? 0 : 10
@@ -42,7 +43,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
 
   const createOrder = useCreateOrderMutation((orderId) => {
     setCurrentOrderId(orderId)
-    if (lastSubmittedData?.payment_method === "bank_transfer") {
+    if (orderId) {
       setOrderAmount(total)
       setShowQRDialog(true)
       toast.success("Order placed successfully! Please complete your payment.", {
@@ -55,6 +56,53 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
       })
     }
   })
+
+  const handleOrderSubmit = async (
+    orderData: OrderInsert,
+    cartItems: {
+      productId: string
+      name: string
+      variantId?: string
+      variantName?: string
+      price: number
+      quantity: number
+    }[]
+  ) => {
+    try {
+      await createOrder.mutateAsync({
+        formData: {
+          full_name: orderData.shipping_address.full_name,
+          email: userId ? undefined : orderData.guest_email || "",
+          phone: orderData.shipping_address.phone || "",
+          address_line1: orderData.shipping_address.address_line1,
+          address_line2: orderData.shipping_address.address_line2,
+          city: orderData.shipping_address.city,
+          payment_method: orderData.payment_method as "cash" | "bank_transfer",
+        },
+        cartItems: cartItems.map((item) => ({
+          product: {
+            id: item.productId,
+            price: item.price,
+          },
+          quantity: item.quantity,
+          variant: item.variantId ? { id: item.variantId } : null,
+        })),
+        subtotal,
+        shipping,
+        discount_amount: discount,
+        total,
+        voucher_id: voucherId,
+        voucher_code: promoCode,
+        userId,
+      })
+
+      const orderId = currentOrderId || ""
+      return { orderId, total }
+    } catch (error) {
+      console.error("Failed to create order:", error)
+      toast.error("Failed to create order. Please try again.")
+    }
+  }
 
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return
@@ -86,35 +134,6 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
     setVoucherId(null)
   }
 
-  const handleOrderSubmit = async (formData: FormValues) => {
-    setLastSubmittedData(formData)
-    try {
-      await createOrder.mutateAsync({
-        formData: {
-          ...formData,
-          address: formData.address_line1,
-        },
-        cartItems: items.map((item) => ({
-          product: {
-            id: item.productId,
-            price: item.price,
-          },
-          quantity: item.quantity,
-          variant: item.variantId ? { id: item.variantId } : null,
-        })),
-        subtotal,
-        shipping,
-        discount_amount: discount,
-        total,
-        voucher_id: voucherId,
-        voucher_code: promoCode,
-      })
-    } catch (error) {
-      console.error("Failed to create order:", error)
-      toast.error("Failed to create order. Please try again.")
-    }
-  }
-
   if (showOrderForm) {
     return (
       <div className="rounded-lg border bg-white p-6 shadow-sm">
@@ -129,8 +148,8 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           <PaymentQRDialog
             isOpen={showQRDialog}
             onClose={() => setShowQRDialog(false)}
-            amount={orderAmount}
             orderId={currentOrderId}
+            amount={orderAmount}
           />
         )}
       </div>
@@ -198,13 +217,6 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
       <Button className="w-full" size="lg" onClick={handleCheckout} disabled={subtotal === 0}>
         Proceed to Checkout
       </Button>
-
-      {/* Shipping Note */}
-      {subtotal < 100 && (
-        <p className="mt-4 text-center text-muted-foreground text-xs">
-          Add ${(100 - subtotal).toFixed(2)} more to qualify for free shipping
-        </p>
-      )}
     </div>
   )
 }

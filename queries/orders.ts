@@ -6,17 +6,6 @@ import { supabase } from "@/utils/supabase/client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-interface CartItem {
-  product: {
-    id: string
-    price: number
-  }
-  quantity: number
-  variant?: {
-    id: string
-  } | null
-}
-
 export function useDeleteOrder() {
   const queryClient = useQueryClient()
 
@@ -64,7 +53,7 @@ export function useUpdateOrder() {
 interface CreateOrderPayload {
   formData: {
     full_name: string
-    email: string
+    email: string | undefined
     phone: string
     address_line1: string
     address_line2: string | null
@@ -87,6 +76,7 @@ interface CreateOrderPayload {
   total: number
   voucher_id: string | null
   voucher_code: string | null
+  userId?: string
 }
 
 export const useCreateOrderMutation = (onSuccess?: (orderId: string) => void) => {
@@ -94,17 +84,18 @@ export const useCreateOrderMutation = (onSuccess?: (orderId: string) => void) =>
     mutationFn: async ({
       formData,
       cartItems,
-      subtotal,
       shipping,
       discount_amount,
       total,
       voucher_id,
       voucher_code,
+      userId,
     }: CreateOrderPayload) => {
       // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
+          user_id: userId,
           guest_email: formData.email,
           status: "pending",
           payment_status: "pending",

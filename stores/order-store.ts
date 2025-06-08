@@ -18,26 +18,29 @@ export interface OrderHistory {
 }
 
 interface OrderState {
-  currentOrderId: string | null
   orderHistory: OrderHistory[]
-  setCurrentOrderId: (orderId: string) => void
+  localOrderIds: string[] // Store order IDs for guest users
   addToHistory: (order: OrderHistory) => void
-  clearCurrentOrder: () => void
+  addLocalOrder: (orderId: string) => void
   clearHistory: () => void
+  clearLocalOrders: () => void
 }
 
 export const useOrderStore = create<OrderState>()(
   persist(
     (set) => ({
-      currentOrderId: null,
       orderHistory: [],
-      setCurrentOrderId: (orderId) => set({ currentOrderId: orderId }),
+      localOrderIds: [],
       addToHistory: (order) =>
         set((state) => ({
           orderHistory: [...state.orderHistory, order],
         })),
-      clearCurrentOrder: () => set({ currentOrderId: null }),
+      addLocalOrder: (orderId) =>
+        set((state) => ({
+          localOrderIds: [...state.localOrderIds, orderId],
+        })),
       clearHistory: () => set({ orderHistory: [] }),
+      clearLocalOrders: () => set({ localOrderIds: [] }),
     }),
     {
       name: "order-storage",

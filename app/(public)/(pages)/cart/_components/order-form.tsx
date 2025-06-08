@@ -23,7 +23,7 @@ import PaymentQRDialog from "./payment-qr-dialog"
 const formSchema = z.object({
   full_name: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().regex(/^\d{10}$/, "Phone number must be 10 digits"),
+  phone: z.string().min(1, "Phone number is required"),
   address_line1: z.string().min(1, "Address is required"),
   address_line2: z.string().nullable(),
   city: z.string().min(1, "City is required"),
@@ -51,8 +51,9 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
   const [showQRDialog, setShowQRDialog] = useState(false)
   const [orderAmount, setOrderAmount] = useState(0)
   const router = useRouter()
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
 
-  const { setCurrentOrderId, addToHistory } = useOrderStore()
+  const { addToHistory } = useOrderStore()
   const cartItems = useCartStore((state) => state.items)
   const cartTotal = useCartStore((state) => state.total)
   const clearCart = useCartStore((state) => state.clearCart)
@@ -108,6 +109,11 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
           })),
         })
 
+        // If no user ID, store order ID locally
+        if (!orderData.user_id) {
+          useOrderStore.getState().addLocalOrder(result.orderId)
+        }
+
         if (data.payment_method === "bank_transfer") {
           setCurrentOrderId(result.orderId)
           setOrderAmount(result.total)
@@ -122,8 +128,6 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
       console.error("Form submission error:", error)
     }
   })
-
-  const currentOrderId = useOrderStore((state) => state.currentOrderId)
 
   return (
     <>
@@ -167,10 +171,13 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="+1234567890"
+                      placeholder="Phone number (optional)"
                       {...field}
                       value={value || ""}
-                      onChange={(e) => onChange(e.target.value || null)}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        onChange(val || null)
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -262,12 +269,14 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
         </form>
       </Form>
 
-      <PaymentQRDialog
-        isOpen={showQRDialog}
-        onClose={() => setShowQRDialog(false)}
-        orderId={currentOrderId}
-        amount={orderAmount}
-      />
+      {currentOrderId && (
+        <PaymentQRDialog
+          isOpen={showQRDialog}
+          onClose={() => setShowQRDialog(false)}
+          orderId={currentOrderId}
+          amount={orderAmount}
+        />
+      )}
     </>
   )
 }

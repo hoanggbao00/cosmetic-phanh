@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/stores/cart-store"
 import { useOrderStore } from "@/stores/order-store"
 import { useQuery } from "@tanstack/react-query"
-import { Loader2Icon } from "lucide-react"
+import { CheckCircleIcon, Loader2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { checkOrderPaymentStatus } from "../actions"
@@ -92,13 +92,31 @@ export default function PaymentQRDialog({
         <div className="flex flex-col items-center space-y-4 py-4">
           <div className="space-y-2 text-center">
             <p className="text-muted-foreground text-sm">Mã đơn hàng: {orderId}</p>
-            <p className="font-semibold text-lg">Số tiền: {formatPrice(amount)}</p>
-            <p className="font-medium text-green-600">Đã tạo đơn hàng thành công</p>
-            <p className="text-muted-foreground text-sm">
-              {isPaid
-                ? "Đã thanh toán thành công"
-                : "Nhấn nút bên dưới để tiến hành thanh toán qua VNPay"}
-            </p>
+            {isPaid && (
+              <div className="flex flex-col items-center justify-center gap-2 py-4 text-green-600">
+                <CheckCircleIcon size={48} />
+                <p className="font-semibold text-lg">Đã thanh toán thành công</p>
+                <p className="font-semibold text-black text-lg">Số tiền: {formatPrice(amount)}</p>
+                <p className="text-muted-foreground text-sm">
+                  Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi
+                  <br />
+                  Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi
+                  <br />
+                  <a href="tel:0909090909" className="text-blue-500">
+                    0909090909
+                  </a>
+                </p>
+              </div>
+            )}
+            {!isPaid && (
+              <>
+                <p className="font-semibold text-lg">Số tiền: {formatPrice(amount)}</p>
+                <p className="font-medium text-green-600">Đã tạo đơn hàng thành công</p>
+                <p className="text-muted-foreground text-sm">
+                  Nhấn nút bên dưới để tiến hành thanh toán qua VNPay
+                </p>
+              </>
+            )}
           </div>
 
           {isLoading ? (

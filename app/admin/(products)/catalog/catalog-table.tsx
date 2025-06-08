@@ -3,21 +3,20 @@
 import { DataTable } from "@/components/shared/data-table"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger } from "@/components/ui/sheet"
-import { useCatalogDeleteMutation, useCatalogQuery } from "@/queries/catalog"
+import { useCatalogQuery, useDeleteCategory } from "@/queries/catalog"
 import type { Category } from "@/types/tables/categories"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Loader2, PlusCircleIcon } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { getCatalogColumns } from "./columns"
 import SheetCatalog from "./sheet-catalog"
 
 export default function CatalogTable() {
   const { data, isLoading } = useCatalogQuery()
-  const openSheetRef = useRef<HTMLButtonElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
 
-  const { mutate: deleteCatalog } = useCatalogDeleteMutation()
+  const { mutate: deleteCategory } = useDeleteCategory()
 
   const handleAdd = () => {
     setId("new")
@@ -29,15 +28,13 @@ export default function CatalogTable() {
     setIsOpen(true)
   }
 
-  const handleClose = (value: boolean) => {
-    if (!value) {
-      setId(null)
-      setIsOpen(false)
-    }
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) setId(null)
   }
 
   const handleDelete = (id: string) => {
-    deleteCatalog(id)
+    deleteCategory(id)
   }
 
   if (isLoading)
@@ -54,7 +51,7 @@ export default function CatalogTable() {
   }) as ColumnDef<Category>[]
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleClose}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <div className="flex size-full flex-col gap-2">
         <div className="flex items-center justify-end">
           <SheetTrigger asChild>
@@ -62,7 +59,6 @@ export default function CatalogTable() {
               Add
             </Button>
           </SheetTrigger>
-          <SheetTrigger ref={openSheetRef} />
         </div>
         {data && <DataTable columns={columns} data={data} className="h-[700px]" />}
       </div>

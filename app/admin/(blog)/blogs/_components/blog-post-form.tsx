@@ -28,7 +28,7 @@ import { CLOUDINARY_UPLOAD_PRESET } from "@/lib/config/app.config"
 import { slugify } from "@/lib/utils"
 import { useBlogCategories } from "@/queries/blog-categories"
 import { useCreateBlogPost, useUpdateBlogPost } from "@/queries/blog-posts"
-import { useImageCreateMutation } from "@/queries/images"
+import { useCreateImage } from "@/queries/images"
 import type { BlogPost } from "@/types/tables/blog_posts"
 import { ImageIcon } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
@@ -60,12 +60,12 @@ function BlogPostForm({ post }: BlogPostFormProps) {
   const { data: categories } = useBlogCategories()
   const { mutate: createPost } = useCreateBlogPost()
   const { mutate: updatePost } = useUpdateBlogPost()
-  const { mutate: createImage } = useImageCreateMutation()
+  const { mutate: createImage } = useCreateImage()
 
   const onSubmit = (data: BlogPostFormValues) => {
     if (post) {
       updatePost(
-        { id: post.id, ...data },
+        { id: post.id, post: { ...data } },
         {
           onSuccess: () => {
             toast.success("Post updated successfully")

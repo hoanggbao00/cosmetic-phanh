@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/lib/utils"
-import { useCreateOrderMutation } from "@/queries/orders"
+import { useCreateOrder } from "@/queries/orders"
 import { useValidateVoucher } from "@/queries/voucher"
 import { useCartStore } from "@/stores/cart-store"
 import type { OrderInsert } from "@/types/tables/orders"
@@ -35,27 +35,8 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
   const shipping = subtotal > 100 ? 0 : 10
   const total = subtotal + shipping - discount
 
-  const validateVoucher = useValidateVoucher((discount) => {
-    setDiscount(discount)
-    setPromoError(null)
-    toast.success(`Promo code "${promoCode}" applied!`)
-  })
-
-  const createOrder = useCreateOrderMutation((orderId) => {
-    setCurrentOrderId(orderId)
-    if (orderId) {
-      setOrderAmount(total)
-      setShowQRDialog(true)
-      toast.success("Order placed successfully! Please complete your payment.", {
-        description: "Scan the QR code to complete your payment.",
-      })
-    } else {
-      clearCart()
-      toast.success("Order placed successfully!", {
-        description: "We will process your cash on delivery order shortly.",
-      })
-    }
-  })
+  const validateVoucher = useValidateVoucher()
+  const createOrder = useCreateOrder()
 
   const handleOrderSubmit = async (
     orderData: OrderInsert,
@@ -69,35 +50,54 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
     }[]
   ) => {
     try {
-      await createOrder.mutateAsync({
-        formData: {
+      const order: OrderInsert = {
+        user_id: userId,
+        guest_email: userId ? undefined : orderData.guest_email,
+        status: "pending",
+        payment_status: "pending",
+        payment_method: orderData.payment_method,
+        shipping_amount: shipping,
+        discount_amount: discount,
+        total_amount: total,
+        shipping_address: {
           full_name: orderData.shipping_address.full_name,
-          email: userId ? undefined : orderData.guest_email || "",
-          phone: orderData.shipping_address.phone || "",
           address_line1: orderData.shipping_address.address_line1,
           address_line2: orderData.shipping_address.address_line2,
           city: orderData.shipping_address.city,
-          payment_method: orderData.payment_method as "cash" | "bank_transfer",
+          phone: orderData.shipping_address.phone,
         },
-        cartItems: cartItems.map((item) => ({
-          product: {
-            id: item.productId,
-            price: item.price,
-          },
-          quantity: item.quantity,
-          variant: item.variantId ? { id: item.variantId } : null,
-        })),
-        subtotal,
-        shipping,
-        discount_amount: discount,
-        total,
         voucher_id: voucherId,
         voucher_code: promoCode,
-        userId,
-      })
+        order_items: cartItems.map((item) => ({
+          product_id: item.productId,
+          variant_id: item.variantId,
+          quantity: item.quantity,
+          price: item.price,
+          product_name: item.name,
+          variant_name: item.variantName,
+          total_price: item.quantity * item.price,
+        })),
+      }
 
-      const orderId = currentOrderId || ""
-      return { orderId, total }
+      const result = await createOrder.mutateAsync(order)
+
+      if (result) {
+        setCurrentOrderId(result.id)
+        if (orderData.payment_method === "bank_transfer") {
+          setOrderAmount(total)
+          setShowQRDialog(true)
+          toast.success("Order placed successfully! Please complete your payment.", {
+            description: "Scan the QR code to complete your payment.",
+          })
+        } else {
+          clearCart()
+          toast.success("Order placed successfully!", {
+            description: "We will process your cash on delivery order shortly.",
+          })
+        }
+      }
+
+      return { orderId: result.id, total }
     } catch (error) {
       console.error("Failed to create order:", error)
       toast.error("Failed to create order. Please try again.")
@@ -108,11 +108,35 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
     if (!promoCode.trim()) return
 
     try {
-      const result = await validateVoucher.mutateAsync({
+      const voucher = await validateVoucher.mutateAsync({
         code: promoCode.trim(),
-        subtotal,
+        userId,
       })
-      setVoucherId(result.voucherId)
+
+      if (voucher) {
+        // Calculate discount based on voucher type and value
+        let discountAmount = 0
+        if (voucher.type === "percentage") {
+          discountAmount = (subtotal * voucher.value) / 100
+          if (voucher.maximum_discount_amount && discountAmount > voucher.maximum_discount_amount) {
+            discountAmount = voucher.maximum_discount_amount
+          }
+        } else {
+          discountAmount = voucher.value
+        }
+
+        // Check minimum order amount
+        if (voucher.minimum_order_amount && subtotal < voucher.minimum_order_amount) {
+          throw new Error(
+            `Minimum order amount for this voucher is ${formatPrice(voucher.minimum_order_amount)}`
+          )
+        }
+
+        setDiscount(discountAmount)
+        setVoucherId(voucher.id)
+        setPromoError(null)
+        toast.success(`Promo code "${promoCode}" applied!`)
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to apply voucher"
       setPromoError(errorMessage)
@@ -197,6 +221,11 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
           <span>{formatPrice(subtotal)}</span>
         </div>
 
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Shipping</span>
+          <span>{shipping > 0 ? formatPrice(shipping) : "Free"}</span>
+        </div>
+
         {discount > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Discount</span>
@@ -214,7 +243,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
       </div>
 
       {/* Checkout Button */}
-      <Button className="w-full" size="lg" onClick={handleCheckout} disabled={subtotal === 0}>
+      <Button className="w-full" size="lg" onClick={handleCheckout}>
         Proceed to Checkout
       </Button>
     </div>

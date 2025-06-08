@@ -10,14 +10,13 @@ import {
 import type { SupportTicket } from "@/types/tables/support_tickets"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Loader2 } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { getTicketColumns } from "./columns"
 import SheetTicket from "./sheet-ticket"
 
 export default function TicketTable() {
   const { data, isLoading } = useSupportTicketQuery()
 
-  const openSheetRef = useRef<HTMLButtonElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
 

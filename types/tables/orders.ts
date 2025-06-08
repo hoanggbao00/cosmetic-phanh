@@ -1,5 +1,6 @@
 import type { Json } from "../supabase"
-import type { OrderItem } from "./order_items"
+import type { OrderItem, OrderItemInsert } from "./order_items"
+import type { Profiles } from "./profile"
 
 export interface AddressType {
   full_name: string
@@ -41,6 +42,7 @@ export interface Order {
   created_at: string
   updated_at: string
   order_items?: OrderItem[]
+  user?: Profiles
 }
 
 export interface OrderInsert {
@@ -72,6 +74,7 @@ export interface OrderInsert {
   admin_notes?: string | null
   created_at?: string
   updated_at?: string
+  order_items?: OrderItemInsert[]
 }
 
 export type OrderUpdate = Partial<Omit<Order, "id" | "created_at" | "updated_at">>

@@ -7,7 +7,12 @@ export default async function OrdersPage() {
 
   const { data: orders, error } = await supabase
     .from("orders")
-    .select("*")
+    .select(`
+      *,
+      profiles:user_id (
+        full_name
+      )
+    `)
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -15,13 +20,19 @@ export default async function OrdersPage() {
     return <div>Error loading orders: {error.message}</div>
   }
 
+  // Transform the data to include user_name
+  const ordersWithUserNames = orders.map((order) => ({
+    ...order,
+    user_name: order.profiles?.full_name || "",
+  }))
+
   return (
     <PrivateLayout
       parentBreadcrumb={{ title: "Orders", href: "/admin/orders" }}
       currentBreadcrumb="Orders"
       title="Orders"
     >
-      <OrdersTable initialOrders={orders} />
+      <OrdersTable initialOrders={ordersWithUserNames} />
     </PrivateLayout>
   )
 }

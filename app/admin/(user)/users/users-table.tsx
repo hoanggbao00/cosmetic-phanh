@@ -13,18 +13,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useDeleteUser, useUsersQuery } from "@/queries/users"
-import type { User } from "@/types/tables/users"
+import { useDeleteUser, useUsers } from "@/queries/users"
+import type { Profiles } from "@/types/tables"
 import { EditIcon, TrashIcon } from "lucide-react"
 import UserDialog from "./user-dialog"
 
 export default function UsersTable() {
-  const { data: users, isLoading } = useUsersQuery()
+  const { data: users, isLoading } = useUsers()
   const { mutate: deleteUser } = useDeleteUser()
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedUser, setSelectedUser] = useState<Profiles | null>(null)
   const [showDialog, setShowDialog] = useState(false)
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: Profiles) => {
     setSelectedUser(user)
     setShowDialog(true)
   }
@@ -48,7 +48,6 @@ export default function UsersTable() {
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -70,7 +69,8 @@ export default function UsersTable() {
                     <div>
                       <div className="font-medium">{user.full_name}</div>
                       <div className="text-muted-foreground text-sm">
-                        Created {new Date(user.created_at).toLocaleDateString()}
+                        Created{" "}
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString() : "-"}
                       </div>
                     </div>
                   </div>
@@ -79,11 +79,6 @@ export default function UsersTable() {
                 <TableCell>
                   <Badge variant={user.role === "admin" ? "default" : "secondary"}>
                     {user.role}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={user.is_active ? "default" : "secondary"}>
-                    {user.is_active ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
                 <TableCell>

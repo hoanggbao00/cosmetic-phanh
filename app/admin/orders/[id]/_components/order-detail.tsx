@@ -22,7 +22,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
   const handleUpdateStatus = async (status: Order["status"]) => {
     if (window.confirm(`Are you sure you want to update order status to ${status}?`)) {
       updateOrder(
-        { id: order.id, status },
+        { id: order.id, order: { status } },
         {
           onSuccess: () => {
             router.refresh()
@@ -38,7 +38,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
   const handleUpdatePaymentStatus = async (payment_status: Order["payment_status"]) => {
     if (window.confirm(`Are you sure you want to update payment status to ${payment_status}?`)) {
       updateOrder(
-        { id: order.id, payment_status },
+        { id: order.id, order: { payment_status } },
         {
           onSuccess: () => {
             router.refresh()
@@ -127,7 +127,11 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               </div>
               <div>
                 <div className="text-muted-foreground text-sm">Customer</div>
-                <div className="font-medium">{order.guest_email || order.user_id || "-"}</div>
+                <div className="font-medium">
+                  {order.guest_email ||
+                    (order.user && (order?.user.full_name || order.user.email)) ||
+                    "-"}
+                </div>
               </div>
             </div>
 

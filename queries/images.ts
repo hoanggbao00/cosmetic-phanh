@@ -1,97 +1,95 @@
-import type { Image, ImageInsert, ImageUpdate } from "@/types/tables/images"
-import { supabase } from "@/utils/supabase/client"
+import {
+  createImage,
+  deleteImage,
+  deleteImageFromStorage,
+  getImageById,
+  getImages,
+  updateImage,
+  uploadImage,
+} from "@/actions/images"
+import type { ImageInsert, ImageUpdate } from "@/types/tables/images"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 const QUERY_KEY = "images"
-const TABLE_NAME = "images"
 
-export const useImageQuery = ({ enabled }: { enabled?: boolean } = {}) => {
+export const useImages = () => {
   return useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from(TABLE_NAME)
-        .select("*")
-        .order("created_at", { ascending: false })
-      if (error) throw error
-      return data as Image[]
-    },
-    enabled,
+    queryFn: getImages,
   })
 }
 
-export const useImageQueryById = (id: string | null) => {
+export const useImageById = (id: string | null) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from(TABLE_NAME).select("*").eq("id", id).single()
-      if (error) throw error
-      return data
-    },
+    queryFn: () => getImageById(id!),
     enabled: !!id && id !== "new",
   })
 }
 
-export const useImageUpdateMutation = (onSuccess?: () => void) => {
+export const useCreateImage = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: ImageUpdate) => {
-      const { data, error } = await supabase.from(TABLE_NAME).update(payload).eq("id", payload.id)
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-      toast.success("Image updated successfully")
-      onSuccess?.()
-    },
-    onError: () => {
-      toast.error("Failed to update image")
-    },
-  })
-}
-export const useImageCreateMutation = (onSuccess?: () => void) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (payload: ImageInsert) => {
-      const { data, error } = await supabase.from(TABLE_NAME).insert(payload)
-      if (error) throw error
-      return data
-    },
+    mutationFn: (image: ImageInsert) => createImage(image),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success("Image created successfully")
-      onSuccess?.()
     },
-    onError: () => {
-      toast.error("Failed to create image")
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 }
 
-export const useImageDeleteMutation = () => {
+export const useUpdateImage = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, image }: { id: string; image: ImageUpdate }) => updateImage(id, image),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success("Image updated successfully")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
+export const useDeleteImage = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase.from(TABLE_NAME).delete().eq("id", id)
-      if (error) throw error
-
-      const oldData = queryClient
-        .getQueryData<Image[]>([QUERY_KEY])
-        ?.find((image) => image.id === id)
-      return oldData ?? data
+      const image = await getImageById(id)
+      if (image.url) {
+        await deleteImageFromStorage(image.url)
+      }
+      await deleteImage(id)
     },
-    onSuccess: (data: Image | null) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-      const toastMessage = data ? `Deleted image ${data.id}!` : "Image deleted successfully"
-      toast.success(toastMessage)
+      toast.success("Image deleted successfully")
     },
-    onError: () => {
-      toast.error("Failed to delete image")
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
+export const useUploadImage = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: uploadImage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success("Image uploaded successfully")
+    },
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 }

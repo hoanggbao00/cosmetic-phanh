@@ -3,11 +3,7 @@
 import { DataTable } from "@/components/shared/data-table"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger } from "@/components/ui/sheet"
-import {
-    useVoucherDeleteMutation,
-    useVoucherQuery,
-    useVoucherUpdateMutation,
-} from "@/queries/voucher"
+import { useDeleteVoucher, useUpdateVoucher, useVoucherQuery } from "@/queries/voucher"
 import type { Voucher } from "@/types/tables/vouchers"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Loader2, PlusCircleIcon } from "lucide-react"
@@ -22,8 +18,8 @@ export default function VoucherTable() {
   const [isOpen, setIsOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
 
-  const { mutate: deleteVoucher } = useVoucherDeleteMutation()
-  const { mutate: updateVoucher } = useVoucherUpdateMutation()
+  const { mutate: deleteVoucher } = useDeleteVoucher()
+  const { mutate: updateVoucher } = useUpdateVoucher()
 
   const handleAdd = () => {
     setId("new")
@@ -45,7 +41,7 @@ export default function VoucherTable() {
   }
 
   const handleToggleActive = (id: string, isActive: boolean) => {
-    updateVoucher({ id, is_active: isActive })
+    updateVoucher({ id, voucher: { is_active: isActive } })
   }
 
   if (isLoading)

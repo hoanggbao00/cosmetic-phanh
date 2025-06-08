@@ -28,23 +28,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { useUpdateUser } from "@/queries/users"
-import type { User } from "@/types/tables/users"
+import type { Profiles } from "@/types/tables"
 import { useEffect } from "react"
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   full_name: z.string().min(1, "Full name is required"),
   avatar_url: z.string().nullable(),
-  role: z.enum(["admin", "user"]),
-  is_active: z.boolean(),
+  role: z.string(),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 interface UserDialogProps {
-  user?: User | null
+  user?: Profiles | null
   open: boolean
   onOpenChange: (open: boolean) => void
   onClose: () => void
@@ -60,14 +58,13 @@ export default function UserDialog({ user, open, onOpenChange, onClose }: UserDi
       full_name: user?.full_name || "",
       avatar_url: user?.avatar_url || null,
       role: user?.role || "user",
-      is_active: user?.is_active ?? true,
     },
   })
 
   const onSubmit = (values: FormValues) => {
     if (user) {
       updateUser(
-        { id: user.id, ...values },
+        { id: user.id, profile: values },
         {
           onSuccess: () => {
             onClose()
@@ -85,7 +82,6 @@ export default function UserDialog({ user, open, onOpenChange, onClose }: UserDi
         full_name: user.full_name || "",
         avatar_url: user.avatar_url || null,
         role: user.role || "user",
-        is_active: user.is_active ?? true,
       })
     }
   }, [user, form])
@@ -155,20 +151,6 @@ export default function UserDialog({ user, open, onOpenChange, onClose }: UserDi
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="is_active"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel>Active</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
                 </FormItem>
               )}
             />

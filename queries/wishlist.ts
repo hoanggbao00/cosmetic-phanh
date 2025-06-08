@@ -1,97 +1,58 @@
-import { supabase } from "@/utils/supabase/client"
+import {
+  addToWishlist,
+  getWishlistItems,
+  isInWishlist,
+  removeFromWishlist,
+} from "@/actions/wishlist"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-const WISHLIST_KEYS = {
-  all: ["wishlist"],
-  list: (userId: string) => ["wishlist", "list", userId],
-  isInWishlist: (productId: string, userId: string) => [
-    "wishlist",
-    "isInWishlist",
-    productId,
-    userId,
-  ],
-}
+const QUERY_KEY = "wishlist"
 
-export const useWishlistQuery = (userId?: string) => {
+export const useWishlistItems = (userId: string | null) => {
   return useQuery({
-    queryKey: userId ? WISHLIST_KEYS.list(userId) : WISHLIST_KEYS.all,
-    queryFn: async () => {
-      if (!userId) return []
-      const { data, error } = await supabase
-        .from("wishlist_items")
-        .select("*, product:products(*)")
-        .eq("user_id", userId)
-      if (error) throw error
-      return data
-    },
+    queryKey: [QUERY_KEY, userId],
+    queryFn: () => getWishlistItems(userId!),
     enabled: !!userId,
   })
 }
 
-export const useToggleWishlistMutation = () => {
+export const useIsInWishlist = (userId: string | null, productId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "check", userId, productId],
+    queryFn: () => isInWishlist(userId!, productId),
+    enabled: !!userId,
+  })
+}
+
+export const useAddToWishlist = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      productId,
-      userId,
-    }: {
-      productId: string
-      userId: string
-    }) => {
-      // First check if item exists
-      const { data: existingItems } = await supabase
-        .from("wishlist_items")
-        .select("id")
-        .eq("product_id", productId)
-        .eq("user_id", userId)
-
-      const existingItem = existingItems?.[0]
-
-      if (existingItem) {
-        // Remove from wishlist
-        const { error } = await supabase.from("wishlist_items").delete().eq("id", existingItem.id)
-        if (error) throw error
-        return { added: false }
-      }
-      // Add to wishlist
-      const { error } = await supabase.from("wishlist_items").insert({
-        product_id: productId,
-        user_id: userId,
-      })
-      if (error) throw error
-      return { added: true }
+    mutationFn: ({ userId, productId }: { userId: string; productId: string }) =>
+      addToWishlist(userId, productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success("Added to wishlist")
     },
-    onSuccess: (result, variables) => {
-      // Invalidate both the list and the isInWishlist queries
-      queryClient.invalidateQueries({
-        queryKey: WISHLIST_KEYS.list(variables.userId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: WISHLIST_KEYS.isInWishlist(variables.productId, variables.userId),
-      })
-      toast.success(result.added ? "Added to wishlist" : "Removed from wishlist")
-    },
-    onError: () => {
-      toast.error("Failed to update wishlist")
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 }
 
-export const useIsInWishlist = (productId: string, userId?: string) => {
-  return useQuery({
-    queryKey: userId ? WISHLIST_KEYS.isInWishlist(productId, userId) : WISHLIST_KEYS.all,
-    queryFn: async () => {
-      if (!userId) return false
-      const { data } = await supabase
-        .from("wishlist_items")
-        .select("id")
-        .eq("product_id", productId)
-        .eq("user_id", userId)
+export const useRemoveFromWishlist = () => {
+  const queryClient = useQueryClient()
 
-      return data && data.length > 0
+  return useMutation({
+    mutationFn: ({ userId, productId }: { userId: string; productId: string }) =>
+      removeFromWishlist(userId, productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success("Removed from wishlist")
     },
-    enabled: !!userId && !!productId,
+    onError: (error) => {
+      toast.error(error.message)
+    },
   })
 }

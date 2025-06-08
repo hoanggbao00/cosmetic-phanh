@@ -1,121 +1,90 @@
+import {
+  createProductVariant,
+  deleteProductVariant,
+  getProductVariantById,
+  getProductVariants,
+  getProductVariantsByProductId,
+  getVariantDetails,
+  updateProductVariant,
+} from "@/actions/product-variants"
+import type { ProductVariantInsert, ProductVariantUpdate } from "@/types/tables/product_variants"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { getVariantDetails } from "@/app/api/product-variants/actions"
-import type {
-  ProductVariant,
-  ProductVariantInsert,
-  ProductVariantUpdate,
-} from "@/types/tables/product_variants"
-import { supabase } from "@/utils/supabase/client"
+const QUERY_KEY = "product-variants"
 
-// Query key
-const PRODUCT_VARIANTS_QUERY_KEY = "product-variants"
-
-// Get all product variants
 export const useProductVariantsQuery = () => {
   return useQuery({
-    queryKey: [PRODUCT_VARIANTS_QUERY_KEY],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("product_variants").select("*")
-      if (error) throw error
-      return data as ProductVariant[]
-    },
+    queryKey: [QUERY_KEY],
+    queryFn: getProductVariants,
   })
 }
 
-// Get product variants by product ID
 export const useProductVariantsByProductQuery = (productId: string) => {
   return useQuery({
-    queryKey: [PRODUCT_VARIANTS_QUERY_KEY, productId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("product_variants")
-        .select("*")
-        .eq("product_id", productId)
-      if (error) throw error
-      return data as ProductVariant[]
-    },
+    queryKey: [QUERY_KEY, productId],
+    queryFn: () => getProductVariantsByProductId(productId),
   })
 }
 
-// Create product variant
+export const useProductVariantById = (id: string | null) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => getProductVariantById(id!),
+    enabled: !!id && id !== "new",
+  })
+}
+
+export const useVariantDetails = (id: string | null) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "details", id],
+    queryFn: () => getVariantDetails(id!),
+    enabled: !!id && id !== "new",
+  })
+}
+
 export const useCreateProductVariant = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (variant: ProductVariantInsert) => {
-      const { data, error } = await supabase
-        .from("product_variants")
-        .insert(variant)
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
+    mutationFn: (variant: ProductVariantInsert) => createProductVariant(variant),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_VARIANTS_QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success("Product variant created successfully")
     },
     onError: (error) => {
-      toast.error("Failed to create product variant")
-      console.error("Error creating product variant:", error)
+      toast.error(error.message)
     },
   })
 }
 
-// Update product variant
 export const useUpdateProductVariant = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (variant: ProductVariantUpdate) => {
-      const { data, error } = await supabase
-        .from("product_variants")
-        .update(variant)
-        .eq("id", variant.id)
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
+    mutationFn: ({ id, variant }: { id: string; variant: ProductVariantUpdate }) =>
+      updateProductVariant(id, variant),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_VARIANTS_QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success("Product variant updated successfully")
     },
     onError: (error) => {
-      toast.error("Failed to update product variant")
-      console.error("Error updating product variant:", error)
+      toast.error(error.message)
     },
   })
 }
 
-// Delete product variant
 export const useDeleteProductVariant = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("product_variants").delete().eq("id", id)
-      if (error) throw error
-    },
+    mutationFn: deleteProductVariant,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_VARIANTS_QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success("Product variant deleted successfully")
     },
     onError: (error) => {
-      toast.error("Failed to delete product variant")
-      console.error("Error deleting product variant:", error)
+      toast.error(error.message)
     },
-  })
-}
-
-export const useVariantDetails = (variantId: string | undefined) => {
-  return useQuery({
-    queryKey: ["variant", variantId],
-    queryFn: () => getVariantDetails(variantId!),
-    enabled: !!variantId,
   })
 }

@@ -22,11 +22,7 @@ import {
 import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  useVoucherCreateMutation,
-  useVoucherQuery,
-  useVoucherUpdateMutation,
-} from "@/queries/voucher"
+import { useCreateVoucher, useUpdateVoucher, useVoucherQuery } from "@/queries/voucher"
 import type { VoucherInsert } from "@/types/tables/vouchers"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -56,8 +52,8 @@ interface SheetVoucherProps {
 
 export default function SheetVoucher({ id, handleClose }: SheetVoucherProps) {
   const { data } = useVoucherQuery()
-  const { mutate: createVoucher } = useVoucherCreateMutation()
-  const { mutate: updateVoucher } = useVoucherUpdateMutation()
+  const { mutate: createVoucher } = useCreateVoucher()
+  const { mutate: updateVoucher } = useUpdateVoucher()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -111,7 +107,7 @@ export default function SheetVoucher({ id, handleClose }: SheetVoucherProps) {
     if (id === "new") {
       createVoucher(voucherData)
     } else if (id) {
-      updateVoucher({ id, ...voucherData })
+      updateVoucher({ id, voucher: voucherData })
     }
 
     handleClose()

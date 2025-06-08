@@ -1,112 +1,81 @@
-import type { Product, ProductInsert, ProductUpdate } from "@/types/tables/products"
-import { supabase } from "@/utils/supabase/client"
+import {
+  createProduct,
+  deleteProduct,
+  getFeaturedProducts,
+  getProductById,
+  getProducts,
+  updateProduct,
+} from "@/actions/products"
+import type { ProductInsert, ProductUpdate } from "@/types/tables/products"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 const QUERY_KEY = "products"
-const TABLE_NAME = "products"
 
 export const useProductQuery = () => {
   return useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from(TABLE_NAME)
-        .select("*")
-        .order("created_at", { ascending: false })
-      if (error) throw error
-      return data
-    },
+    queryFn: getProducts,
   })
 }
 
 export const useFeaturedProductsQuery = (limit = 3) => {
   return useQuery({
     queryKey: [QUERY_KEY, "featured", limit],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from(TABLE_NAME)
-        .select("*")
-        .eq("is_featured", true)
-        .order("created_at", { ascending: false })
-        .limit(limit)
-      if (error) throw error
-      return data as Product[]
-    },
+    queryFn: () => getFeaturedProducts(limit),
   })
 }
 
 export const useProductQueryById = (id: string | null) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from(TABLE_NAME).select("*").eq("id", id).single()
-      if (error) throw error
-      return data
-    },
+    queryFn: () => getProductById(id!),
     enabled: !!id && id !== "new",
   })
 }
 
-export const useProductUpdateMutation = (onSuccess?: () => void) => {
+export const useCreateProduct = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: ProductUpdate & { id: string }) => {
-      const { data, error } = await supabase.from(TABLE_NAME).update(payload).eq("id", payload.id)
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-      toast.success("Product updated successfully")
-      onSuccess?.()
-    },
-    onError: () => {
-      toast.error("Failed to update product")
-    },
-  })
-}
-export const useProductCreateMutation = (onSuccess?: () => void) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (payload: ProductInsert) => {
-      const { data, error } = await supabase.from(TABLE_NAME).insert(payload)
-      if (error) throw error
-      return data
-    },
+    mutationFn: (product: ProductInsert) => createProduct(product),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success("Product created successfully")
-      onSuccess?.()
     },
-    onError: () => {
-      toast.error("Failed to create product")
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 }
 
-export const useProductDeleteMutation = () => {
+export const useUpdateProduct = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { data, error } = await supabase.from(TABLE_NAME).delete().eq("id", id)
-      if (error) throw error
-
-      const oldData = queryClient
-        .getQueryData<Product[]>([QUERY_KEY])
-        ?.find((product) => product.id === id)
-      return oldData ?? data
-    },
-    onSuccess: (data: Product | null) => {
+    mutationFn: ({ id, product }: { id: string; product: ProductUpdate }) =>
+      updateProduct(id, product),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-      const toastMessage = data ? `Deleted product ${data.name}!` : "Product deleted successfully"
-      toast.success(toastMessage)
+      toast.success("Product updated successfully")
     },
-    onError: () => {
-      toast.error("Failed to delete product")
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
+export const useDeleteProduct = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success("Product deleted successfully")
+    },
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 }

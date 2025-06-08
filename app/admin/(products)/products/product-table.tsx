@@ -5,11 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger } from "@/components/ui/sheet"
 import { useBrandQuery } from "@/queries/brand"
 import { useCatalogQuery } from "@/queries/catalog"
-import {
-  useProductDeleteMutation,
-  useProductQuery,
-  useProductUpdateMutation,
-} from "@/queries/product"
+import { useDeleteProduct, useProductQuery, useUpdateProduct } from "@/queries/product"
 import type { Product } from "@/types/tables/products"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Loader2, PlusCircleIcon } from "lucide-react"
@@ -26,8 +22,8 @@ export default function ProductTable() {
   const [isOpen, setIsOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
 
-  const { mutate: deleteProduct } = useProductDeleteMutation()
-  const { mutate: updateProduct } = useProductUpdateMutation()
+  const { mutate: deleteProduct } = useDeleteProduct()
+  const { mutate: updateProduct } = useUpdateProduct()
 
   const handleAdd = () => {
     setId("new")
@@ -49,11 +45,11 @@ export default function ProductTable() {
   }
 
   const handleToggleActive = (id: string, isActive: boolean) => {
-    updateProduct({ id, is_active: isActive })
+    updateProduct({ id, product: { is_active: isActive } })
   }
 
   const handleToggleFeatured = (id: string, isFeatured: boolean) => {
-    updateProduct({ id, is_featured: isFeatured })
+    updateProduct({ id, product: { is_featured: isFeatured } })
   }
 
   if (isLoading)

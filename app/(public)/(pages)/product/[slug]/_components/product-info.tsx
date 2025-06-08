@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/hooks/use-user"
-import { useIsInWishlist, useToggleWishlistMutation } from "@/queries/wishlist"
+import { useAddToWishlist, useIsInWishlist, useRemoveFromWishlist } from "@/queries/wishlist"
 import { Heart, Minus, Plus, RotateCcw, Share2, ShieldCheck, Truck } from "lucide-react"
 import { toast } from "sonner"
 
@@ -30,8 +30,9 @@ export default function ProductInfo({
   onAddToCart,
 }: ProductInfoProps) {
   const { data: user } = useUser()
-  const { data: isInWishlist } = useIsInWishlist(product.id, user?.id)
-  const { mutate: toggleWishlist } = useToggleWishlistMutation()
+  const { data: isInWishlist } = useIsInWishlist(user?.id ?? null, product.id)
+  const { mutate: addToWishlist } = useAddToWishlist()
+  const { mutate: removeFromWishlist } = useRemoveFromWishlist()
 
   const incrementQuantity = () => setQuantity(quantity + 1)
   const decrementQuantity = () => setQuantity(Math.max(1, quantity - 1))
@@ -42,10 +43,17 @@ export default function ProductInfo({
       return
     }
 
-    toggleWishlist({
-      productId: product.id,
-      userId: user.id,
-    })
+    if (isInWishlist) {
+      removeFromWishlist({
+        productId: product.id,
+        userId: user.id,
+      })
+    } else {
+      addToWishlist({
+        productId: product.id,
+        userId: user.id,
+      })
+    }
   }
 
   const onShare = () => {

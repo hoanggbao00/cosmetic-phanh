@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { useImageQuery } from "@/queries/images"
+import { useImages } from "@/queries/images"
 import { Loader2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "../ui/button"
@@ -26,7 +26,7 @@ export default function ImagesPicker({
   defaultSelectedImages,
 }: ImagesPickerProps) {
   const [open, setOpen] = useState(false)
-  const { data: images, isLoading } = useImageQuery({ enabled: open })
+  const { data: images, isLoading } = useImages()
   const [selectedImage, setSelectedImage] = useState<string[]>(defaultSelectedImages || [])
 
   const handleSelectImage = (image: string) => {

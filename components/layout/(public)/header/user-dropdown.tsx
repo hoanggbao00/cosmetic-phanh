@@ -1,5 +1,6 @@
 "use client"
 
+import { type UserData, getCurrentUser } from "@/app/_actions/auth"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,70 +12,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { supabase } from "@/utils/supabase/client"
-import { LogOutIcon, ShoppingBag, UserIcon } from "lucide-react"
+import { Loader2, LogOutIcon, ShoppingBag, UserIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-interface UserInfo {
-  id: string
-  email: string
-  full_name: string | null
-  avatar_url: string | null
-}
-
 export function UserDropdown() {
-  const [user, setUser] = useState<UserInfo | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const [user, setUser] = useState<UserData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const getUser = async () => {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser()
-      if (authUser) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", authUser.id)
-          .single()
-
-        if (profile) {
-          setUser({
-            id: authUser.id,
-            email: authUser.email!,
-            full_name: profile.full_name,
-            avatar_url: profile.avatar_url,
-          })
-        }
+      try {
+        const data = await getCurrentUser()
+        setUser(data)
+      } catch (error) {
+        console.error("Error fetching user:", error)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     getUser()
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT") {
-        setUser(null)
-      } else if (event === "SIGNED_IN" && session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single()
-
-        if (profile) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email!,
-            full_name: profile.full_name,
-            avatar_url: profile.avatar_url,
-          })
-        }
-      }
+    } = supabase.auth.onAuthStateChange(async () => {
+      const data = await getCurrentUser()
+      setUser(data)
     })
 
     return () => {
@@ -88,7 +54,7 @@ export function UserDropdown() {
   }
 
   if (isLoading) {
-    return <div className="size-4 animate-pulse rounded-full bg-muted md:size-6" />
+    return <Loader2 className="size-4 animate-spin md:size-6" />
   }
 
   if (!user) {
@@ -112,7 +78,7 @@ export function UserDropdown() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="font-medium text-sm leading-none">{user.full_name || "User"}</p>
+            <p className="font-medium text-sm leading-none">{user.profile.full_name || "User"}</p>
             <p className="text-muted-foreground text-xs leading-none">{user.email}</p>
           </div>
         </DropdownMenuLabel>

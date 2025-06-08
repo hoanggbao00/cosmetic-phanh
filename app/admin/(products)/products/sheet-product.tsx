@@ -13,12 +13,8 @@ import { CLOUDINARY_UPLOAD_PRESET } from "@/lib/config/app.config"
 import { slugify } from "@/lib/utils"
 import { useBrandQuery } from "@/queries/brand"
 import { useCatalogQuery } from "@/queries/catalog"
-import { useImageCreateMutation } from "@/queries/images"
-import {
-  useProductCreateMutation,
-  useProductQueryById,
-  useProductUpdateMutation,
-} from "@/queries/product"
+import { useCreateImage } from "@/queries/images"
+import { useCreateProduct, useProductQueryById, useUpdateProduct } from "@/queries/product"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon, XIcon } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
@@ -41,10 +37,10 @@ export default function SheetProduct({
   const [images, setImages] = useState<string[]>([])
 
   const { data: detailProduct, isLoading: isLoadingDetail } = useProductQueryById(id)
-  const { mutate: createProduct, isPending: isCreating } = useProductCreateMutation(handleClose)
-  const { mutate: updateProduct, isPending: isUpdating } = useProductUpdateMutation(handleClose)
+  const { mutate: createProduct, isPending: isCreating } = useCreateProduct()
+  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct()
 
-  const { mutate: createImage } = useImageCreateMutation()
+  const { mutate: createImage } = useCreateImage()
   const { data: brands } = useBrandQuery()
   const { data: catalogs } = useCatalogQuery()
 
@@ -52,11 +48,21 @@ export default function SheetProduct({
 
   const onSubmit = (data: ProductSchema) => {
     if (!isEdit) {
-      createProduct(data)
+      createProduct(data, {
+        onSuccess: handleClose,
+      })
       return
     }
 
-    updateProduct({ id: id!, ...data })
+    updateProduct(
+      {
+        id: id!,
+        product: data,
+      },
+      {
+        onSuccess: handleClose,
+      }
+    )
   }
 
   const handleDeleteImage = (image: string) => {
@@ -76,11 +82,13 @@ export default function SheetProduct({
   useEffect(() => {
     if (id === "new") {
       form.reset(defaultProductValues)
+      setImages([])
       return
     }
 
     if (detailProduct) {
       form.reset(detailProduct)
+      setImages(detailProduct.images || [])
     }
   }, [detailProduct, form, id])
 

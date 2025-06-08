@@ -12,7 +12,7 @@ export interface OrderItem {
   total_price: number
   created_at: string
   updated_at: string
-  product?: Pick<Product, "id" | "name" | "images">
+  product?: Pick<Product, "id" | "name" | "images" | "price">
 }
 
 export interface OrderItemInsert {

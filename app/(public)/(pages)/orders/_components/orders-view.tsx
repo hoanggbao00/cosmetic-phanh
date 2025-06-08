@@ -62,7 +62,8 @@ export function useOrders() {
             products (
               id,
               name,
-              images
+              images,
+              price
             ),
             product_variants (
               id,
@@ -119,7 +120,7 @@ export default function OrdersView({ orders }: OrdersViewProps) {
         <div className="grid gap-4">
           {orders.map((order) => (
             <Card key={order.id} className="gap-2 p-2">
-              <Collapsible>
+              <Collapsible defaultOpen>
                 <CollapsibleTrigger asChild>
                   <CardHeader className="flex cursor-pointer flex-row items-center gap-2 rounded px-2 py-0.5 hover:bg-muted">
                     <ChevronsUpDownIcon size={16} className="transition-transform duration-300" />
@@ -166,20 +167,15 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                   <CardContent className="grid gap-6 p-2">
                     <div className="flex flex-col gap-2 divide-y">
                       {order.order_items.map((item) => {
-                        const isVariant = !!item.product_variants
-                        const productInfo = isVariant
-                          ? item.product_variants?.product
-                          : item.products
+                        const productInfo = item.products
 
-                        const productName = isVariant
-                          ? productInfo?.name || "Product Not Available"
-                          : item.products?.name || "Product Not Available"
+                        const productName = productInfo?.name || "Product Not Available"
 
                         const productImage = productInfo?.images?.[0] || "/placeholder.png"
                         const variantName = item.product_variants?.name
-                        const price = isVariant
-                          ? item.product_variants?.price || item.price
-                          : item.products?.price || item.price
+                        const productPrice = productInfo?.price || 0
+                        const variantPrice = item.product_variants?.price || 0
+                        const price = productPrice + variantPrice
 
                         return (
                           <div key={item.id} className="flex items-center gap-4 pb-1">
@@ -193,7 +189,7 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                             <div className="flex flex-1 items-center justify-between">
                               <div>
                                 <p className="font-medium">{productName}</p>
-                                {isVariant && variantName && (
+                                {variantName && (
                                   <div className="space-y-1">
                                     <p className="text-muted-foreground text-sm">
                                       Variant: {variantName} (+

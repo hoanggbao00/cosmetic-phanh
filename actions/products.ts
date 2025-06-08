@@ -76,3 +76,16 @@ export async function deleteProduct(id: string) {
   revalidatePath("/admin/products")
   return true
 }
+
+export async function searchProducts(query: string) {
+  const supabase = await createSupabaseServerClient()
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .ilike("name", `%${query}%`)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data as Product[]
+}

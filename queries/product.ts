@@ -4,6 +4,7 @@ import {
   getFeaturedProducts,
   getProductById,
   getProducts,
+  searchProducts,
   updateProduct,
 } from "@/actions/products"
 import type { ProductInsert, ProductUpdate } from "@/types/tables/products"
@@ -77,5 +78,13 @@ export const useDeleteProduct = () => {
     onError: (error) => {
       toast.error(error.message)
     },
+  })
+}
+
+export const useSearchProducts = (query: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "search", query],
+    queryFn: () => searchProducts(query),
+    enabled: !!query,
   })
 }

@@ -5,7 +5,6 @@ import { formatPrice } from "@/lib/utils"
 import { useVariant } from "@/queries/variants"
 import { useCartStore } from "@/stores/cart-store"
 import { Minus, Plus, Trash2 } from "lucide-react"
-import Image from "next/image"
 
 interface CartItemProps {
   id: string
@@ -43,11 +42,10 @@ export default function CartItem({
   return (
     <div className="flex items-center gap-4 py-4">
       <div className="relative h-24 w-24 overflow-hidden rounded-lg">
-        <Image
+        <img
           src={image}
           alt={name}
-          fill
-          className="object-cover"
+          className="absolute inset-0 size-full object-cover"
           sizes="(max-width: 768px) 96px, 96px"
         />
       </div>

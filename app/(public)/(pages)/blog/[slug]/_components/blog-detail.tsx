@@ -24,8 +24,11 @@ export default function BlogDetailView({ post }: Props) {
 
       <div className="mx-auto w-full px-4 py-8">
         {/* Back to Blog */}
-        <div className="mb-8">
-          <Link href="/blog" className="flex items-center font-medium text-sm hover:underline">
+        <div className="mb-8 w-fit">
+          <Link
+            href="/blog"
+            className="flex w-fit items-center font-medium text-sm hover:underline"
+          >
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back to Blog
           </Link>

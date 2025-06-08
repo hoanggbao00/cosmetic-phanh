@@ -1,7 +1,6 @@
 import type { BlogPost } from "@/types/tables/blog_posts"
 import { format } from "date-fns"
 import { CalendarIcon, ClockIcon } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 interface FeaturedPostCardProps {
@@ -20,11 +19,10 @@ export const FeaturedPostCard = ({ post }: FeaturedPostCardProps) => {
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
       <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-        <Image
+        <img
           src={post.featured_image || "/images/placeholder.jpg"}
           alt={post.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <div className="mt-4 space-y-2">
@@ -44,11 +42,10 @@ export const FeaturedPostCard = ({ post }: FeaturedPostCardProps) => {
         <p className="line-clamp-2 text-muted-foreground">{post.excerpt}</p>
         <div className="flex items-center gap-2">
           <div className="relative h-8 w-8 overflow-hidden rounded-full">
-            <Image
+            <img
               src={post.author.avatar_url || "/images/placeholder-avatar.jpg"}
               alt={post.author.name}
-              fill
-              className="object-cover"
+              className="absolute inset-0 size-full object-cover"
             />
           </div>
           <div className="text-sm">

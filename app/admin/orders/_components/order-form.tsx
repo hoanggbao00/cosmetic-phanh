@@ -44,7 +44,7 @@ export interface OrderState {
   price: number
   variantId: string
   variantName: string
-  variantPrice: number
+  variantPrice: number // Runtime only - not stored in DB
   quantity: number
   totalPrice: number
 }
@@ -116,7 +116,7 @@ export default function OrderForm({ order }: OrderFormProps) {
         price: item.price || 0,
         variantId: item.variant_id || "",
         variantName: item.variant_name || "",
-        variantPrice: item.variant_price || 0,
+        variantPrice: 0, // Will be updated when variant is selected
         quantity: item.quantity || 1,
         totalPrice: item.total_price || 0,
       }))
@@ -138,7 +138,6 @@ export default function OrderForm({ order }: OrderFormProps) {
         price: item.price,
         variant_id: item.variantId,
         variant_name: item.variantName,
-        variant_price: item.variantPrice,
         quantity: item.quantity,
         total_price: item.totalPrice,
       }))
@@ -473,7 +472,7 @@ export default function OrderForm({ order }: OrderFormProps) {
               <FormField
                 control={form.control}
                 name="voucher_id"
-                render={({ field }) => (
+                render={() => (
                   <FormItem className="w-full">
                     <FormLabel>Voucher</FormLabel>
                     <Select

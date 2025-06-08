@@ -84,10 +84,7 @@ export const useCartStore = create<CartStore>()(
               user_id: userId,
               product_id: item.productId,
               variant_id: item.variantId || null,
-              variant_name: item.variantName || null,
-              variant_price: item.variantPrice || null,
               quantity: item.quantity,
-              price: item.price,
             })
           }
         }
@@ -106,7 +103,10 @@ export const useCartStore = create<CartStore>()(
         // Update local state
         set({
           items: newItems,
-          total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+          total: newItems.reduce((acc, item) => {
+            const itemPrice = item.variantPrice || item.price
+            return acc + itemPrice * item.quantity
+          }, 0),
         })
 
         // Remove from database if user is logged in
@@ -126,7 +126,10 @@ export const useCartStore = create<CartStore>()(
         // Update local state
         set({
           items: newItems,
-          total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+          total: newItems.reduce((acc, item) => {
+            const itemPrice = item.variantPrice || item.price
+            return acc + itemPrice * item.quantity
+          }, 0),
         })
 
         // Update in database if user is logged in

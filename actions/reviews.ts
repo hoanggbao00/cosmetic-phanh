@@ -99,7 +99,6 @@ export async function checkUserCanReview(userId: string, productId: string) {
         orders.map((order) => order.id)
       )
       .eq("product_id", productId)
-      .single()
 
     // Check if user has already reviewed
     const { data: existingReview } = await supabase
@@ -110,7 +109,7 @@ export async function checkUserCanReview(userId: string, productId: string) {
       .single()
 
     return {
-      canReview: !!orderItems && !existingReview,
+      canReview: !!orderItems && orderItems.length > 0 && !existingReview,
       hasReviewed: !!existingReview,
       message: existingReview
         ? "You have already reviewed this product"

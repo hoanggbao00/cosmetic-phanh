@@ -14,8 +14,8 @@ export function OverviewCards({ data }: OverviewCardsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="gap-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="font-medium text-sm">Doanh thu tháng này</CardTitle>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -24,8 +24,8 @@ export function OverviewCards({ data }: OverviewCardsProps) {
           <p className="text-muted-foreground text-xs">{thisMonthRevenue}% so với tháng trước</p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="gap-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="font-medium text-sm">Sản phẩm đã bán</CardTitle>
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -40,8 +40,8 @@ export function OverviewCards({ data }: OverviewCardsProps) {
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="gap-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="font-medium text-sm">Đơn hàng mới</CardTitle>
           <ShoppingCart className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -55,8 +55,8 @@ export function OverviewCards({ data }: OverviewCardsProps) {
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="gap-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="font-medium text-sm">Đánh giá mới</CardTitle>
           <Star className="h-4 w-4 text-muted-foreground" />
         </CardHeader>

@@ -5,6 +5,7 @@ import {
   deleteOrder,
   getOrderById,
   getOrders,
+  getOrdersByIds,
   getOrdersByUser,
   updateOrder,
 } from "@/actions/orders"
@@ -89,5 +90,16 @@ export const useDeleteOrder = () => {
     onError: (error) => {
       toast.error(error.message)
     },
+  })
+}
+
+export function useOrdersByIds(orderIds: string[]) {
+  // Filter out empty strings and undefined values
+  const validOrderIds = orderIds.filter((id): id is string => !!id)
+
+  return useQuery({
+    queryKey: ["orders", validOrderIds],
+    queryFn: () => getOrdersByIds(validOrderIds),
+    enabled: validOrderIds.length > 0,
   })
 }

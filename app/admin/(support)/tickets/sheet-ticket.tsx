@@ -20,6 +20,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import { useSupportTicketQueryById, useSupportTicketUpdateMutation } from "@/queries/support-ticket"
 import {
   useSupportTicketRepliesQuery,
@@ -77,7 +78,10 @@ export default function SheetTicket({ id, handleClose }: SheetTicketProps) {
 
   const handleSendReply = () => {
     if (!replyMessage.trim()) return
-    replyMutation.mutate(replyMessage)
+    replyMutation.mutate({
+      message: replyMessage,
+      is_admin_reply: true,
+    })
   }
 
   if (!ticket) return null
@@ -177,7 +181,10 @@ export default function SheetTicket({ id, handleClose }: SheetTicketProps) {
           ) : (
             <div className="max-h-[300px] space-y-4 overflow-y-auto">
               {replies?.map((reply) => (
-                <Card key={reply.id} className="w-full gap-2 py-0">
+                <Card
+                  key={reply.id}
+                  className={cn("w-full gap-2 py-0", reply.is_admin_reply && "bg-primary/5")}
+                >
                   <CardHeader className="flex flex-row items-center gap-4 p-2 pb-0">
                     <Avatar>
                       <AvatarImage src={reply.profiles?.avatar_url || ""} />
@@ -186,6 +193,9 @@ export default function SheetTicket({ id, handleClose }: SheetTicketProps) {
                     <div>
                       <CardTitle className="text-sm">
                         {reply.profiles?.full_name || "User"}
+                        {reply.is_admin_reply && (
+                          <span className="ml-2 text-primary text-xs">(Admin)</span>
+                        )}
                       </CardTitle>
                       <p className="text-muted-foreground text-xs">
                         {format(new Date(reply.created_at), "MMM dd, yyyy HH:mm")}

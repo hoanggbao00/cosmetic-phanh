@@ -24,6 +24,14 @@ export default function EmptyCart() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
+        <div className="mt-2 flex items-center justify-center">
+          <Link
+            href="/orders/local"
+            className="flex items-center text-primary underline hover:text-primary/80"
+          >
+            Order History
+          </Link>
+        </div>
       </div>
     </div>
   )

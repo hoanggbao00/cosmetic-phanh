@@ -207,3 +207,46 @@ export async function getOrdersByUser(userId: string) {
   if (error) throw error
   return data as Order[]
 }
+
+export async function getOrdersByIds(orderIds: string[]) {
+  // Return empty array if no valid IDs
+  if (!orderIds?.length) return []
+
+  // Filter out any empty strings or invalid IDs
+  const validOrderIds = orderIds.filter((id) => !!id && id.trim() !== "")
+  if (!validOrderIds.length) return []
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from("orders")
+    .select(`
+      *,
+      order_items (
+        id,
+        quantity,
+        price,
+        products (
+          id,
+          name,
+          images,
+          price
+        ),
+        product_variants (
+          id,
+          name,
+          price,
+          product:products (
+            id,
+            name,
+            images,
+            price
+          )
+        )
+      )
+    `)
+    .in("id", validOrderIds)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data || []
+}

@@ -5,6 +5,11 @@ import { toast } from "sonner"
 const QUERY_KEY = "support_ticket_replies"
 const TABLE_NAME = "support_ticket_replies"
 
+interface ReplyPayload {
+  message: string
+  is_admin_reply: boolean
+}
+
 export const useSupportTicketRepliesQuery = (ticketId: string | null) => {
   return useQuery({
     queryKey: [QUERY_KEY, ticketId],
@@ -31,7 +36,7 @@ export const useSupportTicketReplyMutation = (ticketId: string, onSuccess?: () =
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (message: string) => {
+    mutationFn: async (payload: ReplyPayload) => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -39,8 +44,9 @@ export const useSupportTicketReplyMutation = (ticketId: string, onSuccess?: () =
 
       const { data, error } = await supabase.from(TABLE_NAME).insert({
         ticket_id: ticketId,
-        message,
+        message: payload.message,
         user_id: user.id,
+        is_admin_reply: payload.is_admin_reply,
       })
       if (error) throw error
       return data

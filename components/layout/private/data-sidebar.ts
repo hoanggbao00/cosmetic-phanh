@@ -50,11 +50,11 @@ export const DATA_SIDEBAR = [
       },
       {
         title: "Support Tickets",
-        href: "/admin/support-tickets",
+        href: "/admin/tickets",
       },
       {
-        title: "Reviews",
-        href: "/admin/reviews",
+        title: "Product Reviews",
+        href: "/admin/product-reviews",
       },
     ],
   },

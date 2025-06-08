@@ -11,6 +11,20 @@ export interface ProductReview {
   admin_reply_by: string | null
   created_at: string
   updated_at: string
+  products: {
+    id: string
+    name: string
+    images: string[]
+  }
+  reviewer: {
+    id: string
+    full_name: string
+    avatar_url: string | null
+  }
+  admin: {
+    id: string
+    full_name: string
+  } | null
 }
 
 export interface ProductReviewInsert {

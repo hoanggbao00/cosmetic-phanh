@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { getVariantDetails } from "@/app/api/product-variants/actions"
 import type {
   ProductVariant,
   ProductVariantInsert,
@@ -108,5 +109,13 @@ export const useDeleteProductVariant = () => {
       toast.error("Failed to delete product variant")
       console.error("Error deleting product variant:", error)
     },
+  })
+}
+
+export const useVariantDetails = (variantId: string | undefined) => {
+  return useQuery({
+    queryKey: ["variant", variantId],
+    queryFn: () => getVariantDetails(variantId!),
+    enabled: !!variantId,
   })
 }

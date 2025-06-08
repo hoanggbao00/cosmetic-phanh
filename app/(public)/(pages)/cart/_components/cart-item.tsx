@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/utils"
+import { useVariantDetails } from "@/queries/product-variants"
 import { type CartItem as CartItemType, useCartStore } from "@/stores/cart-store"
 import { Minus, Plus, X } from "lucide-react"
 
@@ -11,6 +12,7 @@ interface CartItemProps {
 
 export default function CartItem({ item }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore()
+  const { data: variantDetails } = useVariantDetails(item.variantId)
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1) {
@@ -19,7 +21,7 @@ export default function CartItem({ item }: CartItemProps) {
   }
 
   // Calculate total price: base price + variant price (if exists)
-  const totalUnitPrice = item.variantPrice ? item.price + item.variantPrice : item.price
+  const totalUnitPrice = variantDetails ? item.price + variantDetails.price : item.price
 
   return (
     <div className="flex flex-col gap-4 py-6 md:flex-row md:items-center md:gap-6">
@@ -36,8 +38,8 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-medium text-base text-gray-900">
             {item.name}
-            {item.variantName && (
-              <span className="ml-1 text-gray-500 text-sm">({item.variantName})</span>
+            {variantDetails && (
+              <span className="ml-1 text-gray-500 text-sm">({variantDetails.name})</span>
             )}
           </h3>
 
@@ -57,9 +59,9 @@ export default function CartItem({ item }: CartItemProps) {
         <span className="font-medium text-sm">Price:</span>
         <div className="text-right">
           <span className="text-sm">${formatPrice(totalUnitPrice)}</span>
-          {item.variantPrice && (
+          {variantDetails && (
             <div className="text-gray-500 text-xs">
-              (Base: ${formatPrice(item.price)} + Variant: ${formatPrice(item.variantPrice)})
+              (Base: ${formatPrice(item.price)} + Variant: ${formatPrice(variantDetails.price)})
             </div>
           )}
         </div>

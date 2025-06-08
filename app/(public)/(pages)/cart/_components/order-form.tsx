@@ -103,7 +103,6 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
             productId: item.productId,
             name: item.name,
             variantId: item.variantId,
-            variantName: item.variantName,
             price: item.price,
             quantity: item.quantity,
           })),

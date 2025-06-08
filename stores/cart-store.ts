@@ -8,137 +8,125 @@ export interface CartItem {
   productId: string
   name: string
   price: number
-  image: string
+  image?: string
   quantity: number
   variantId?: string
-  variantName?: string
-  variantPrice?: number
 }
 
-interface CartStore {
+interface CartState {
   items: CartItem[]
-  addItem: (item: Omit<CartItem, "id">) => Promise<void>
-  removeItem: (itemId: string) => Promise<void>
-  updateQuantity: (itemId: string, quantity: number) => Promise<void>
-  clearCart: () => Promise<void>
+  addItem: (product: Omit<CartItem, "id">) => void
+  removeItem: (id: string) => void
+  updateQuantity: (id: string, quantity: number) => void
+  clearCart: () => void
   total: number
 }
 
-export const useCartStore = create<CartStore>()(
+export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      total: 0,
 
-      addItem: async (item) => {
+      addItem: async (product) => {
         const {
           data: { session },
         } = await supabase.auth.getSession()
-        const currentItems = get().items
-        const existingItemIndex = currentItems.findIndex(
-          (i) => i.productId === item.productId && i.variantId === item.variantId
-        )
 
-        let newItems: CartItem[]
-        let cartItemId: string
+        set((state) => {
+          const existingItem = state.items.find(
+            (item) => item.productId === product.productId && item.variantId === product.variantId
+          )
 
-        if (existingItemIndex !== -1) {
-          newItems = [...currentItems]
-          newItems[existingItemIndex] = {
-            ...newItems[existingItemIndex],
-            quantity: newItems[existingItemIndex].quantity + item.quantity,
+          let newItems: CartItem[]
+          let cartItemId: string
+
+          if (existingItem) {
+            newItems = state.items.map((item) =>
+              item.id === existingItem.id
+                ? { ...item, quantity: item.quantity + product.quantity }
+                : item
+            )
+            cartItemId = existingItem.id
+          } else {
+            cartItemId = crypto.randomUUID()
+            newItems = [...state.items, { ...product, id: cartItemId }]
           }
-          cartItemId = newItems[existingItemIndex].id
-        } else {
-          cartItemId = crypto.randomUUID()
-          newItems = [...currentItems, { ...item, id: cartItemId }]
-        }
 
-        // Update local state
-        set({
-          items: newItems,
-          total: newItems.reduce((acc, item) => {
-            // Use variant price if available, otherwise use base price
-            const itemPrice = item.variantPrice || item.price
-            return acc + itemPrice * item.quantity
-          }, 0),
+          // Update local state
+          return { items: newItems }
         })
 
         // Sync with database if user is logged in
         if (session) {
           const userId = session.user.id
-          if (existingItemIndex !== -1) {
+          const existingItem = get().items.find(
+            (item) => item.productId === product.productId && item.variantId === product.variantId
+          )
+
+          if (existingItem) {
             // Update quantity if item exists
             await supabase
               .from("cart_items")
               .update({
-                quantity: newItems[existingItemIndex].quantity,
+                quantity: existingItem.quantity,
               })
               .eq("user_id", userId)
-              .eq("product_id", item.productId)
-              .eq("variant_id", item.variantId || null)
+              .eq("product_id", product.productId)
+              .eq("variant_id", product.variantId || null)
           } else {
             // Insert new item
             await supabase.from("cart_items").insert({
-              id: cartItemId,
+              id: crypto.randomUUID(),
               user_id: userId,
-              product_id: item.productId,
-              variant_id: item.variantId || null,
-              quantity: item.quantity,
+              product_id: product.productId,
+              variant_id: product.variantId || null,
+              quantity: product.quantity,
             })
           }
         }
 
         toast.success("Added to cart", {
-          description: `${item.name}${item.variantName ? ` (${item.variantName})` : ""} added to cart`,
+          description: `${product.name} added to cart`,
         })
       },
 
-      removeItem: async (itemId: string) => {
+      removeItem: async (id) => {
         const {
           data: { session },
         } = await supabase.auth.getSession()
-        const newItems = get().items.filter((item) => item.id !== itemId)
 
         // Update local state
-        set({
-          items: newItems,
-          total: newItems.reduce((acc, item) => {
-            const itemPrice = item.variantPrice || item.price
-            return acc + itemPrice * item.quantity
-          }, 0),
-        })
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== id),
+        }))
 
         // Remove from database if user is logged in
         if (session) {
-          await supabase.from("cart_items").delete().eq("user_id", session.user.id).eq("id", itemId)
+          await supabase.from("cart_items").delete().eq("user_id", session.user.id).eq("id", id)
         }
       },
 
-      updateQuantity: async (itemId: string, quantity: number) => {
+      updateQuantity: async (id, quantity) => {
         const {
           data: { session },
         } = await supabase.auth.getSession()
-        const newItems = get().items.map((item) =>
-          item.id === itemId ? { ...item, quantity } : item
-        )
 
         // Update local state
-        set({
-          items: newItems,
-          total: newItems.reduce((acc, item) => {
-            const itemPrice = item.variantPrice || item.price
-            return acc + itemPrice * item.quantity
-          }, 0),
-        })
+        set((state) => ({
+          items: state.items.map((item) => (item.id === id ? { ...item, quantity } : item)),
+        }))
 
         // Update in database if user is logged in
         if (session) {
-          await supabase
-            .from("cart_items")
-            .update({ quantity })
-            .eq("user_id", session.user.id)
-            .eq("id", itemId)
+          const item = get().items.find((item) => item.id === id)
+          if (item) {
+            await supabase
+              .from("cart_items")
+              .update({ quantity })
+              .eq("user_id", session.user.id)
+              .eq("product_id", item.productId)
+              .eq("variant_id", item.variantId || null)
+          }
         }
       },
 
@@ -148,12 +136,18 @@ export const useCartStore = create<CartStore>()(
         } = await supabase.auth.getSession()
 
         // Clear local state
-        set({ items: [], total: 0 })
+        set({ items: [] })
 
         // Clear database items if user is logged in
         if (session) {
           await supabase.from("cart_items").delete().eq("user_id", session.user.id)
         }
+      },
+
+      get total() {
+        return get().items.reduce((total, item) => {
+          return total + item.price * item.quantity
+        }, 0)
       },
     }),
     {

@@ -173,11 +173,6 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           <span>{formatPrice(subtotal)}</span>
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Shipping</span>
-          <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
-        </div>
-
         {discount > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Discount</span>

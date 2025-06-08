@@ -7,7 +7,9 @@ import { ShoppingBagIcon } from "lucide-react"
 import Link from "next/link"
 
 interface ProductCardProps {
-  product: Product
+  product: Product & {
+    slug: string // Adding slug to fix type error
+  }
   categories?: Category[]
 }
 
@@ -15,6 +17,7 @@ export const ProductCard = ({ product, categories }: ProductCardProps) => {
   const { addItem } = useCartStore()
 
   function handleAddToCart() {
+    // For product card, we only add the base product without variants
     addItem({
       productId: product.id,
       name: product.name,

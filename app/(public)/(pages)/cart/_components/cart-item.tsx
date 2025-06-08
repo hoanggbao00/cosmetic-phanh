@@ -18,6 +18,9 @@ export default function CartItem({ item }: CartItemProps) {
     }
   }
 
+  // Calculate total price: base price + variant price (if exists)
+  const totalUnitPrice = item.variantPrice ? item.price + item.variantPrice : item.price
+
   return (
     <div className="flex flex-col gap-4 py-6 md:flex-row md:items-center md:gap-6">
       {/* Product Image and Info */}
@@ -31,7 +34,12 @@ export default function CartItem({ item }: CartItemProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-medium text-base text-gray-900">{item.name}</h3>
+          <h3 className="truncate font-medium text-base text-gray-900">
+            {item.name}
+            {item.variantName && (
+              <span className="ml-1 text-gray-500 text-sm">({item.variantName})</span>
+            )}
+          </h3>
 
           <button
             type="button"
@@ -47,12 +55,19 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Price - Mobile */}
       <div className="flex items-center justify-between md:hidden">
         <span className="font-medium text-sm">Price:</span>
-        <span className="text-sm">${formatPrice(item.price)}</span>
+        <div className="text-right">
+          <span className="text-sm">${formatPrice(totalUnitPrice)}</span>
+          {item.variantPrice && (
+            <div className="text-gray-500 text-xs">
+              (Base: ${formatPrice(item.price)} + Variant: ${formatPrice(item.variantPrice)})
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Price - Desktop */}
       <div className="hidden text-center md:block md:w-1/6">
-        <span className="text-sm">${formatPrice(item.price)}</span>
+        <span className="text-sm">${formatPrice(totalUnitPrice)}</span>
       </div>
 
       {/* Quantity Controls */}
@@ -87,12 +102,12 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Total - Mobile */}
       <div className="flex items-center justify-between md:hidden">
         <span className="font-medium text-sm">Total:</span>
-        <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
+        <span className="font-medium text-sm">${formatPrice(totalUnitPrice * item.quantity)}</span>
       </div>
 
       {/* Total - Desktop */}
       <div className="hidden text-right md:block md:w-1/6">
-        <span className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</span>
+        <span className="font-medium text-sm">${formatPrice(totalUnitPrice * item.quantity)}</span>
       </div>
     </div>
   )

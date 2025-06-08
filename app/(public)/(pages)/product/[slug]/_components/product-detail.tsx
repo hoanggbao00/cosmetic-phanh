@@ -18,6 +18,7 @@ type ProductWithRelations = Tables<"products"> & {
     user: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">
   })[]
   variants: Tables<"product_variants">[]
+  tags?: string[]
 }
 
 interface ProductDetailProps {
@@ -65,11 +66,12 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     const cartItem = {
       productId: product.id,
       name: product.name,
-      price: getCurrentPrice(),
+      price: product.price,
       image: product.images?.[0] || "",
       quantity: quantity,
-      size: selectedSize || undefined,
-      variant: selectedVariant,
+      variantId: selectedVariant?.id,
+      variantName: selectedVariant?.name,
+      variantPrice: selectedVariant?.price,
     }
 
     addItem(cartItem)

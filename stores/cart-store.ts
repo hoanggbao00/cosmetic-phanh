@@ -11,6 +11,8 @@ export interface CartItem {
   image: string
   quantity: number
   variantId?: string
+  variantName?: string
+  variantPrice?: number
 }
 
 interface CartStore {
@@ -55,7 +57,11 @@ export const useCartStore = create<CartStore>()(
         // Update local state
         set({
           items: newItems,
-          total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+          total: newItems.reduce((acc, item) => {
+            // Use variant price if available, otherwise use base price
+            const itemPrice = item.variantPrice || item.price
+            return acc + itemPrice * item.quantity
+          }, 0),
         })
 
         // Sync with database if user is logged in
@@ -78,6 +84,8 @@ export const useCartStore = create<CartStore>()(
               user_id: userId,
               product_id: item.productId,
               variant_id: item.variantId || null,
+              variant_name: item.variantName || null,
+              variant_price: item.variantPrice || null,
               quantity: item.quantity,
               price: item.price,
             })
@@ -85,7 +93,7 @@ export const useCartStore = create<CartStore>()(
         }
 
         toast.success("Added to cart", {
-          description: `${item.name} added to cart`,
+          description: `${item.name}${item.variantName ? ` (${item.variantName})` : ""} added to cart`,
         })
       },
 

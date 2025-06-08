@@ -8,6 +8,7 @@ import { ChevronDown } from "lucide-react"
 import { useEffect, useState } from "react"
 import ProductGallery from "./product-gallery"
 import ProductInfo from "./product-info"
+import ProductReviews from "./product-reviews"
 import RelatedPosts from "./related-posts"
 import RelatedProducts from "./related-products"
 
@@ -127,6 +128,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               />
             </CollapsibleContent>
           </Collapsible>
+        </div>
+
+        {/* Reviews */}
+        <div className="mb-16">
+          <ProductReviews productId={product.id} reviews={product.reviews} />
         </div>
 
         {/* Related Products */}

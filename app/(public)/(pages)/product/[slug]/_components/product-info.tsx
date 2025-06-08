@@ -147,18 +147,22 @@ export default function ProductInfo({
         </Button>
       </div>
 
-      {/* Product Features */}
-      <div className="mb-8">
-        <h3 className="mb-3 font-medium text-gray-900 text-sm">Highlights</h3>
-        <ul className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-          {product.features.map((feature: string, index: number) => (
-            <li key={index} className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Product Tags */}
+      {product.tags && product.tags.length > 0 && (
+        <div className="mb-6">
+          <h3 className="mb-3 font-medium text-gray-900 text-sm">Highlights</h3>
+          <div className="flex flex-wrap gap-2">
+            {product.tags.map((tag: string, index: number) => (
+              <span
+                key={index}
+                className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary text-sm"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Shipping and Returns */}
       <div className="space-y-4 border-gray-200 border-t pt-6 text-sm">

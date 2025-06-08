@@ -119,8 +119,9 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
           setOrderAmount(result.total)
           setShowQRDialog(true)
         } else {
-          // For cash payment, clear cart and redirect to orders page
-          clearCart()
+          // Clear cart items from both local storage and database
+          await clearCart()
+          // For cash payment, redirect to orders page
           router.push("/orders")
         }
       }

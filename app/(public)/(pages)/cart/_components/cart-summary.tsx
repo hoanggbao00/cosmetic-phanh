@@ -49,6 +49,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
       toast.success("Order placed successfully! Please complete your payment.", {
         description: "Scan the QR code to complete your payment.",
       })
+      clearCart()
     } else {
       clearCart()
       toast.success("Order placed successfully!", {

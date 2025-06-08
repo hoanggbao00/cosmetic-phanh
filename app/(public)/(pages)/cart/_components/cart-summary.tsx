@@ -87,8 +87,18 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
     setLastSubmittedData(formData)
     try {
       await createOrder.mutateAsync({
-        formData,
-        cartItems: items,
+        formData: {
+          ...formData,
+          address: formData.address_line1,
+        },
+        cartItems: items.map((item) => ({
+          product: {
+            id: item.productId,
+            price: item.price,
+          },
+          quantity: item.quantity,
+          variant: item.variantId ? { id: item.variantId } : null,
+        })),
         subtotal,
         shipping,
         discount,

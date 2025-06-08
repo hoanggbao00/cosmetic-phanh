@@ -16,7 +16,6 @@ import type { Order } from "@/types/tables/orders"
 import type { Product } from "@/types/tables/products"
 import { supabase } from "@/utils/supabase/client"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 
 interface OrderWithItems extends Order {
@@ -79,17 +78,50 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                   <CardTitle>Order #{order.id}</CardTitle>
                   <CardDescription>{formatDate(order.created_at)}</CardDescription>
                 </div>
-                <Badge
-                  variant={
-                    order.status === "delivered"
-                      ? "default"
-                      : order.status === "cancelled" || order.status === "refunded"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </Badge>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-2">
+                    Order Status:{" "}
+                    <Badge
+                      variant={
+                        order.status === "delivered"
+                          ? "default"
+                          : order.status === "cancelled" || order.status === "refunded"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    Payment Status:{" "}
+                    <Badge
+                      variant={
+                        order.payment_status === "paid"
+                          ? "default"
+                          : order.payment_status === "pending"
+                            ? "secondary"
+                            : "destructive"
+                      }
+                    >
+                      {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    Payment Method:{" "}
+                    <Badge
+                      variant={
+                        order.payment_method === "cash"
+                          ? "default"
+                          : order.payment_method === "bank_transfer"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="grid gap-6">
@@ -118,14 +150,6 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                 <p className="font-bold text-lg">{formatPrice(order.total_amount)}</p>
               </div>
             </CardContent>
-            <CardFooter className="justify-end">
-              <Button variant="outline" asChild>
-                <Link href={`/orders/${order.id}`}>
-                  View Details
-                  <ChevronRightIcon className="ml-2 size-4" />
-                </Link>
-              </Button>
-            </CardFooter>
           </Card>
         ))}
       </div>

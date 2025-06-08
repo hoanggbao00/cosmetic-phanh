@@ -31,7 +31,7 @@ export default async function OrdersPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <PageLayout className="mx-auto min-h-screen w-full max-w-7xl px-4 py-8 md:px-0">
+    <PageLayout className="mx-auto min-h-screen w-full max-w-7xl px-4 py-8 pt-28 md:px-0">
       <OrdersView orders={orders || []} />
     </PageLayout>
   )

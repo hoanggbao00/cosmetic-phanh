@@ -1,3 +1,4 @@
+import { getFeaturedBlogPosts } from "@/app/_actions/blog"
 import type { Tables } from "@/types/supabase"
 import { supabase } from "@/utils/supabase/client"
 import { useQuery } from "@tanstack/react-query"
@@ -7,6 +8,7 @@ export const BLOG_KEYS = {
   posts: () => [...BLOG_KEYS.all, "posts"] as const,
   latest: () => [...BLOG_KEYS.posts(), "latest"] as const,
   relatedPosts: (category: string) => [...BLOG_KEYS.posts(), "related", category] as const,
+  featured: () => [...BLOG_KEYS.posts(), "featured"] as const,
 }
 
 export const useLatestBlogPosts = () => {
@@ -54,5 +56,12 @@ export const useRelatedBlogPosts = (category: string) => {
         categories: post.blog_categories.map((c: Tables<"blog_categories">) => c.name),
       }))
     },
+  })
+}
+
+export const useFeaturedBlogPosts = () => {
+  return useQuery({
+    queryKey: BLOG_KEYS.featured(),
+    queryFn: getFeaturedBlogPosts,
   })
 }

@@ -1,67 +1,62 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import type { BlogPost } from "@/types/tables"
+import type { BlogPost } from "@/types/tables/blog_posts"
 import { format } from "date-fns"
-import { Calendar, ChevronRight, Clock } from "lucide-react"
+import { CalendarIcon, ClockIcon } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
-export const FeaturedPostCard = ({ post }: { post: BlogPost }) => {
+interface FeaturedPostCardProps {
+  post: BlogPost & {
+    author: {
+      name: string
+      avatar_url: string
+    }
+    category: {
+      name: string
+    }
+  }
+}
+
+export const FeaturedPostCard = ({ post }: FeaturedPostCardProps) => {
   return (
-    <Card key={post.id} className="group gap-4 overflow-hidden">
-      <div className="px-4">
-        <Link href={`/blog/${post.id}`}>
-          <div className="relative h-48 w-full overflow-hidden rounded-lg">
-            <img
-              src={post.featured_image || "/placeholder.svg"}
-              alt={post.title}
-              className="absolute inset-0 size-full object-cover transition-all duration-300 group-hover:scale-105"
-            />
-            <Badge
-              variant="secondary"
-              className="absolute top-2 left-2 bg-black/70 text-white hover:bg-black/80"
-            >
-              Featured
-            </Badge>
-          </div>
-        </Link>
+    <Link href={`/blog/${post.slug}`} className="group block">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+        <Image
+          src={post.featured_image || "/images/placeholder.jpg"}
+          alt={post.title}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
       </div>
-
-      {/* Categories and Title */}
-      <CardHeader className="px-4">
-        <div className="space-y-1">
-          <Link
-            href={`/blog/${post.id}`}
-            className="line-clamp-2 transition-all duration-300 hover:text-primary hover:underline"
-          >
-            <h3 className="font-bold text-xl">{post.title}</h3>
-          </Link>
+      <div className="mt-4 space-y-2">
+        <div className="flex items-center gap-4 text-muted-foreground text-sm">
+          <span className="flex items-center gap-1">
+            <CalendarIcon className="h-4 w-4" />
+            {format(new Date(post.published_at || post.created_at), "MMM dd, yyyy")}
+          </span>
+          <span className="flex items-center gap-1">
+            <ClockIcon className="h-4 w-4" />
+            {Math.ceil(post.content.length / 1000)} min read
+          </span>
         </div>
-      </CardHeader>
-
-      {/* Excerpt */}
-      <CardContent className="px-4">
+        <h3 className="line-clamp-2 font-semibold text-xl transition-colors group-hover:text-primary">
+          {post.title}
+        </h3>
         <p className="line-clamp-2 text-muted-foreground">{post.excerpt}</p>
-      </CardContent>
-
-      {/* Author and Date */}
-      <CardFooter className="flex items-center justify-between p-4 pt-0">
-        <div>
-          <p className="font-medium text-sm">Admin</p>
-          <div className="flex items-center text-muted-foreground text-xs">
-            <Calendar className="mr-1 h-3 w-3" />
-            <span>{format(new Date(post.created_at), "MMMM d, yyyy")}</span>
-            <span className="mx-1">•</span>
-            <Clock className="mr-1 h-3 w-3" />
-            <span>5 min read</span>
+        <div className="flex items-center gap-2">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full">
+            <Image
+              src={post.author.avatar_url || "/images/placeholder-avatar.jpg"}
+              alt={post.author.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="text-sm">
+            <p className="font-medium">{post.author.name}</p>
+            <p className="text-muted-foreground">{post.category.name}</p>
           </div>
         </div>
-        <Link
-          href={`/blog/${post.id}`}
-          className="flex items-center font-medium text-sm hover:underline"
-        >
-          Read more <ChevronRight className="ml-1 h-4 w-4" />
-        </Link>
-      </CardFooter>
-    </Card>
+      </div>
+    </Link>
   )
 }

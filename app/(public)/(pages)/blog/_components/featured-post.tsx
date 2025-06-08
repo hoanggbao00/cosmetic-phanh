@@ -17,7 +17,7 @@ export function FeaturedPost({ featuredPosts }: FeaturedPostProps) {
         {featuredPosts.map((post) => (
           <Link
             key={post.id}
-            href={`/blog/${post.id}`}
+            href={`/blog/${post.slug}`}
             className="group relative block h-[300px] overflow-hidden rounded-lg"
           >
             <img

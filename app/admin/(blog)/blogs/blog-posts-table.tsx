@@ -26,7 +26,7 @@ export default function BlogPostsTable() {
   const { mutate: deletePost } = useDeleteBlogPost()
 
   const onEditPost = (post: BlogPost) => {
-    router.push(`/admin/blogs/${post.id}`)
+    router.push(`/admin/blogs/${post.slug}`)
   }
 
   const columns: ColumnDef<BlogPost>[] = [

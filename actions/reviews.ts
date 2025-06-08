@@ -53,16 +53,20 @@ export async function deleteReview(reviewId: string) {
 export async function replyToReview({
   reviewId,
   reply,
+  reply_at,
+  reply_by,
 }: {
   reviewId: string
   reply: string
+  reply_at?: string
+  reply_by?: string
 }) {
   try {
     const supabase = await createSupabaseServerClient()
 
     const { error } = await supabase
       .from("product_reviews")
-      .update({ admin_reply: reply })
+      .update({ admin_reply: reply, admin_reply_at: reply_at, admin_reply_by: reply_by })
       .eq("id", reviewId)
 
     if (error) throw error

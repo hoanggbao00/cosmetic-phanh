@@ -8,7 +8,8 @@ export interface ReviewData {
 export interface ReplyData {
   reviewId: string
   reply: string
-  adminId: string
+  reply_at?: string
+  reply_by?: string
 }
 
 export interface Review {

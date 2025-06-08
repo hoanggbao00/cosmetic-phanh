@@ -11,7 +11,8 @@ import { useCreateReview, useDeleteReview, useReplyToReview } from "@/queries/re
 import type { ReplyData, ReviewData } from "@/types/reviews"
 import type { Tables } from "@/types/supabase"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { StarIcon, Trash2Icon } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { PencilIcon, StarIcon, Trash2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -40,6 +41,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
   const [canReview, setCanReview] = useState(false)
   const [reviewMessage, setReviewMessage] = useState<string>("")
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
+  const [editingReply, setEditingReply] = useState<string | null>(null)
   const [selectedRating, setSelectedRating] = useState(5)
 
   const form = useForm({
@@ -60,6 +62,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
   const { mutate: createReview } = useCreateReview()
   const { mutate: deleteReview } = useDeleteReview()
   const { mutate: replyToReview } = useReplyToReview()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const checkReviewStatus = async () => {
@@ -101,16 +104,21 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
       {
         reviewId,
         reply: data.reply,
-        adminId: user.id,
+        reply_at: new Date().toISOString(),
+        reply_by: user.id,
       },
       {
         onSuccess: () => {
           replyForm.reset()
           setReplyingTo(null)
-          toast.success("Reply submitted successfully")
+          setEditingReply(null)
+          queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] })
+          toast.success(
+            editingReply ? "Reply updated successfully" : "Reply submitted successfully"
+          )
         },
         onError: () => {
-          toast.error("Failed to submit reply")
+          toast.error(editingReply ? "Failed to update reply" : "Failed to submit reply")
         },
       }
     )
@@ -132,6 +140,11 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
     form.setValue("rating", rating, { shouldValidate: true })
   }
 
+  const handleEditReply = (reviewId: string, currentReply: string) => {
+    setEditingReply(reviewId)
+    replyForm.setValue("reply", currentReply)
+  }
+
   return (
     <div className="space-y-8">
       <h2 className="font-bold text-2xl">Customer Reviews</h2>
@@ -147,11 +160,11 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
 
       {/* Reviews List */}
       {reviews.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {reviews.map((review) => (
-            <Card key={review.id} className="p-6">
+            <Card key={review.id} className="p-4">
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="size-10 overflow-hidden rounded-full bg-gray-100">
                     {review.user.avatar_url ? (
                       <img
@@ -189,25 +202,36 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
               <p className="text-gray-600">{review.comment}</p>
 
               {/* Admin Reply */}
-              {review.admin_reply && (
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="font-semibold">Admin Reply:</p>
+              {review.admin_reply && editingReply !== review.id && (
+                <div className="rounded-lg bg-gray-50 p-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold">Admin Reply:</p>
+                    {user?.role === "admin" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditReply(review.id, review.admin_reply || "")}
+                      >
+                        <PencilIcon className="size-4" />
+                      </Button>
+                    )}
+                  </div>
                   <p className="text-gray-600">{review.admin_reply}</p>
                 </div>
               )}
 
               {/* Reply Form for Admin */}
-              {user?.role === "admin" && !review.admin_reply && (
+              {user?.role === "admin" && (
                 <div>
-                  {replyingTo === review.id ? (
+                  {replyingTo === review.id || editingReply === review.id ? (
                     <Form {...replyForm}>
                       <form
                         onSubmit={replyForm.handleSubmit((data) => onReply(review.id, data))}
-                        className="space-y-4"
+                        className="space-y-2"
                       >
                         <div className="space-y-2">
                           <label htmlFor="reply" className="font-medium text-sm">
-                            Your Reply
+                            {editingReply ? "Edit Reply" : "Your Reply"}
                           </label>
                           <Textarea
                             id="reply"
@@ -223,13 +247,17 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
                         </div>
                         <div className="flex gap-2">
                           <Button type="submit" size="sm">
-                            Submit Reply
+                            {editingReply ? "Update Reply" : "Submit Reply"}
                           </Button>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setReplyingTo(null)}
+                            onClick={() => {
+                              setReplyingTo(null)
+                              setEditingReply(null)
+                              replyForm.reset()
+                            }}
                           >
                             Cancel
                           </Button>
@@ -237,9 +265,11 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
                       </form>
                     </Form>
                   ) : (
-                    <Button variant="outline" size="sm" onClick={() => setReplyingTo(review.id)}>
-                      Reply
-                    </Button>
+                    !review.admin_reply && (
+                      <Button variant="outline" size="sm" onClick={() => setReplyingTo(review.id)}>
+                        Reply
+                      </Button>
+                    )
                   )}
                 </div>
               )}
@@ -250,7 +280,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
 
       {/* Review Form */}
       {user?.role === "admin" ? (
-        <Card className="p-6">
+        <Card className="gap-2 p-4">
           <h3 className="font-semibold text-lg">Write a Review</h3>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -33,7 +33,10 @@ export default async function ProductDetailPage({ params }: Props) {
           id,
           full_name,
           avatar_url
-        )
+        ),
+        admin_reply,
+        admin_reply_at,
+        admin_reply_by
       ),
       variants:product_variants(*)
     `)

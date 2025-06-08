@@ -31,11 +31,23 @@ import { supabase } from "@/utils/supabase/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { OrderItemForm } from "./order-item-form"
 import { type OrderFormValues, orderSchema } from "./schema"
+
+export interface OrderState {
+  id: string
+  productId: string
+  productName: string
+  price: number
+  variantId: string
+  variantName: string
+  variantPrice: number
+  quantity: number
+  totalPrice: number
+}
 
 interface OrderFormProps {
   order?: Order
@@ -43,6 +55,9 @@ interface OrderFormProps {
 
 export default function OrderForm({ order }: OrderFormProps) {
   const router = useRouter()
+  const [orderItems, setOrderItems] = useState<OrderState[]>([])
+  const [shippingAmount, setShippingAmount] = useState(order?.shipping_amount || 0)
+  const [selectedVoucherId, setSelectedVoucherId] = useState(order?.voucher_id || "")
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
@@ -62,25 +77,13 @@ export default function OrderForm({ order }: OrderFormProps) {
         city: order?.shipping_address?.city || "",
         phone: order?.shipping_address?.phone || "",
       },
-      order_items:
-        order?.order_items?.map((item) => ({
-          product_id: item.product_id || "",
-          quantity: item.quantity,
-          price: item.price,
-          total_price: item.total_price,
-          product_name: item.product_name,
-          variant_id: item.variant_id || "",
-          variant_name: item.variant_name || "",
-          variant_price: 0,
-        })) || [],
+      order_items: [],
       customer_notes: order?.customer_notes || "",
       admin_notes: order?.admin_notes || "",
       voucher_id: order?.voucher_id || "",
       voucher_code: order?.voucher_code || "",
     },
   })
-
-  const [finalPrice, setFinalPrice] = useState(0)
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -91,44 +94,101 @@ export default function OrderForm({ order }: OrderFormProps) {
   const { data: vouchers } = useVouchers()
   const updateVoucherUsage = useUpdateVoucherUsage()
 
-  // Watch values for calculations
-  const shippingAmount = form.watch("shipping_amount") || 0
-  const selectedVoucherId = form.watch("voucher_id")
+  // Calculate subtotal from order items state
+  const subtotal = orderItems.reduce((sum, item) => sum + item.totalPrice, 0)
 
-  // Calculate current subtotal
-  const subtotal = useMemo(() => {
-    return fields.reduce((sum, _, index) => {
-      const item = form.getValues(`order_items.${index}`)
-      const basePrice = item.price || 0
-      const variantPrice = item.variant_price || 0
-      const quantity = item.quantity || 0
-      const itemTotal = (basePrice + variantPrice) * quantity
-      return sum + itemTotal
-    }, 0)
-  }, [fields, form])
-
-  // Get selected voucher and calculate discount
-  const { discount: voucherDiscount, error: voucherError } = useMemo(() => {
+  // Calculate voucher discount
+  const { discount: voucherDiscount, error: voucherError } = (() => {
     const selectedVoucher = vouchers?.find((v) => v.id === selectedVoucherId) || null
     return calculateVoucherDiscount(selectedVoucher, subtotal)
-  }, [vouchers, selectedVoucherId, subtotal])
+  })()
 
-  const updateFinalPrice = () => {
-    // Update each item's total price
-    fields.forEach((_, index) => {
-      const item = form.getValues(`order_items.${index}`)
-      const basePrice = item.price || 0
-      const variantPrice = item.variant_price || 0
-      const quantity = item.quantity || 0
-      const itemTotal = (basePrice + variantPrice) * quantity
-      form.setValue(`order_items.${index}.total_price`, itemTotal)
-    })
+  // Calculate final total
+  const finalTotal = subtotal + shippingAmount - (voucherDiscount || 0)
 
-    // Calculate final total with shipping and discount
-    const finalAmount = subtotal + shippingAmount - (voucherDiscount || 0)
-    form.setValue("total_amount", finalAmount)
+  // Initialize order items from existing order
+  useEffect(() => {
+    if (order?.order_items) {
+      const initialItems = order.order_items.map((item) => ({
+        id: Math.random().toString(36).substr(2, 9),
+        productId: item.product_id || "",
+        productName: item.product_name || "",
+        price: item.price || 0,
+        variantId: item.variant_id || "",
+        variantName: item.variant_name || "",
+        variantPrice: item.variant_price || 0,
+        quantity: item.quantity || 1,
+        totalPrice: item.total_price || 0,
+      }))
+      setOrderItems(initialItems)
+    }
+  }, [order])
+
+  // Update form values before submit
+  useEffect(() => {
+    form.setValue("shipping_amount", shippingAmount)
+    form.setValue("voucher_id", selectedVoucherId)
     form.setValue("discount_amount", voucherDiscount || 0)
-    setFinalPrice(finalAmount)
+    form.setValue("total_amount", finalTotal)
+    form.setValue(
+      "order_items",
+      orderItems.map((item) => ({
+        product_id: item.productId,
+        product_name: item.productName,
+        price: item.price,
+        variant_id: item.variantId,
+        variant_name: item.variantName,
+        variant_price: item.variantPrice,
+        quantity: item.quantity,
+        total_price: item.totalPrice,
+      }))
+    )
+  }, [form, orderItems, shippingAmount, selectedVoucherId, voucherDiscount, finalTotal])
+
+  const handleAddItem = () => {
+    const newItem: OrderState = {
+      id: Math.random().toString(36).substr(2, 9),
+      productId: "",
+      productName: "",
+      price: 0,
+      variantId: "",
+      variantName: "",
+      variantPrice: 0,
+      quantity: 1,
+      totalPrice: 0,
+    }
+    setOrderItems((prev) => [...prev, newItem])
+    append({
+      product_id: "",
+      product_name: "",
+      variant_id: "",
+      variant_name: "",
+      price: 0,
+      quantity: 1,
+      total_price: 0,
+      variant_price: 0,
+    })
+  }
+
+  const handleRemoveItem = (index: number, itemId: string) => {
+    setOrderItems((prev) => prev.filter((item) => item.id !== itemId))
+    remove(index)
+  }
+
+  const handleUpdateItem = (itemId: string, updates: Partial<OrderState>) => {
+    setOrderItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              ...updates,
+              totalPrice:
+                ((updates.price || item.price) + (updates.variantPrice || item.variantPrice)) *
+                (updates.quantity || item.quantity),
+            }
+          : item
+      )
+    )
   }
 
   const onSubmit = async (data: OrderFormValues) => {
@@ -180,22 +240,6 @@ export default function OrderForm({ order }: OrderFormProps) {
     }
   }
 
-  // Handle product selection
-  const handleProductSelect = (index: number, productId: string) => {
-    const product = products?.find((p) => p.id === productId)
-    if (product) {
-      const quantity = form.getValues(`order_items.${index}.quantity`) || 1
-      form.setValue(`order_items.${index}.product_id`, product.id)
-      form.setValue(`order_items.${index}.product_name`, product.name)
-      form.setValue(`order_items.${index}.price`, product.price)
-      form.setValue(`order_items.${index}.variant_id`, "")
-      form.setValue(`order_items.${index}.variant_name`, "")
-      form.setValue(`order_items.${index}.variant_price`, 0)
-      form.setValue(`order_items.${index}.quantity`, quantity)
-      updateFinalPrice()
-    }
-  }
-
   if (isLoadingProducts) {
     return <div>Loading products...</div>
   }
@@ -213,34 +257,25 @@ export default function OrderForm({ order }: OrderFormProps) {
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Order Items</h3>
               <div className="max-h-[70svh] space-y-4 overflow-y-auto">
-                {fields.map((field, index) => (
-                  <OrderItemForm
-                    key={field.id}
-                    control={form.control}
-                    index={index}
-                    onRemove={remove}
-                    onProductSelect={handleProductSelect}
-                    onQuantityChange={updateFinalPrice}
-                  />
-                ))}
+                {fields.map((_, index) => {
+                  const orderItem = orderItems[index]
+                  return orderItem ? (
+                    <OrderItemForm
+                      key={orderItem.id}
+                      item={orderItem}
+                      onRemove={() => handleRemoveItem(index, orderItem.id)}
+                      onUpdate={(updates) => handleUpdateItem(orderItem.id, updates)}
+                      products={products || []}
+                    />
+                  ) : null
+                })}
               </div>
 
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  append({
-                    product_id: "",
-                    product_name: "",
-                    variant_id: "",
-                    variant_name: "",
-                    price: 0,
-                    quantity: 1,
-                    total_price: 0,
-                    variant_price: 0,
-                  })
-                }
+                onClick={handleAddItem}
                 className="w-full"
               >
                 <PlusIcon className="mr-2" />
@@ -442,10 +477,10 @@ export default function OrderForm({ order }: OrderFormProps) {
                   <FormItem className="w-full">
                     <FormLabel>Voucher</FormLabel>
                     <Select
-                      value={field.value}
+                      value={selectedVoucherId}
                       onValueChange={(value) => {
+                        setSelectedVoucherId(value)
                         const selectedVoucher = vouchers?.find((v) => v.id === value)
-                        field.onChange(value)
                         if (selectedVoucher) {
                           form.setValue("voucher_code", selectedVoucher.code)
                         } else {
@@ -507,7 +542,8 @@ export default function OrderForm({ order }: OrderFormProps) {
                       <Input
                         type="number"
                         {...field}
-                        onChange={(e) => field.onChange(Number.parseFloat(e.target.value))}
+                        value={shippingAmount}
+                        onChange={(e) => setShippingAmount(Number(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -540,7 +576,7 @@ export default function OrderForm({ order }: OrderFormProps) {
               </div>
               <div className="flex items-center justify-between border-t pt-2 font-medium text-lg">
                 <span>Total Amount:</span>
-                <span>{formatPrice(finalPrice)}</span>
+                <span>{formatPrice(finalTotal)}</span>
               </div>
             </div>
           </div>

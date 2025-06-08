@@ -1,3 +1,4 @@
+import { DashboardContent } from "@/components/dashboard/dashboard-content"
 import PrivateLayout from "@/components/layout/private/private-layout"
 
 export default function Dashboard() {
@@ -6,7 +7,7 @@ export default function Dashboard() {
       parentBreadcrumb={{ title: "Admin", href: "/admin" }}
       currentBreadcrumb="Dashboard"
     >
-      <div>Dashboard</div>
+      <DashboardContent />
     </PrivateLayout>
   )
 }

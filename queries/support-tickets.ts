@@ -39,13 +39,15 @@ export const useCreateSupportTicket = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (ticket: SupportTicketInsert) => createSupportTicket(ticket),
+    mutationFn: (
+      data: Omit<SupportTicketInsert, "id" | "ticket_number" | "created_at" | "updated_at">
+    ) => createSupportTicket(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["support-tickets"] })
       toast.success("Support ticket created successfully")
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message || "Failed to create support ticket")
     },
   })
 }

@@ -312,8 +312,10 @@ export default function SheetVoucher({ id, handleClose }: SheetVoucherProps) {
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
                     <DatePicker
-                      value={field.value ? new Date(field.value) : null}
-                      onChange={field.onChange}
+                      value={field.value ? new Date(field.value) : new Date()}
+                      onChange={(date) => {
+                        field.onChange(date ? date.toISOString() : new Date().toISOString())
+                      }}
                       className="!h-10 w-full"
                     />
                   </FormControl>
@@ -331,7 +333,9 @@ export default function SheetVoucher({ id, handleClose }: SheetVoucherProps) {
                   <FormControl>
                     <DatePicker
                       value={field.value ? new Date(field.value) : null}
-                      onChange={field.onChange}
+                      onChange={(date) => {
+                        field.onChange(date ? date.toISOString() : null)
+                      }}
                       className="!h-10 w-full"
                     />
                   </FormControl>

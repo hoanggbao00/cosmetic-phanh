@@ -7,7 +7,6 @@ import { formatPrice } from "@/lib/utils"
 import { useCreateOrderMutation } from "@/queries/orders"
 import { useValidateVoucher } from "@/queries/voucher"
 import { useCartStore } from "@/stores/cart-store"
-import { useOrderStore } from "@/stores/order-store"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -26,9 +25,10 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
   const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null)
   const [discount, setDiscount] = useState(0)
   const [voucherId, setVoucherId] = useState<string | null>(null)
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
+  const [orderAmount, setOrderAmount] = useState(0)
 
   const { items, clearCart } = useCartStore()
-  const { setCurrentOrderId } = useOrderStore()
 
   // Calculate order values
   const shipping = subtotal > 100 ? 0 : 10
@@ -43,6 +43,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
   const createOrder = useCreateOrderMutation((orderId) => {
     setCurrentOrderId(orderId)
     if (lastSubmittedData?.payment_method === "bank_transfer") {
+      setOrderAmount(total)
       setShowQRDialog(true)
       toast.success("Order placed successfully! Please complete your payment.", {
         description: "Scan the QR code to complete your payment.",
@@ -60,14 +61,16 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
 
     try {
       const result = await validateVoucher.mutateAsync({
-        code: promoCode.trim().toUpperCase(),
+        code: promoCode.trim(),
         subtotal,
       })
       setVoucherId(result.voucherId)
     } catch (error) {
-      setPromoError((error as Error).message)
+      const errorMessage = error instanceof Error ? error.message : "Failed to apply voucher"
+      setPromoError(errorMessage)
       setDiscount(0)
       setVoucherId(null)
+      toast.error(errorMessage)
     }
   }
 
@@ -122,12 +125,14 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           </Button>
           <OrderForm onSubmit={handleOrderSubmit} isLoading={createOrder.isPending} />
         </div>
-        <PaymentQRDialog
-          isOpen={showQRDialog}
-          onClose={() => setShowQRDialog(false)}
-          amount={total}
-          orderId={useOrderStore.getState().currentOrderId || ""}
-        />
+        {currentOrderId && (
+          <PaymentQRDialog
+            isOpen={showQRDialog}
+            onClose={() => setShowQRDialog(false)}
+            amount={orderAmount}
+            orderId={currentOrderId}
+          />
+        )}
       </div>
     )
   }

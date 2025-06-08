@@ -61,9 +61,35 @@ export function useUpdateOrder() {
   })
 }
 
-export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
-  const queryClient = useQueryClient()
+interface CreateOrderPayload {
+  formData: {
+    full_name: string
+    email: string
+    phone: string
+    address_line1: string
+    address_line2: string | null
+    city: string
+    payment_method: "cash" | "bank_transfer"
+  }
+  cartItems: Array<{
+    product: {
+      id: string
+      price: number
+    }
+    quantity: number
+    variant?: {
+      id: string
+    } | null
+  }>
+  subtotal: number
+  shipping: number
+  discount_amount: number
+  total: number
+  voucher_id: string | null
+  voucher_code: string | null
+}
 
+export const useCreateOrderMutation = (onSuccess?: (orderId: string) => void) => {
   return useMutation({
     mutationFn: async ({
       formData,
@@ -74,33 +100,11 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
       total,
       voucher_id,
       voucher_code,
-    }: {
-      formData: {
-        full_name: string
-        email: string
-        phone: string
-        address: string
-        city: string
-        payment_method: string
-        notes?: string
-      }
-      cartItems: CartItem[]
-      subtotal: number
-      shipping: number
-      discount_amount: number
-      total: number
-      voucher_id: string | null
-      voucher_code: string | null
-    }) => {
-      // Generate order number with date
-      const now = new Date()
-      const orderNumber = `ORD-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`
-
-      // Create the order
-      const { data: orderData, error: orderError } = await supabase
+    }: CreateOrderPayload) => {
+      // Create order
+      const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          order_number: orderNumber,
           guest_email: formData.email,
           status: "pending",
           payment_status: "pending",
@@ -110,12 +114,11 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
           total_amount: total,
           shipping_address: {
             full_name: formData.full_name,
-            address_line1: formData.address,
+            address_line1: formData.address_line1,
+            address_line2: formData.address_line2 || null,
             city: formData.city,
             phone: formData.phone,
           },
-          customer_notes: formData.notes || "",
-          admin_notes: "",
           voucher_id,
           voucher_code,
         })
@@ -124,7 +127,7 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
 
       if (orderError) throw orderError
 
-      // Get product details for order items
+      // Get product details
       const { data: products, error: productsError } = await supabase
         .from("products")
         .select("id, name")
@@ -140,7 +143,7 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
         .map((item) => item.variant?.id)
         .filter((id): id is string => id !== null && id !== undefined)
 
-      let variants: { id: string; name: string }[] = []
+      let variants: Array<{ id: string; name: string }> = []
       if (variantIds.length > 0) {
         const { data: variantsData, error: variantsError } = await supabase
           .from("product_variants")
@@ -148,48 +151,50 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
           .in("id", variantIds)
 
         if (variantsError) throw variantsError
-        variants = variantsData
+        variants = variantsData || []
       }
 
-      // Create order items
-      const orderItems = cartItems.map((item) => {
-        const product = products.find((p) => p.id === item.product.id)
-        const variant = item.variant?.id ? variants.find((v) => v.id === item.variant?.id) : null
+      // Create order items with product and variant names
+      const { error: itemsError } = await supabase.from("order_items").insert(
+        cartItems.map((item) => {
+          const product = products?.find((p) => p.id === item.product.id)
+          const variant = item.variant?.id ? variants.find((v) => v.id === item.variant?.id) : null
 
-        return {
-          order_id: orderData.id,
-          product_id: item.product.id,
-          quantity: item.quantity,
-          price: item.product.price,
-          variant_id: item.variant?.id || null,
-          product_name: product?.name || "",
-          variant_name: variant?.name || null,
-          total_price: item.product.price * item.quantity,
-        }
-      })
-
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
+          return {
+            order_id: order.id,
+            product_id: item.product.id,
+            variant_id: item.variant?.id || null,
+            quantity: item.quantity,
+            price: item.product.price,
+            product_name: product?.name || "Unknown Product",
+            variant_name: variant?.name || null,
+            total_price: item.quantity * item.product.price,
+          }
+        })
+      )
 
       if (itemsError) throw itemsError
 
-      // If using a voucher, increment its usage count
+      // Increment voucher usage if used
       if (voucher_id) {
         const { error: voucherError } = await supabase.rpc("increment_voucher_usage", {
           voucher_id,
         })
 
-        if (voucherError) throw voucherError
+        if (voucherError) {
+          console.error("Failed to increment voucher usage:", voucherError)
+          // We don't throw here as the order is already created
+        }
       }
 
-      return orderData.id
+      return order.id
     },
     onSuccess: (orderId) => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] })
       onSuccess?.(orderId)
     },
     onError: (error) => {
       console.error("Failed to create order:", error)
-      toast.error("Failed to create order")
+      toast.error("Failed to create order. Please try again.")
     },
   })
 }

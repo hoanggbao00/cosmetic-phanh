@@ -96,62 +96,69 @@ export const useVoucherDeleteMutation = () => {
   })
 }
 
-export const useValidateVoucher = (onSuccess?: (discount: number) => void) => {
+export const useValidateVoucher = (onSuccess: (discount: number) => void) => {
   return useMutation({
-    mutationFn: async ({ code, subtotal }: { code: string; subtotal: number }) => {
-      const { data, error } = await supabase
-        .from("vouchers")
-        .select("*")
-        .eq("code", code)
+    mutationFn: async ({
+      code,
+      subtotal,
+    }: {
+      code: string
+      subtotal: number
+    }): Promise<{ voucherId: string; discount: number }> => {
+      const now = new Date().toISOString()
+
+      // First check if voucher exists and is valid
+      const { data: vouchers, error: searchError } = await supabase
+        .from(TABLE_NAME)
+        .select("*, used_count")
+        .ilike("code", code)
         .eq("is_active", true)
-        .single()
+        .lte("starts_at", now)
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
 
-      if (error) throw new Error("Invalid voucher code")
-
-      const voucher = data
-      const now = new Date()
-      const startsAt = new Date(voucher.starts_at)
-      const expiresAt = voucher.expires_at ? new Date(voucher.expires_at) : null
-
-      // Check if voucher is within valid date range
-      if (now < startsAt || (expiresAt && now > expiresAt)) {
-        throw new Error("Voucher has expired or not yet active")
+      if (searchError) {
+        console.error("Voucher search error:", searchError)
+        throw new Error("Failed to validate voucher")
       }
 
+      if (!vouchers || vouchers.length === 0) {
+        throw new Error("Invalid voucher code or voucher has expired")
+      }
+
+      const data = vouchers[0]
+
       // Check usage limit
-      if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
-        throw new Error("Voucher usage limit exceeded")
+      if (data.usage_limit && data.used_count >= data.usage_limit) {
+        throw new Error("This voucher has reached its usage limit")
       }
 
       // Check minimum order amount
-      if (voucher.minimum_order_amount && subtotal < voucher.minimum_order_amount) {
-        throw new Error(`Minimum order amount is $${voucher.minimum_order_amount}`)
+      if (data.minimum_order_amount && subtotal < data.minimum_order_amount) {
+        throw new Error(
+          `Minimum order amount for this voucher is $${data.minimum_order_amount.toFixed(2)}`
+        )
       }
 
       // Calculate discount
       let discount = 0
-      if (voucher.type === "percentage") {
-        discount = (subtotal * voucher.value) / 100
+      if (data.type === "percentage") {
+        discount = (subtotal * data.value) / 100
       } else {
-        discount = voucher.value
+        discount = data.value
       }
 
       // Apply maximum discount if set
-      if (voucher.maximum_discount_amount && discount > voucher.maximum_discount_amount) {
-        discount = voucher.maximum_discount_amount
+      if (data.maximum_discount_amount && discount > data.maximum_discount_amount) {
+        discount = data.maximum_discount_amount
       }
 
-      const result = {
-        voucherId: voucher.id,
-        discount: discount,
+      return {
+        voucherId: data.id,
+        discount,
       }
-      return result
     },
     onSuccess: (data) => {
-      onSuccess?.(data.discount)
-    },
-    onError: (error) => {
-      console.error("Mutation error:", error)
+      onSuccess(data.discount)
     },
   })
 }

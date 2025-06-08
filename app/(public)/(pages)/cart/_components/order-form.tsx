@@ -14,6 +14,7 @@ import { useCartStore } from "@/stores/cart-store"
 import { useOrderStore } from "@/stores/order-store"
 import type { OrderInsert } from "@/types/tables/orders"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -49,9 +50,12 @@ interface OrderFormProps {
 export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
   const [showQRDialog, setShowQRDialog] = useState(false)
   const [orderAmount, setOrderAmount] = useState(0)
-  const { setCurrentOrderId } = useOrderStore()
+  const router = useRouter()
+
+  const { setCurrentOrderId, addToHistory } = useOrderStore()
   const cartItems = useCartStore((state) => state.items)
   const cartTotal = useCartStore((state) => state.total)
+  const clearCart = useCartStore((state) => state.clearCart)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,8 +74,8 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
         status: "pending" as const,
         payment_status: "pending" as const,
         payment_method: data.payment_method,
-        shipping_amount: 0, // You can add shipping calculation logic here
-        discount_amount: 0, // You can add discount calculation logic here
+        shipping_amount: 0,
+        discount_amount: 0,
         total_amount: cartTotal,
         shipping_address: {
           full_name: data.full_name,
@@ -85,10 +89,34 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
       }
 
       const result = await onSubmit(orderData, cartItems)
-      if (result && data.payment_method === "bank_transfer") {
-        setCurrentOrderId(result.orderId)
-        setOrderAmount(result.total)
-        setShowQRDialog(true)
+
+      if (result) {
+        // Add to order history
+        addToHistory({
+          orderId: result.orderId,
+          total: result.total,
+          status: "pending",
+          paymentStatus: "pending",
+          createdAt: new Date().toISOString(),
+          items: cartItems.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            variantId: item.variantId,
+            variantName: item.variantName,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+        })
+
+        if (data.payment_method === "bank_transfer") {
+          setCurrentOrderId(result.orderId)
+          setOrderAmount(result.total)
+          setShowQRDialog(true)
+        } else {
+          // For cash payment, clear cart and redirect to orders page
+          clearCart()
+          router.push("/orders")
+        }
       }
     } catch (error) {
       console.error("Form submission error:", error)
@@ -218,7 +246,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
                       </div>
                       <div className="flex items-center space-x-2 rounded-lg border p-4">
                         <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                        <Label htmlFor="bank_transfer">Online Banking</Label>
+                        <Label htmlFor="bank_transfer">VN Pay</Label>
                       </div>
                     </RadioGroup>
                   </FormControl>
@@ -234,14 +262,12 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
         </form>
       </Form>
 
-      {currentOrderId && (
-        <PaymentQRDialog
-          isOpen={showQRDialog}
-          onClose={() => setShowQRDialog(false)}
-          orderId={currentOrderId}
-          amount={orderAmount}
-        />
-      )}
+      <PaymentQRDialog
+        isOpen={showQRDialog}
+        onClose={() => setShowQRDialog(false)}
+        orderId={currentOrderId}
+        amount={orderAmount}
+      />
     </>
   )
 }

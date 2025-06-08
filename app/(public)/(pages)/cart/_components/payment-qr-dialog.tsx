@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/stores/cart-store"
-import { useOrderStore } from "@/stores/order-store"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircleIcon, Loader2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -29,7 +28,6 @@ export default function PaymentQRDialog({
   const [isChecking, setIsChecking] = useState(false)
   const router = useRouter()
   const clearCart = useCartStore((state) => state.clearCart)
-  const { clearCurrentOrder } = useOrderStore()
 
   // Query to check payment status using server action
   const { data: order, refetch } = useQuery({
@@ -69,7 +67,6 @@ export default function PaymentQRDialog({
   const handleClose = () => {
     if (order?.payment_status === "paid") {
       clearCart()
-      clearCurrentOrder()
       router.push("/orders")
     }
     onClose()

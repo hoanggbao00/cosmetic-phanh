@@ -42,7 +42,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
 
   const createOrder = useCreateOrderMutation((orderId) => {
     setCurrentOrderId(orderId)
-    if (lastSubmittedData?.payment_method === "online_banking") {
+    if (lastSubmittedData?.payment_method === "bank_transfer") {
       setShowQRDialog(true)
       toast.success("Order placed successfully! Please complete your payment.", {
         description: "Scan the QR code to complete your payment.",
@@ -101,7 +101,7 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
         })),
         subtotal,
         shipping,
-        discount,
+        discount_amount: discount,
         total,
         voucher_id: voucherId,
         voucher_code: promoCode,
@@ -123,8 +123,8 @@ export default function CartSummary({ subtotal }: CartSummaryProps) {
           <OrderForm onSubmit={handleOrderSubmit} isLoading={createOrder.isPending} />
         </div>
         <PaymentQRDialog
-          open={showQRDialog}
-          onOpenChange={setShowQRDialog}
+          isOpen={showQRDialog}
+          onClose={() => setShowQRDialog(false)}
           amount={total}
           orderId={useOrderStore.getState().currentOrderId || ""}
         />

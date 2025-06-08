@@ -70,7 +70,7 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
       cartItems,
       subtotal,
       shipping,
-      discount,
+      discount_amount,
       total,
       voucher_id,
       voucher_code,
@@ -87,43 +87,86 @@ export function useCreateOrderMutation(onSuccess?: (orderId: string) => void) {
       cartItems: CartItem[]
       subtotal: number
       shipping: number
-      discount: number
+      discount_amount: number
       total: number
       voucher_id: string | null
       voucher_code: string | null
     }) => {
+      // Generate order number with date
+      const now = new Date()
+      const orderNumber = `ORD-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`
+
       // Create the order
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .insert({
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
+          order_number: orderNumber,
+          guest_email: formData.email,
+          status: "pending",
+          payment_status: "pending",
           payment_method: formData.payment_method,
-          notes: formData.notes,
-          subtotal,
-          shipping_fee: shipping,
-          discount,
-          total,
+          shipping_amount: shipping,
+          discount_amount: discount_amount,
+          total_amount: total,
+          shipping_address: {
+            full_name: formData.full_name,
+            address_line1: formData.address,
+            city: formData.city,
+            phone: formData.phone,
+          },
+          customer_notes: formData.notes || "",
+          admin_notes: "",
           voucher_id,
           voucher_code,
-          status: formData.payment_method === "online_banking" ? "pending_payment" : "pending",
         })
         .select()
         .single()
 
       if (orderError) throw orderError
 
+      // Get product details for order items
+      const { data: products, error: productsError } = await supabase
+        .from("products")
+        .select("id, name")
+        .in(
+          "id",
+          cartItems.map((item) => item.product.id)
+        )
+
+      if (productsError) throw productsError
+
+      // Get variant details if needed
+      const variantIds = cartItems
+        .map((item) => item.variant?.id)
+        .filter((id): id is string => id !== null && id !== undefined)
+
+      let variants: { id: string; name: string }[] = []
+      if (variantIds.length > 0) {
+        const { data: variantsData, error: variantsError } = await supabase
+          .from("product_variants")
+          .select("id, name")
+          .in("id", variantIds)
+
+        if (variantsError) throw variantsError
+        variants = variantsData
+      }
+
       // Create order items
-      const orderItems = cartItems.map((item) => ({
-        order_id: orderData.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price,
-        variant_id: item.variant?.id || null,
-      }))
+      const orderItems = cartItems.map((item) => {
+        const product = products.find((p) => p.id === item.product.id)
+        const variant = item.variant?.id ? variants.find((v) => v.id === item.variant?.id) : null
+
+        return {
+          order_id: orderData.id,
+          product_id: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+          variant_id: item.variant?.id || null,
+          product_name: product?.name || "",
+          variant_name: variant?.name || null,
+          total_price: item.product.price * item.quantity,
+        }
+      })
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 

@@ -26,7 +26,7 @@ import type { Profiles } from "@/types/tables"
 import type { Order } from "@/types/tables/orders"
 import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
-import { EditIcon, EyeIcon, MoreHorizontalIcon, PlusIcon, TrashIcon } from "lucide-react"
+import { EyeIcon, MoreHorizontalIcon, PlusIcon, TrashIcon } from "lucide-react"
 import { toast } from "sonner"
 
 interface OrdersTableProps {
@@ -206,12 +206,6 @@ export default function OrdersTable({ initialOrders }: OrdersTableProps) {
                 <Link href={`/admin/orders/${order.id}`} className="flex items-center">
                   <EyeIcon className="mr-2 h-4 w-4" />
                   View
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/admin/orders/${order.id}/edit`} className="flex items-center">
-                  <EditIcon className="mr-2 h-4 w-4" />
-                  Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem

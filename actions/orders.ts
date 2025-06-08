@@ -120,13 +120,37 @@ export async function getOrderById(id: string) {
 export async function createOrder(order: OrderInsert) {
   const supabase = await createSupabaseServerClient()
 
-  const { data, error } = await supabase.from("orders").insert(order).select().single()
+  // Extract order items before creating order
+  const { order_items: orderItems = [], ...orderData } = order
 
-  if (error) throw error
+  // Start a Supabase transaction
+  const { data: newOrder, error: orderError } = await supabase
+    .from("orders")
+    .insert(orderData)
+    .select()
+    .single()
+
+  if (orderError) throw orderError
+
+  // Insert order items if there are any
+  if (orderItems.length > 0) {
+    const orderItemsWithId = orderItems.map((item) => ({
+      ...item,
+      order_id: newOrder.id,
+    }))
+
+    const { error: itemsError } = await supabase.from("order_items").insert(orderItemsWithId)
+
+    if (itemsError) {
+      // If inserting items fails, delete the order to maintain consistency
+      await supabase.from("orders").delete().eq("id", newOrder.id)
+      throw itemsError
+    }
+  }
 
   revalidatePath("/admin/orders")
   revalidatePath("/orders")
-  return data as Order
+  return newOrder as Order
 }
 
 export async function updateOrder(id: string, order: OrderUpdate) {

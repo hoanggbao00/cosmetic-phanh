@@ -6,11 +6,11 @@ alwaysApply: true
 # NextJS App Router + Supabase Cosmetics Store Rules
 
 ## Architecture & Tech Stack
-- NextJS 14+ with App Router
+- NextJS 15+ with App Router
 - Supabase for backend (auth, database, storage)
 - TypeScript throughout
 - Tailwind CSS for styling
-- shadcn/ui components in `@/components/ui`
+- shadcn/ui components
 - TanStack Query for data fetching
 - Zustand for state management
 - Cloudinary for image uploads
@@ -18,6 +18,7 @@ alwaysApply: true
 
 ## Project Structure
 ```
+/actions/[table_name].ts  - for server action with 'use server' with supbase
 /app
   /admin/[table-name] - Admin CRUD pages
   /auth - Authentication pages
@@ -29,13 +30,14 @@ alwaysApply: true
   /ui - shadcn/ui components
   /forms - Form components
   /layout - Layout components
+  /shared/data-table/data-table.tsx - for data table component
 /queries - TanStack Query hooks by table
 /stores - Zustand stores
 /hooks - Custom React hooks
 /lib - Utilities and configurations
+/utils/supabase - supabase for client and server.
 /types - TypeScript type definitions
-/types/tables/* - for all entity types
-/shared/data-table/data-table.tsx - for data table component
+/types/tables/ - supabase schemas
 ```
 
 ## Database Schema (Supabase)
@@ -47,8 +49,6 @@ Based on the file structure, we have tables:
 - vouchers, images
 - support_tickets, support_ticket_replies
 - wishlist_items
-Client Supabase from `import { supabase } from "@/utils/supabase/client"`
-Server Supabase from `import { createSupabaseServerClient } from "@/utils/supabase/server"; const supabase = await createSupabaseServerClient()`
 
 ## Coding Standards
 
@@ -231,7 +231,6 @@ const uploadImage = async (file: File) => {
 ```
 
 ## Performance Optimizations
-- Use Next.js Image component for all images
 - Implement lazy loading for product lists
 - Cache frequently accessed data with TanStack Query
 - Use Suspense boundaries for loading states

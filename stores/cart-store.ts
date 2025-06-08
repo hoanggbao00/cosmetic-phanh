@@ -15,10 +15,10 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[]
-  addItem: (product: Omit<CartItem, "id">) => void
-  removeItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
-  clearCart: () => void
+  addItem: (product: Omit<CartItem, "id">) => Promise<void>
+  removeItem: (id: string) => Promise<void>
+  updateQuantity: (id: string, quantity: number) => Promise<void>
+  clearCart: () => Promise<void>
   total: number
 }
 

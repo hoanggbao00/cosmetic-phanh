@@ -64,9 +64,9 @@ export default function PaymentQRDialog({
     createPaymentUrl()
   }, [isOpen, orderId, amount])
 
-  const handleClose = () => {
+  const handleClose = async () => {
     if (order?.payment_status === "paid") {
-      clearCart()
+      await clearCart()
       router.push("/orders")
     }
     onClose()

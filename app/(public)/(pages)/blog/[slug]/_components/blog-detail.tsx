@@ -35,7 +35,7 @@ export default function BlogDetailView({ post }: Props) {
         <article className="mx-auto max-w-6xl">
           <header className="mb-8">
             {/* Categories */}
-            <div className="mb-4 flex flex-wrap gap-2">{post.category.name}</div>
+            <div className="mb-4 flex flex-wrap gap-2">{post.category?.name}</div>
 
             {/* Title */}
             <h1 className="mb-4 font-bold text-3xl md:text-4xl lg:text-5xl">{post.title}</h1>

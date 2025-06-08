@@ -20,8 +20,8 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/catalog", label: "Catalog" },
   { href: "/blog", label: "Blog" },
-  { href: "/blog/about", label: "About" },
-  { href: "/blog/contact", label: "Contact" },
+  { href: "/blog/about-us", label: "About" },
+  { href: "/blog/contact-us", label: "Contact" },
 ]
 
 export const NavLinks = () => {

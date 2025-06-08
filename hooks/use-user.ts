@@ -7,10 +7,22 @@ export const useUser = () => {
     queryFn: async () => {
       const {
         data: { user },
-        error,
+        error: authError,
       } = await supabase.auth.getUser()
-      if (error) throw error
-      return user
+
+      if (authError) throw authError
+      if (!user) return null
+
+      // Get profile data
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+
+      if (profileError) throw profileError
+
+      return profile
     },
   })
 }

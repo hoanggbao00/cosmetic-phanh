@@ -6,11 +6,12 @@ import { Card } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
 import { useUser } from "@/hooks/use-user"
+import { cn } from "@/lib/utils"
 import { useCreateReview, useDeleteReview, useReplyToReview } from "@/queries/reviews"
 import type { ReplyData, ReviewData } from "@/types/reviews"
 import type { Tables } from "@/types/supabase"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { StarIcon } from "lucide-react"
+import { StarIcon, Trash2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -39,6 +40,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
   const [canReview, setCanReview] = useState(false)
   const [reviewMessage, setReviewMessage] = useState<string>("")
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
+  const [selectedRating, setSelectedRating] = useState(5)
 
   const form = useForm({
     resolver: zodResolver(reviewSchema),
@@ -125,6 +127,11 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
     })
   }
 
+  const handleRatingChange = (rating: number) => {
+    setSelectedRating(rating)
+    form.setValue("rating", rating, { shouldValidate: true })
+  }
+
   return (
     <div className="space-y-8">
       <h2 className="font-bold text-2xl">Customer Reviews</h2>
@@ -134,103 +141,6 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
         <Card className="p-6">
           <div className="text-center text-muted-foreground">
             <p>No reviews yet. Be the first to review this product!</p>
-          </div>
-        </Card>
-      )}
-
-      {/* Review Form */}
-      {user?.role === "admin" ? (
-        <Card className="p-6">
-          <h3 className="mb-4 font-semibold text-lg">Write a Review</h3>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => form.setValue("rating", star)}
-                    className={`hover:text-primary ${
-                      form.watch("rating") >= star ? "text-primary" : "text-gray-300"
-                    }`}
-                  >
-                    <StarIcon className="size-6" />
-                  </button>
-                ))}
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="comment" className="font-medium text-sm">
-                  Your Review
-                </label>
-                <Textarea
-                  id="comment"
-                  {...form.register("comment")}
-                  placeholder="Write your review here..."
-                  className="min-h-[100px]"
-                />
-                {form.formState.errors.comment && (
-                  <p className="text-destructive text-sm">
-                    {form.formState.errors.comment.message}
-                  </p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">
-                Submit Review
-              </Button>
-            </form>
-          </Form>
-        </Card>
-      ) : user ? (
-        <Card className="p-6">
-          <h3 className="mb-4 font-semibold text-lg">Write a Review</h3>
-          {canReview ? (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => form.setValue("rating", star)}
-                      className={`hover:text-primary ${
-                        form.watch("rating") >= star ? "text-primary" : "text-gray-300"
-                      }`}
-                    >
-                      <StarIcon className="size-6" />
-                    </button>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="comment" className="font-medium text-sm">
-                    Your Review
-                  </label>
-                  <Textarea
-                    id="comment"
-                    {...form.register("comment")}
-                    placeholder="Write your review here..."
-                    className="min-h-[100px]"
-                  />
-                  {form.formState.errors.comment && (
-                    <p className="text-destructive text-sm">
-                      {form.formState.errors.comment.message}
-                    </p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full">
-                  Submit Review
-                </Button>
-              </form>
-            </Form>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <p>{reviewMessage}</p>
-            </div>
-          )}
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <div className="text-center text-muted-foreground">
-            <p>Please login to write a review.</p>
           </div>
         </Card>
       )}
@@ -258,31 +168,37 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
                   <div>
                     <h4 className="font-semibold">{review.user.full_name || "Anonymous"}</h4>
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: review.rating }).map((_, i) => (
-                        <StarIcon key={i} className="size-4 text-primary" />
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <StarIcon
+                          key={`review-${review.id}-star-${i}-${i < review.rating}`}
+                          className={cn(
+                            "size-4",
+                            i < review.rating ? "fill-primary text-primary" : "text-gray-300"
+                          )}
+                        />
                       ))}
                     </div>
                   </div>
                 </div>
                 {user?.role === "admin" && (
                   <Button variant="ghost" size="sm" onClick={() => handleDelete(review.id)}>
-                    Delete
+                    <Trash2Icon className="size-4 text-destructive" />
                   </Button>
                 )}
               </div>
-              <p className="mt-4 text-gray-600">{review.comment}</p>
+              <p className="text-gray-600">{review.comment}</p>
 
               {/* Admin Reply */}
               {review.admin_reply && (
-                <div className="mt-4 rounded-lg bg-gray-50 p-4">
+                <div className="rounded-lg bg-gray-50 p-4">
                   <p className="font-semibold">Admin Reply:</p>
-                  <p className="mt-2 text-gray-600">{review.admin_reply}</p>
+                  <p className="text-gray-600">{review.admin_reply}</p>
                 </div>
               )}
 
               {/* Reply Form for Admin */}
               {user?.role === "admin" && !review.admin_reply && (
-                <div className="mt-4">
+                <div>
                   {replyingTo === review.id ? (
                     <Form {...replyForm}>
                       <form
@@ -297,7 +213,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
                             id="reply"
                             {...replyForm.register("reply")}
                             placeholder="Write your reply here..."
-                            className="min-h-[100px]"
+                            className="min-h-[50px]"
                           />
                           {replyForm.formState.errors.reply && (
                             <p className="text-destructive text-sm">
@@ -330,6 +246,125 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Review Form */}
+      {user?.role === "admin" ? (
+        <Card className="p-6">
+          <h3 className="font-semibold text-lg">Write a Review</h3>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="flex items-center gap-2">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const star = i + 1
+                  return (
+                    <button
+                      key={`star-${star}`}
+                      type="button"
+                      onClick={() => handleRatingChange(star)}
+                    >
+                      <StarIcon
+                        className={cn(
+                          "size-6",
+                          "transition-colors duration-300 hover:text-primary",
+                          selectedRating >= star ? "fill-primary text-primary" : "text-gray-300"
+                        )}
+                      />
+                    </button>
+                  )
+                })}
+                <input type="hidden" {...form.register("rating")} />
+                {form.formState.errors.rating && (
+                  <p className="text-destructive text-sm">{form.formState.errors.rating.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="comment" className="font-medium text-sm">
+                  Your Review
+                </label>
+                <Textarea
+                  id="comment"
+                  {...form.register("comment")}
+                  placeholder="Write your review here..."
+                  className="min-h-[50px]"
+                />
+                {form.formState.errors.comment && (
+                  <p className="text-destructive text-sm">
+                    {form.formState.errors.comment.message}
+                  </p>
+                )}
+              </div>
+              <Button type="submit" className="w-full">
+                Submit Review
+              </Button>
+            </form>
+          </Form>
+        </Card>
+      ) : user ? (
+        <Card className="p-6">
+          <h3 className="font-semibold text-lg">Write a Review</h3>
+          {canReview ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const star = i + 1
+                    return (
+                      <button
+                        key={`star-${star}`}
+                        type="button"
+                        onClick={() => handleRatingChange(star)}
+                      >
+                        <StarIcon
+                          className={cn(
+                            "size-6",
+                            "transition-colors duration-300 hover:text-primary",
+                            selectedRating >= star ? "fill-primary text-primary" : "text-gray-300"
+                          )}
+                        />
+                      </button>
+                    )
+                  })}
+                  <input type="hidden" {...form.register("rating")} />
+                  {form.formState.errors.rating && (
+                    <p className="text-destructive text-sm">
+                      {form.formState.errors.rating.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="comment" className="font-medium text-sm">
+                    Your Review
+                  </label>
+                  <Textarea
+                    id="comment"
+                    {...form.register("comment")}
+                    placeholder="Write your review here..."
+                    className="min-h-[50px]"
+                  />
+                  {form.formState.errors.comment && (
+                    <p className="text-destructive text-sm">
+                      {form.formState.errors.comment.message}
+                    </p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full">
+                  Submit Review
+                </Button>
+              </form>
+            </Form>
+          ) : (
+            <div className="text-center text-muted-foreground">
+              <p>{reviewMessage}</p>
+            </div>
+          )}
+        </Card>
+      ) : (
+        <Card className="p-6">
+          <div className="text-center text-muted-foreground">
+            <p>Please login to write a review.</p>
+          </div>
+        </Card>
       )}
     </div>
   )

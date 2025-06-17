@@ -32,62 +32,92 @@ export const useCartStore = create<CartState>()(
           data: { session },
         } = await supabase.auth.getSession()
 
-        set((state) => {
-          const existingItem = state.items.find(
-            (item) => item.productId === product.productId && item.variantId === product.variantId
-          )
-
-          let newItems: CartItem[]
-          let cartItemId: string
-
-          if (existingItem) {
-            newItems = state.items.map((item) =>
-              item.id === existingItem.id
-                ? { ...item, quantity: item.quantity + product.quantity }
-                : item
-            )
-            cartItemId = existingItem.id
-          } else {
-            cartItemId = crypto.randomUUID()
-            newItems = [...state.items, { ...product, id: cartItemId }]
-          }
-
-          // Update local state
-          return { items: newItems }
-        })
-
-        // Sync with database if user is logged in
+        // If user is logged in, check database first
         if (session) {
           const userId = session.user.id
-          const existingItem = get().items.find(
-            (item) => item.productId === product.productId && item.variantId === product.variantId
-          )
+          const query = supabase
+            .from("cart_items")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("product_id", product.productId)
 
-          if (existingItem) {
-            // Update quantity if item exists
-            const query = supabase
+          if (product.variantId) {
+            query.eq("variant_id", product.variantId)
+          }
+
+          const { data: existingDbItem } = await query
+
+          if (existingDbItem && existingDbItem.length > 0) {
+            // Update quantity if item exists in database
+            await supabase
               .from("cart_items")
               .update({
-                quantity: existingItem.quantity,
+                quantity: existingDbItem[0].quantity + product.quantity,
               })
-              .eq("user_id", userId)
-              .eq("product_id", product.productId)
+              .eq("id", existingDbItem[0].id)
 
-            if (product.variantId) {
-              query.eq("variant_id", product.variantId)
-            }
+            // Update local state
+            set((state) => {
+              const existingItem = state.items.find(
+                (item) =>
+                  item.productId === product.productId && item.variantId === product.variantId
+              )
 
-            await query
+              if (existingItem) {
+                return {
+                  items: state.items.map((item) =>
+                    item.id === existingItem.id
+                      ? { ...item, quantity: item.quantity + product.quantity }
+                      : item
+                  ),
+                }
+              }
+
+              const cartItemId = crypto.randomUUID()
+              return {
+                items: [...state.items, { ...product, id: cartItemId }],
+              }
+            })
           } else {
             // Insert new item
+            const newId = crypto.randomUUID()
             await supabase.from("cart_items").insert({
-              id: crypto.randomUUID(),
+              id: newId,
               user_id: userId,
               product_id: product.productId,
               ...(product.variantId && { variant_id: product.variantId }),
               quantity: product.quantity,
             })
+
+            // Update local state
+            set((state) => ({
+              items: [...state.items, { ...product, id: newId }],
+            }))
           }
+        } else {
+          // Handle local state for non-logged in users
+          set((state) => {
+            const existingItem = state.items.find(
+              (item) => item.productId === product.productId && item.variantId === product.variantId
+            )
+
+            let newItems: CartItem[]
+            let cartItemId: string
+
+            if (existingItem) {
+              newItems = state.items.map((item) =>
+                item.id === existingItem.id
+                  ? { ...item, quantity: item.quantity + product.quantity }
+                  : item
+              )
+              cartItemId = existingItem.id
+            } else {
+              cartItemId = crypto.randomUUID()
+              newItems = [...state.items, { ...product, id: cartItemId }]
+            }
+
+            return { items: newItems }
+          })
         }
 
         toast.success("Added to cart", {

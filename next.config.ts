@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     reactCompiler: true,
+    useCache: true,
   },
   distDir: process.env.NODE_ENV === "production" ? ".next" : ".next-dev",
   typescript: {

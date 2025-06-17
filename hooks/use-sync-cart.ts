@@ -58,7 +58,6 @@ export function useSyncCart() {
           // Update local cart state using store's set method
           useCartStore.setState({
             items: formattedItems,
-            total: formattedItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
           })
         }
       }

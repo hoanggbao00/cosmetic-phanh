@@ -16,9 +16,9 @@ interface ProductCardProps {
 export const ProductCard = ({ product, categories }: ProductCardProps) => {
   const { addItem } = useCartStore()
 
-  function handleAddToCart() {
+  async function handleAddToCart() {
     // For product card, we only add the base product without variants
-    addItem({
+    await addItem({
       productId: product.id,
       name: product.name,
       price: product.price,

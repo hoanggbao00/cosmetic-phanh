@@ -10,7 +10,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Slider } from "@/components/ui/slider"
 import { useBrandQuery } from "@/queries/brand"
 import type { Category } from "@/types/tables/categories"
 import { Filter } from "lucide-react"
@@ -36,6 +35,7 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: brands = [] } = useBrandQuery()
+  const [priceRange, setPriceRange] = useState<number[]>([0, 500])
 
   // Change filter will change url
   const handleFilterChange = useDebounceCallback((key: FilterKey, value: string) => {
@@ -68,8 +68,7 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
 
   // Handle price range change
   const handlePriceChange = (value: number[]) => {
-    handleFilterChange("priceFrom", value[0].toString())
-    handleFilterChange("priceTo", value[1].toString())
+    setPriceRange(value)
   }
 
   // Reset filters
@@ -120,24 +119,24 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
         </div>
       </div>
 
-      {/* Price Range */}
+      {/* Price Range
       <div className="border-b pb-4">
         <h3 className="font-medium">Price Range</h3>
 
         <div className="mt-4 space-y-4">
           <Slider
-            defaultValue={[0, 1000]}
-            max={1000}
+            max={500}
             step={1}
             onValueChange={handlePriceChange}
+            value={priceRange}
             className="w-full"
           />
           <div className="flex items-center justify-between">
             <span className="text-sm">${searchParams.get("priceFrom") ?? 0}</span>
-            <span className="text-sm">${searchParams.get("priceTo") ?? 1000}</span>
+            <span className="text-sm">${searchParams.get("priceTo") ?? 500}</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Brands */}
       <div className="border-b pb-4">

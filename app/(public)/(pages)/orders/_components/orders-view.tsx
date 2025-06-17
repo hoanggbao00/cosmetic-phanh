@@ -29,6 +29,12 @@ interface OrderWithItems extends Order {
       images: string[]
       price: number
     } | null
+    products: {
+      id: string
+      name: string
+      images: string[]
+      price: number
+    } | null
     product_variants: {
       id: string
       name: string
@@ -167,7 +173,7 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                   <CardContent className="grid gap-6 p-2">
                     <div className="flex flex-col gap-2 divide-y">
                       {order.order_items.map((item) => {
-                        const productInfo = item.product
+                        const productInfo = item.product || item.products
 
                         const productName = productInfo?.name || "Product Not Available"
 

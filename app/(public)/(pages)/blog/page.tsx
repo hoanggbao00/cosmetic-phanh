@@ -26,6 +26,7 @@ export default async function BlogPage() {
         avatar_url
       )
     `)
+    .eq("status", "published")
     .eq("is_featured", true)
     .order("created_at", { ascending: false })
     .limit(2)
@@ -45,6 +46,7 @@ export default async function BlogPage() {
         avatar_url
       )
     `)
+    .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(5)
 

@@ -35,6 +35,7 @@ export async function getBlogPosts(params?: GetBlogPostsParams) {
     `,
       { count: isPaginated ? "exact" : "planned" }
     )
+    .eq("status", "published")
     .order("created_at", { ascending: false })
 
   if (isPaginated) {

@@ -1,3 +1,4 @@
+import { getStoreConfig } from "@/actions/store-config"
 import { type NextRequest, NextResponse } from "next/server"
 import { HashAlgorithm, ProductCode, VNPay, VnpLocale } from "vnpay"
 
@@ -19,6 +20,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing orderId or amount" }, { status: 400 })
   }
 
+  const storeConfig = await getStoreConfig()
+  let dollarRatio = 1
+
+  if (storeConfig) {
+    dollarRatio = storeConfig.dollar_ratio
+  }
+
   const vnpay = new VNPay({
     tmnCode: vnp_TmnCode,
     secureSecret: vnp_HashSecret,
@@ -28,7 +36,7 @@ export async function POST(request: NextRequest) {
   })
 
   const vnPayResponse = await vnpay.buildPaymentUrl({
-    vnp_Amount: amount,
+    vnp_Amount: amount * dollarRatio,
     vnp_IpAddr: "127.0.0.1",
     vnp_TxnRef: orderId,
     vnp_OrderInfo: `Order ${orderId}`,

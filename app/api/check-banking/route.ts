@@ -1,3 +1,4 @@
+import { getStoreConfig } from "@/actions/store-config"
 import { createSupabaseServerClient } from "@/utils/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
@@ -14,6 +15,13 @@ export async function GET(request: NextRequest) {
       redirectUrl.searchParams.set("orderId", orderId || "N/A")
       redirectUrl.searchParams.set("amount", amount?.toString() || "0")
       return NextResponse.redirect(redirectUrl)
+    }
+
+    const storeConfig = await getStoreConfig()
+    let dollarRatio = 1
+
+    if (storeConfig) {
+      dollarRatio = storeConfig.dollar_ratio
     }
 
     const supabase = await createSupabaseServerClient()
@@ -35,12 +43,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const amountInUSD = amount / dollarRatio
+
     // Verify amount matches
-    if (order.total_amount !== amount) {
+    if (order.total_amount !== amountInUSD) {
       // Redirect to fail page with amount mismatch
       const redirectUrl = new URL("/banking-fail", request.url)
       redirectUrl.searchParams.set("orderId", orderId)
-      redirectUrl.searchParams.set("amount", amount.toString())
+      redirectUrl.searchParams.set("amount", amountInUSD.toString())
       return NextResponse.redirect(redirectUrl)
     }
 
@@ -54,14 +64,14 @@ export async function GET(request: NextRequest) {
       // Redirect to fail page with update error
       const redirectUrl = new URL("/banking-fail", request.url)
       redirectUrl.searchParams.set("orderId", orderId)
-      redirectUrl.searchParams.set("amount", amount.toString())
+      redirectUrl.searchParams.set("amount", amountInUSD.toString())
       return NextResponse.redirect(redirectUrl)
     }
 
     // Redirect to success page with order details
     const redirectUrl = new URL("/banking-success", request.url)
     redirectUrl.searchParams.set("orderId", orderId)
-    redirectUrl.searchParams.set("amount", amount.toString())
+    redirectUrl.searchParams.set("amount", amountInUSD.toString())
 
     return NextResponse.redirect(redirectUrl)
   } catch (error) {

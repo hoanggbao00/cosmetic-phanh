@@ -19,7 +19,6 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   ...OpenGraph,
-  title: "Cosmetic Store",
   description: "Your one-stop shop for all your cosmetic needs",
 }
 

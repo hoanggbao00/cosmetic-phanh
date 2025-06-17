@@ -28,7 +28,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
   const { clearCart } = useCartStore()
 
   // Calculate order values
-  const shipping = subtotal > 100 ? 0 : 10
+  const shipping = subtotal > 100 ? 0 : 0
   const total = subtotal + shipping - discount
 
   const validateVoucher = useValidateVoucher()

@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatPrice } from "@/lib/utils"
+import { useStoreConfigQuery } from "@/queries/store-config"
 import { useCartStore } from "@/stores/cart-store"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircleIcon, Loader2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { checkOrderPaymentStatus } from "../actions"
 
 interface PaymentQRDialogProps {
@@ -28,6 +29,11 @@ export default function PaymentQRDialog({
   const [isChecking, setIsChecking] = useState(false)
   const router = useRouter()
   const clearCart = useCartStore((state) => state.clearCart)
+  const { data: storeConfig } = useStoreConfigQuery()
+
+  const dollarRatio = useMemo(() => {
+    return storeConfig?.dollar_ratio || 1
+  }, [storeConfig])
 
   // Query to check payment status using server action
   const { data: order, refetch } = useQuery({
@@ -93,7 +99,10 @@ export default function PaymentQRDialog({
               <div className="flex flex-col items-center justify-center gap-2 py-4 text-green-600">
                 <CheckCircleIcon size={48} />
                 <p className="font-semibold text-lg">Successfully paid</p>
-                <p className="font-semibold text-black text-lg">Amount: {formatPrice(amount)}</p>
+                <p className="font-semibold text-black text-lg">
+                  Amount: {formatPrice(amount * dollarRatio)} (VND)
+                </p>
+                <p className="text-muted-foreground text-sm">(1$ = {dollarRatio} VND)</p>
                 <p className="text-muted-foreground text-sm">
                   Thank you for trusting and using our services
                   <br />
@@ -107,7 +116,12 @@ export default function PaymentQRDialog({
             )}
             {!isPaid && (
               <>
-                <p className="font-semibold text-lg">Amount: {formatPrice(amount)}</p>
+                <p className="font-semibold text-lg">
+                  Amount: {formatPrice(amount * dollarRatio)} (VND)
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  (1$ = {formatPrice(dollarRatio)} VND)
+                </p>
                 <p className="font-medium text-green-600">Successfully created order</p>
                 <p className="text-muted-foreground text-sm">
                   Click the button below to proceed with payment via VNPay

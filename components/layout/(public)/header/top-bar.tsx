@@ -1,3 +1,6 @@
+"use client"
+
+import { useStoreConfigQuery } from "@/queries/store-config"
 import { FacebookIcon, InstagramIcon, TwitterIcon } from "lucide-react"
 
 const socialLinks = [
@@ -16,6 +19,8 @@ const socialLinks = [
 ]
 
 export const TopBar = () => {
+  const { data: storeConfig } = useStoreConfigQuery()
+
   return (
     <div className="border-b px-4 py-2.5 md:px-8">
       <div className="flex items-center justify-between">
@@ -33,7 +38,7 @@ export const TopBar = () => {
           ))}
         </div>
         <p className="hidden max-w-2/3 text-center font-semibold font-serif md:block">
-          🔥 Save upto 60% OFF to all Cosmetic Products | Free Shipping on Orders Over $75
+          {storeConfig?.notification}
         </p>
       </div>
     </div>

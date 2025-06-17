@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { format } from "date-fns"
 import { twMerge } from "tailwind-merge"
-import { currencySymbol } from "./consts"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,16 +32,11 @@ export function formatPrice(price: number | null | undefined): string {
   if (price == null) return "-"
 
   // Format number without currency symbol first
-  const formattedNumber = new Intl.NumberFormat("vi-VN", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+  const formattedNumber = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(price)
 
   // Append custom currency symbol
-  return `${formattedNumber}${currencySymbol}`
+  return formattedNumber
 }
-
-// Example usage:
-// formatPrice(150000) -> "150.000 ₫"
-// formatPrice(1500000) -> "1.500.000 ₫"
-// formatPrice(null) -> "-"

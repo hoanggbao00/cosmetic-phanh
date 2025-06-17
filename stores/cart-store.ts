@@ -65,21 +65,26 @@ export const useCartStore = create<CartState>()(
 
           if (existingItem) {
             // Update quantity if item exists
-            await supabase
+            const query = supabase
               .from("cart_items")
               .update({
                 quantity: existingItem.quantity,
               })
               .eq("user_id", userId)
               .eq("product_id", product.productId)
-              .eq("variant_id", product.variantId || null)
+
+            if (product.variantId) {
+              query.eq("variant_id", product.variantId)
+            }
+
+            await query
           } else {
             // Insert new item
             await supabase.from("cart_items").insert({
               id: crypto.randomUUID(),
               user_id: userId,
               product_id: product.productId,
-              variant_id: product.variantId || null,
+              ...(product.variantId && { variant_id: product.variantId }),
               quantity: product.quantity,
             })
           }
@@ -125,7 +130,7 @@ export const useCartStore = create<CartState>()(
               .update({ quantity })
               .eq("user_id", session.user.id)
               .eq("product_id", item.productId)
-              .eq("variant_id", item.variantId || null)
+              .eq("variant_id", item.variantId ?? null)
           }
         }
       },

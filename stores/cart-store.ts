@@ -19,7 +19,7 @@ interface CartState {
   removeItem: (id: string) => Promise<void>
   updateQuantity: (id: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
-  total: number
+  getTotal: () => number
 }
 
 export const useCartStore = create<CartState>()(
@@ -144,10 +144,8 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      get total() {
-        return get().items.reduce((total, item) => {
-          return total + item.price * item.quantity
-        }, 0)
+      getTotal: () => {
+        return get().items.reduce((total, item) => total + item.price * item.quantity, 0)
       },
     }),
     {

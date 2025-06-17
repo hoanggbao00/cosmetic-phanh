@@ -1,4 +1,5 @@
 import { SpecialButton } from "@/components/shared/special-button"
+import { IMAGE_HOME } from "@/lib/const"
 import { ChevronDownIcon } from "lucide-react"
 import { CarouselHome } from "./carousel-home"
 
@@ -9,16 +10,12 @@ export const SectionHome = () => {
         <p className="text-center font-bold font-serif text-5xl capitalize lg:text-8xl lg:leading-32">
           <u>Experience</u> the art
           <span className="inline-block px-3">
-            <img
-              src="https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Text-with-img-2.jpg"
-              alt="Art"
-              className="h-10 w-auto rounded-full lg:h-18"
-            />
+            <img src={IMAGE_HOME[0]} alt="Art" className="h-10 w-auto rounded-full lg:h-18" />
           </span>
           Of beauty with Our <u>Premium</u> assortment
           <span className="inline-block px-3">
             <img
-              src="https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Text-with-img-1.jpg"
+              src={IMAGE_HOME[2]}
               alt="Collection"
               className="h-10 w-auto rounded-full lg:h-18"
             />
@@ -38,11 +35,7 @@ export const SectionHome = () => {
 
       {/* Decorative elements */}
       <div className="-translate-y-1/2 absolute top-1/2 right-8 hidden select-none overflow-hidden rounded-full lg:block">
-        <img
-          src="https://wdtmakehub.wpengine.com/wp-content/uploads/2025/01/Model-with-product.jpg"
-          alt="Model with product"
-          className="h-full w-full object-cover"
-        />
+        <img src={IMAGE_HOME[1]} alt="Model with product" className="h-full w-full object-cover" />
       </div>
 
       <div className="absolute bottom-0 left-8 lg:bottom-1/4">

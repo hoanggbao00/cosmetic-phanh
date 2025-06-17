@@ -32,7 +32,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const addItem = useCartStore((state) => state.addItem)
 
   // Convert variants to sizes
-  const sizes = product.variants.map((variant) => ({
+  const variants = product.variants.map((variant) => ({
     id: variant.id,
     name: variant.name,
     price: variant.price,
@@ -40,16 +40,16 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   // Handle size selection
   useEffect(() => {
-    if (sizes.length > 0 && !selectedSize) {
-      setSelectedSize(sizes[0].name)
+    if (variants.length > 0 && !selectedSize) {
+      setSelectedSize(variants[0].name)
     }
-  }, [sizes, selectedSize])
+  }, [variants, selectedSize])
 
   // Get current price based on selected size
   const getCurrentPrice = () => {
     if (!selectedSize) return product.price
-    const size = sizes.find((s) => s.name === selectedSize)
-    return size ? size.price : product.price
+    const variant = variants.find((v) => v.name === selectedSize)
+    return variant ? variant.price : product.price
   }
 
   // Calculate average rating
@@ -93,7 +93,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <ProductInfo
               product={{
                 ...product,
-                sizes,
+                variants,
                 rating: averageRating,
                 reviewCount: product.reviews.length,
                 features: product.tags || [],

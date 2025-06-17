@@ -74,23 +74,27 @@ export default function ProductInfo({
       </div>
 
       {/* Size Selection */}
-      {product.sizes && product.sizes.length > 0 && (
+      {product.variants && product.variants.length > 0 && (
         <div className="mb-6">
-          <h3 className="mb-3 font-medium text-gray-900 text-sm">Size</h3>
+          <h3 className="mb-3 font-medium text-gray-900 text-sm">Variants</h3>
           <RadioGroup
             value={selectedSize || ""}
             onValueChange={setSelectedSize}
             className="flex gap-3"
           >
             {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
-            {product.sizes.map((size: any) => (
-              <div key={size.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={size.name} id={`size-${size.id}`} className="peer sr-only" />
+            {product.variants.map((variant: any) => (
+              <div key={variant.id} className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={variant.name}
+                  id={`size-${variant.id}`}
+                  className="peer sr-only"
+                />
                 <Label
-                  htmlFor={`size-${size.id}`}
-                  className="flex h-10 w-16 cursor-pointer items-center justify-center rounded-md border border-gray-200 bg-white font-medium text-gray-900 text-sm hover:bg-gray-50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10"
+                  htmlFor={`size-${variant.id}`}
+                  className="flex h-10 w-fit cursor-pointer items-center justify-center rounded-md border border-gray-200 bg-white px-2 font-medium text-gray-900 text-sm hover:bg-gray-50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10"
                 >
-                  {size.name}
+                  {variant.name}
                 </Label>
               </div>
             ))}

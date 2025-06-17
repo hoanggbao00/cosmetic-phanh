@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
-import { useProductVariantsQuery } from "@/queries/product-variants"
+import { useBrandQuery } from "@/queries/brand"
 import type { Category } from "@/types/tables/categories"
 import { Filter } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -22,7 +22,7 @@ export interface FilterState {
   categories: string
   priceFrom: number
   priceTo: number
-  variants: string
+  brands: string
 }
 
 type FilterKey = keyof FilterState
@@ -35,19 +35,16 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
   const [isMobile, setIsMobile] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: variants = [] } = useProductVariantsQuery()
-
-  // Get unique variant names
-  const uniqueVariants = Array.from(new Set(variants.map((variant) => variant.name)))
+  const { data: brands = [] } = useBrandQuery()
 
   // Change filter will change url
   const handleFilterChange = useDebounceCallback((key: FilterKey, value: string) => {
     const params = new URLSearchParams(searchParams)
 
-    // Categories or variants split by comma
+    // Categories or brands split by comma
     const currentValue = params.get(key)
 
-    if ((key === "categories" || key === "variants") && currentValue) {
+    if ((key === "categories" || key === "brands") && currentValue) {
       const values = currentValue.split(",")
       if (values.includes(value)) {
         values.splice(values.indexOf(value), 1)
@@ -81,7 +78,7 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
     params.delete("categories")
     params.delete("priceFrom")
     params.delete("priceTo")
-    params.delete("variants")
+    params.delete("brands")
     router.replace(`?${params.toString()}`)
   }
 
@@ -142,23 +139,23 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
         </div>
       </div>
 
-      {/* Variants */}
+      {/* Brands */}
       <div className="border-b pb-4">
-        <h3 className="font-medium">Variants</h3>
+        <h3 className="font-medium">Brands</h3>
 
         <div className="mt-2 space-y-2">
-          {uniqueVariants.map((variant) => (
-            <div key={variant} className="flex items-center space-x-2">
+          {brands.map((brand) => (
+            <div key={brand.id} className="flex items-center space-x-2">
               <Checkbox
-                id={`variant-${variant}`}
-                checked={searchParams.get("variants")?.includes(variant)}
-                onCheckedChange={() => handleFilterChange("variants", variant)}
+                id={`brand-${brand.id}`}
+                checked={searchParams.get("brands")?.includes(brand.id)}
+                onCheckedChange={() => handleFilterChange("brands", brand.id)}
               />
               <label
-                htmlFor={`variant-${variant}`}
+                htmlFor={`brand-${brand.id}`}
                 className="cursor-pointer text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                {variant}
+                {brand.name}
               </label>
             </div>
           ))}

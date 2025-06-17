@@ -4,7 +4,6 @@ import { FadeUpContainer, FadeUpItem } from "@/components/motion/fade-up"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useCatalogQuery } from "@/queries/catalog"
 import { useProductQuery } from "@/queries/product"
-import { useProductVariantsQuery } from "@/queries/product-variants"
 import type { Product } from "@/types/tables/products"
 import { DEFAULT_SORT_OPTION } from "../const"
 import { ClearFilter } from "./clear-filter"
@@ -16,7 +15,7 @@ export type FilterAndSortParams = {
   categories?: string
   priceFrom?: string
   priceTo?: string
-  variants?: string
+  brands?: string
   sort?: string
 }
 
@@ -27,7 +26,6 @@ interface Props {
 export default function CatalogPageView({ searchParams }: Props) {
   const { data: products = [], isLoading: isLoadingProducts } = useProductQuery()
   const { data: categories = [] } = useCatalogQuery()
-  const { data: variants = [] } = useProductVariantsQuery()
 
   const maxPrice =
     products.length > 0 ? Math.max(...products.map((product) => product.price)) : 1000
@@ -38,7 +36,7 @@ export default function CatalogPageView({ searchParams }: Props) {
     categories: searchParams.categories?.split(",") ?? [],
     priceFrom: Number(searchParams.priceFrom) ?? 0,
     priceTo: Number(searchParams.priceTo) ?? maxPrice,
-    variants: searchParams.variants?.split(",") ?? [],
+    brands: searchParams.brands?.split(",") ?? [],
   }
 
   // Filter products
@@ -57,9 +55,9 @@ export default function CatalogPageView({ searchParams }: Props) {
     }
 
     // Filter by variants
-    if (filters.variants.length > 0) {
-      const productVariants = variants.filter((v) => v.product_id === product.id)
-      if (!productVariants.some((v) => filters.variants.includes(v.name))) {
+    if (filters.brands.length > 0) {
+      const productBrand = product.brand_id
+      if (!filters.brands.includes(productBrand)) {
         return false
       }
     }

@@ -7,7 +7,7 @@ export const SectionHome = () => {
   return (
     <section id="home" className="relative h-screen bg-accent px-4 pt-28 md:px-8">
       <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col items-center justify-start px-4 pt-8 lg:justify-center lg:pt-0">
-        <p className="text-center font-bold font-serif text-5xl capitalize lg:text-8xl lg:leading-32">
+        <p className="text-center font-bold font-serif text-2xl capitalize lg:text-5xl lg:leading-32">
           <u>Experience</u> the art
           <span className="inline-block px-3">
             <img src={IMAGE_HOME[0]} alt="Art" className="h-10 w-auto rounded-full lg:h-18" />

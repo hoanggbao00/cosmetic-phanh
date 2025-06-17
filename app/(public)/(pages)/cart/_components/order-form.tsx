@@ -55,7 +55,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
 
   const { addToHistory } = useOrderStore()
   const cartItems = useCartStore((state) => state.items)
-  const cartTotal = useCartStore((state) => state.total)
+  const cartTotal = useCartStore((state) => state.getTotal())
   const clearCart = useCartStore((state) => state.clearCart)
 
   const form = useForm<FormValues>({
@@ -171,7 +171,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Phone number (optional)"
+                      placeholder="Phone number"
                       {...field}
                       value={value || ""}
                       onChange={(e) => {

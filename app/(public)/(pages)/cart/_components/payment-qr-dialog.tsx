@@ -126,7 +126,7 @@ export default function PaymentQRDialog({
             <div className="flex w-full flex-col gap-2">
               <a href={paymentUrl} target="_blank" rel="noopener noreferrer" className="w-full">
                 <Button className="w-full" disabled={!paymentUrl}>
-                  Go to payment
+                  Go to VNPay Payment
                 </Button>
               </a>
               <Button

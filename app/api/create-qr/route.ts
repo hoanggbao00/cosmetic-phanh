@@ -4,7 +4,9 @@ import { HashAlgorithm, ProductCode, VNPay, VnpLocale } from "vnpay"
 const vnp_TmnCode = process.env.NEXT_PUBLIC_VNP_TMN_CODE
 const vnp_HashSecret = process.env.NEXT_PUBLIC_VNP_HASH_SECRET
 
-const returnUrl = "http://localhost:3000/api/check-banking"
+const returnUrl = process.env.VERCEL_URL
+  ? `${process.env.VERCEL_URL}/api/check-banking`
+  : "http://localhost:3000/api/check-banking"
 
 export async function POST(request: NextRequest) {
   if (!vnp_TmnCode || !vnp_HashSecret) {

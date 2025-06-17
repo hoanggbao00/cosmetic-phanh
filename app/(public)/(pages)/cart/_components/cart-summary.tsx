@@ -12,7 +12,6 @@ import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import OrderForm from "./order-form"
-import PaymentQRDialog from "./payment-qr-dialog"
 
 interface CartSummaryProps {
   subtotal: number
@@ -23,9 +22,6 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
   const [promoCode, setPromoCode] = useState("")
   const [promoError, setPromoError] = useState<string | null>(null)
   const [showOrderForm, setShowOrderForm] = useState(false)
-  const [showQRDialog, setShowQRDialog] = useState(false)
-  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
-  const [orderAmount, setOrderAmount] = useState(0)
   const [discount, setDiscount] = useState(0)
   const [voucherId, setVoucherId] = useState<string | null>(null)
 
@@ -82,10 +78,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
       const result = await createOrder.mutateAsync(order)
 
       if (result) {
-        setCurrentOrderId(result.id)
         if (orderData.payment_method === "bank_transfer") {
-          setOrderAmount(total)
-          setShowQRDialog(true)
           toast.success("Order placed successfully! Please complete your payment.", {
             description: "Scan the QR code to complete your payment.",
           })
@@ -168,14 +161,6 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
           </Button>
           <OrderForm onSubmit={handleOrderSubmit} isLoading={createOrder.isPending} />
         </div>
-        {currentOrderId && (
-          <PaymentQRDialog
-            isOpen={showQRDialog}
-            onClose={() => setShowQRDialog(false)}
-            orderId={currentOrderId}
-            amount={orderAmount}
-          />
-        )}
       </div>
     )
   }

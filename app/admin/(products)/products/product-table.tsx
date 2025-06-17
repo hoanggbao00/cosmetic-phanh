@@ -82,7 +82,7 @@ export default function ProductTable() {
         </div>
         {data && <DataTable columns={columns} data={data} className="h-[700px]" />}
       </div>
-      <SheetProduct id={id} handleClose={handleClose} />
+      <SheetProduct key={id} id={id} handleClose={handleClose} />
     </Sheet>
   )
 }

@@ -18,7 +18,7 @@ import { useCreateProduct, useProductQueryById, useUpdateProduct } from "@/queri
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon, XIcon } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { ProductSchema } from "./schema"
 import { defaultProductValues, productSchema } from "./schema"
@@ -38,7 +38,7 @@ export default function SheetProduct({
 
   const { data: detailProduct, isLoading: isLoadingDetail } = useProductQueryById(id)
   const { mutate: createProduct, isPending: isCreating } = useCreateProduct()
-  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct()
+  const { mutate: updateProduct, isPending: isUpdating, isSuccess } = useUpdateProduct()
 
   const { mutate: createImage } = useCreateImage()
   const { data: brands } = useBrandQuery()
@@ -87,10 +87,23 @@ export default function SheetProduct({
     }
 
     if (detailProduct) {
-      form.reset(detailProduct)
-      setImages(detailProduct.images || [])
+      startTransition(() => {
+        form.reset({
+          ...detailProduct,
+          brand_id: detailProduct.brand_id || "",
+          category_id: detailProduct.category_id || "",
+        })
+        setImages(detailProduct.images || [])
+      })
     }
   }, [detailProduct, form, id])
+
+  useEffect(() => {
+    if (isSuccess) {
+      form.reset()
+      setImages([])
+    }
+  }, [isSuccess, form])
 
   return (
     <SheetContent className="p-4" onClose={handleClose}>

@@ -69,23 +69,25 @@ export default function ImagesPicker({
           </div>
         )}
         {images && (
-          <div className="grid max-h-[500px] grid-cols-4 gap-2 overflow-y-auto">
-            {images.map((image, index) => (
-              <div
-                key={image.id}
-                className={cn(
-                  "aspect-square w-full overflow-hidden rounded-md",
-                  selectedImage.includes(image.url) && "border border-accent p-1"
-                )}
-                onClick={() => handleSelectImage(image.url)}
-              >
-                <img
-                  src={image.url}
-                  alt={`image-${index}`}
-                  className="size-full rounded-md object-cover"
-                />
-              </div>
-            ))}
+          <div className="max-h-[500px] overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2">
+              {images.map((image, index) => (
+                <div
+                  key={image.id}
+                  className={cn(
+                    "aspect-square w-full overflow-hidden rounded-md",
+                    selectedImage.includes(image.url) && "border border-accent p-1"
+                  )}
+                  onClick={() => handleSelectImage(image.url)}
+                >
+                  <img
+                    src={image.url}
+                    alt={`image-${index}`}
+                    className="size-full rounded-md object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
         <DialogFooter>

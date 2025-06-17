@@ -23,7 +23,7 @@ import { CreateTicketModal } from "./create-ticket-modal"
 
 interface OrderWithItems extends Order {
   order_items: (OrderItem & {
-    products: {
+    product: {
       id: string
       name: string
       images: string[]
@@ -167,7 +167,7 @@ export default function OrdersView({ orders }: OrdersViewProps) {
                   <CardContent className="grid gap-6 p-2">
                     <div className="flex flex-col gap-2 divide-y">
                       {order.order_items.map((item) => {
-                        const productInfo = item.products
+                        const productInfo = item.product
 
                         const productName = productInfo?.name || "Product Not Available"
 

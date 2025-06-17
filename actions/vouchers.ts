@@ -82,7 +82,7 @@ export async function validateVoucher(code: string, userId?: string) {
     .eq("code", code)
     .single()
 
-  if (voucherError) throw voucherError
+  if (voucherError) throw { message: voucherError.message }
 
   // Check if voucher exists
   if (!voucher) {

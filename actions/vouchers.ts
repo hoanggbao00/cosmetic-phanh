@@ -55,7 +55,7 @@ export async function updateVoucher(id: string, voucher: VoucherUpdate) {
     .select()
     .single()
 
-  if (error) throw error
+  if (error) return { error: error.message }
 
   revalidatePath("/admin/vouchers")
   return data as Voucher
@@ -82,26 +82,26 @@ export async function validateVoucher(code: string, userId?: string) {
     .eq("code", code)
     .single()
 
-  if (voucherError) throw { message: voucherError.message }
+  if (voucherError) return { error: voucherError.message }
 
   // Check if voucher exists
   if (!voucher) {
-    throw new Error("Invalid voucher code")
+    return { error: "Invalid voucher code" }
   }
 
   // Check if voucher is active
   if (!voucher.is_active) {
-    throw new Error("Voucher is inactive")
+    return { error: "Voucher is inactive" }
   }
 
   // Check if voucher has expired
   if (voucher.expires_at && new Date(voucher.expires_at) < new Date()) {
-    throw new Error("Voucher has expired")
+    return { error: "Voucher has expired" }
   }
 
   // Check if voucher has reached usage limit
   if (voucher.usage_limit && voucher.usage_count >= voucher.usage_limit) {
-    throw new Error("Voucher usage limit reached")
+    return { error: "Voucher usage limit reached" }
   }
 
   // Check if user has already used this voucher
@@ -112,10 +112,10 @@ export async function validateVoucher(code: string, userId?: string) {
       .eq("voucher_id", voucher.id)
       .eq("user_id", userId)
 
-    if (usageError) throw usageError
+    if (usageError) return { error: usageError.message }
 
     if (count && count > 0) {
-      throw new Error("You have already used this voucher")
+      return { error: "You have already used this voucher" }
     }
   }
 

@@ -84,8 +84,11 @@ export const useDeleteVoucher = () => {
 
 export const useValidateVoucher = () => {
   return useMutation({
-    mutationFn: ({ code, userId }: { code: string; userId?: string }) =>
-      validateVoucher(code, userId),
+    mutationFn: async ({ code, userId }: { code: string; userId?: string }) => {
+      const result = await validateVoucher(code, userId)
+      if (result.error) throw new Error(result.error)
+      return result
+    },
     onError: (error) => {
       toast.error(error.message)
     },

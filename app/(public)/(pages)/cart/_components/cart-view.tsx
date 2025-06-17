@@ -26,8 +26,8 @@ export default function CartView({ userId }: CartViewProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 flex items-center gap-2 font-bold text-2xl md:text-3xl">
-        <ShoppingBag className="h-6 w-6" />
+      <h1 className="mb-8 text-wrap font-bold text-2xl md:text-3xl">
+        <ShoppingBag className="mr-2 inline-block h-6 w-6" />
         Your Shopping Cart ({items.length} {items.length === 1 ? "item" : "items"})
       </h1>
 

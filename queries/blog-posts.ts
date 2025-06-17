@@ -17,14 +17,22 @@ interface BlogPostsParams {
   searchQuery?: string
   categoryId?: string
   isPaginated?: boolean
+  isAdmin?: boolean
 }
 
 export const useBlogPosts = (params?: BlogPostsParams) => {
-  const { page = 1, limit = 10, searchQuery = "", categoryId, isPaginated = true } = params || {}
+  const {
+    page = 1,
+    limit = 10,
+    searchQuery = "",
+    categoryId,
+    isPaginated = true,
+    isAdmin = false,
+  } = params || {}
 
   return useQuery({
-    queryKey: [QUERY_KEY, { page, limit, searchQuery, categoryId, isPaginated }],
-    queryFn: () => getBlogPosts({ page, limit, searchQuery, categoryId, isPaginated }),
+    queryKey: [QUERY_KEY, { page, limit, searchQuery, categoryId, isPaginated, isAdmin }],
+    queryFn: () => getBlogPosts({ page, limit, searchQuery, categoryId, isPaginated, isAdmin }),
   })
 }
 

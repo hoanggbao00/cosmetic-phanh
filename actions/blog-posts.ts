@@ -10,11 +10,19 @@ interface GetBlogPostsParams {
   searchQuery?: string
   categoryId?: string
   isPaginated?: boolean
+  isAdmin?: boolean
 }
 
 export async function getBlogPosts(params?: GetBlogPostsParams) {
   const supabase = await createSupabaseServerClient()
-  const { page = 1, limit = 10, searchQuery = "", categoryId, isPaginated = true } = params || {}
+  const {
+    page = 1,
+    limit = 10,
+    searchQuery = "",
+    categoryId,
+    isPaginated = true,
+    isAdmin = false,
+  } = params || {}
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -35,11 +43,14 @@ export async function getBlogPosts(params?: GetBlogPostsParams) {
     `,
       { count: isPaginated ? "exact" : "planned" }
     )
-    .eq("status", "published")
     .order("created_at", { ascending: false })
 
   if (isPaginated) {
     query = query.range(from, to)
+  }
+
+  if (!isAdmin) {
+    query = query.eq("status", "published")
   }
 
   if (searchQuery) {

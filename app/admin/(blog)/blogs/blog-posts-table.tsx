@@ -22,7 +22,7 @@ import { toast } from "sonner"
 export default function BlogPostsTable() {
   const router = useRouter()
 
-  const { data: posts } = useBlogPosts()
+  const { data: posts } = useBlogPosts({ isAdmin: true })
   const { mutate: deletePost } = useDeleteBlogPost()
 
   const onEditPost = (post: BlogPost) => {

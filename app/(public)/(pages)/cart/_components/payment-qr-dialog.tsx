@@ -84,20 +84,20 @@ export default function PaymentQRDialog({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Thanh toán đơn hàng</DialogTitle>
+          <DialogTitle>Payment</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center space-y-4 py-4">
           <div className="space-y-2 text-center">
-            <p className="text-muted-foreground text-sm">Mã đơn hàng: {orderId}</p>
+            <p className="text-muted-foreground text-sm">Order ID: {orderId}</p>
             {isPaid && (
               <div className="flex flex-col items-center justify-center gap-2 py-4 text-green-600">
                 <CheckCircleIcon size={48} />
-                <p className="font-semibold text-lg">Đã thanh toán thành công</p>
-                <p className="font-semibold text-black text-lg">Số tiền: {formatPrice(amount)}</p>
+                <p className="font-semibold text-lg">Successfully paid</p>
+                <p className="font-semibold text-black text-lg">Amount: {formatPrice(amount)}</p>
                 <p className="text-muted-foreground text-sm">
-                  Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi
+                  Thank you for trusting and using our services
                   <br />
-                  Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi
+                  If you have any questions, please contact us
                   <br />
                   <a href="tel:0909090909" className="text-blue-500">
                     0909090909
@@ -107,26 +107,26 @@ export default function PaymentQRDialog({
             )}
             {!isPaid && (
               <>
-                <p className="font-semibold text-lg">Số tiền: {formatPrice(amount)}</p>
-                <p className="font-medium text-green-600">Đã tạo đơn hàng thành công</p>
+                <p className="font-semibold text-lg">Amount: {formatPrice(amount)}</p>
+                <p className="font-medium text-green-600">Successfully created order</p>
                 <p className="text-muted-foreground text-sm">
-                  Nhấn nút bên dưới để tiến hành thanh toán qua VNPay
+                  Click the button below to proceed with payment via VNPay
                 </p>
               </>
             )}
           </div>
 
           {isLoading ? (
-            <p>Đang tạo liên kết thanh toán...</p>
+            <p>Creating payment link...</p>
           ) : isPaid ? (
             <Button variant="outline" className="w-full" onClick={handleClose}>
-              Đóng
+              Close
             </Button>
           ) : (
             <div className="flex w-full flex-col gap-2">
               <a href={paymentUrl} target="_blank" rel="noopener noreferrer" className="w-full">
                 <Button className="w-full" disabled={!paymentUrl}>
-                  Thanh toán
+                  Go to payment
                 </Button>
               </a>
               <Button
@@ -138,10 +138,10 @@ export default function PaymentQRDialog({
                 {isChecking ? (
                   <>
                     <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                    Đang kiểm tra
+                    Checking payment
                   </>
                 ) : (
-                  "Kiểm tra thanh toán"
+                  "Check payment"
                 )}
               </Button>
             </div>

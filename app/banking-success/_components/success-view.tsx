@@ -22,24 +22,24 @@ export default function SuccessView({ ordersLink }: SuccessViewProps) {
         <CardHeader>
           <CardTitle className="flex items-center justify-center gap-2 text-green-600">
             <CheckCircle2Icon className="h-6 w-6" />
-            Thanh toán thành công
+            Payment successful
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2 text-center">
-            <p className="text-muted-foreground text-sm">Mã đơn hàng: {orderId}</p>
-            <p className="font-semibold text-lg">Số tiền: {formatPrice(Number(amount))}</p>
-            <p className="text-muted-foreground text-sm">Đơn hàng đã được thanh toán thành công</p>
+            <p className="text-muted-foreground text-sm">Order ID: {orderId}</p>
+            <p className="font-semibold text-lg">Amount: {formatPrice(Number(amount))}</p>
+            <p className="text-muted-foreground text-sm">Order has been paid successfully</p>
           </div>
 
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-center gap-2 text-muted-foreground">
               <PhoneIcon className="h-4 w-4" />
-              <span>Nếu có thắc mắc liên hệ với chúng tôi: 0123456789</span>
+              <span>If you have any questions, please contact us: 0123456789</span>
             </div>
 
             <Button asChild>
-              <Link href={ordersLink}>Kiểm tra lịch sử đơn hàng</Link>
+              <Link href={ordersLink}>Check order history</Link>
             </Button>
           </div>
         </CardContent>

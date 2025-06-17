@@ -32,20 +32,18 @@ export default function FailView({ ordersLink }: FailViewProps) {
           />
         </svg>
       </div>
-      <h1 className="font-bold text-3xl">Thanh toán thất bại</h1>
+      <h1 className="font-bold text-3xl">Payment failed</h1>
       <div className="space-y-2 text-gray-600">
-        <p>Mã đơn hàng: {orderId}</p>
-        <p>Số tiền: {formatPrice(amount)}</p>
-        <p className="mt-4 font-medium">
-          Vui lòng liên hệ với chúng tôi để tiến hành refund: 09090909
-        </p>
+        <p>Order ID: {orderId}</p>
+        <p>Amount: {formatPrice(amount)}</p>
+        <p className="mt-4 font-medium">Please contact us to proceed with refund: 09090909</p>
       </div>
       <div className="flex gap-4">
         <Button asChild variant="outline">
-          <Link href={ordersLink}>Xem đơn hàng</Link>
+          <Link href={ordersLink}>Check order</Link>
         </Button>
         <Button asChild>
-          <Link href="/">Về trang chủ</Link>
+          <Link href="/">Back to home</Link>
         </Button>
       </div>
     </div>

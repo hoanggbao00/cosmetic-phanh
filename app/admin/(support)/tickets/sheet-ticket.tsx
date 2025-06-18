@@ -97,7 +97,7 @@ export default function SheetTicket({ id, handleClose }: SheetTicketProps) {
       </SheetHeader>
       <Separator />
 
-      <div className="space-y-4">
+      <div className="max-h-[calc(100vh-10rem)] space-y-4 overflow-y-auto">
         <h3>
           <span className="text-muted-foreground">Subject:</span>{" "}
           <span className="whitespace-pre-wrap font-medium">{ticket.subject}</span>

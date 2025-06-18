@@ -62,7 +62,10 @@ export default function SheetCatalog({ id }: { id: string | null }) {
     <SheetContent>
       <SheetTitle>{isEdit ? "Edit catalog" : "Create catalog"}</SheetTitle>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mt-4 max-h-[calc(100vh-10rem)] space-y-4 overflow-y-auto"
+        >
           <InputField
             control={form.control}
             name="name"

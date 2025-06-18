@@ -125,7 +125,10 @@ export default function SheetVoucher({ id, handleClose }: SheetVoucherProps) {
       </SheetHeader>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 max-h-[50vh] space-y-4 px-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mt-4 max-h-[calc(100vh-10rem)] space-y-4 overflow-y-auto px-4"
+        >
           <FormField
             control={form.control}
             name="code"

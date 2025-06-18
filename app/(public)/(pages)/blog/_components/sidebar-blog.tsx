@@ -46,7 +46,7 @@ export default function SidebarBlog({ categories, recentPosts }: SidebarBlogProp
   }, 300)
 
   return (
-    <div className="space-y-8">
+    <div className="max-h-[calc(100vh-10rem)] space-y-4 overflow-y-auto lg:space-y-8">
       {/* Search */}
       <div>
         <h3 className="mb-4 font-medium text-lg">Search</h3>

@@ -35,7 +35,6 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: brands = [] } = useBrandQuery()
-  const [priceRange, setPriceRange] = useState<number[]>([0, 500])
 
   // Change filter will change url
   const handleFilterChange = useDebounceCallback((key: FilterKey, value: string) => {
@@ -65,11 +64,6 @@ export const FilterPanel = ({ categories = [] }: FilterPanelProps) => {
 
     router.replace(`?${params.toString()}`)
   }, 300)
-
-  // Handle price range change
-  const handlePriceChange = (value: number[]) => {
-    setPriceRange(value)
-  }
 
   // Reset filters
   const resetFilters = () => {

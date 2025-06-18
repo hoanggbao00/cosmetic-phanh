@@ -11,6 +11,7 @@ export interface CartItem {
   image?: string
   quantity: number
   variantId?: string
+  variantPrice?: number
 }
 
 interface CartState {
@@ -21,6 +22,7 @@ interface CartState {
   clearCart: () => Promise<void>
   updateTotal: () => void
   total: number
+  updateVariantPrice: (productId: string, variantId: string, variantPrice: number) => void
 }
 
 export const useCartStore = create<CartState>()(
@@ -68,7 +70,11 @@ export const useCartStore = create<CartState>()(
                 return {
                   items: state.items.map((item) =>
                     item.id === existingItem.id
-                      ? { ...item, quantity: item.quantity + product.quantity }
+                      ? {
+                          ...item,
+                          quantity: item.quantity + product.quantity,
+                          variantPrice: product.variantPrice,
+                        }
                       : item
                   ),
                 }
@@ -140,6 +146,8 @@ export const useCartStore = create<CartState>()(
         if (session) {
           await supabase.from("cart_items").delete().eq("user_id", session.user.id).eq("id", id)
         }
+
+        get().updateTotal()
       },
 
       updateQuantity: async (id, quantity) => {
@@ -183,8 +191,21 @@ export const useCartStore = create<CartState>()(
       },
 
       updateTotal: () => {
-        const total = get().items.reduce((total, item) => total + item.price * item.quantity, 0)
+        const total = get().items.reduce(
+          (total, item) => total + item.price + (item.variantPrice || 0) * item.quantity,
+          0
+        )
         set({ total })
+      },
+
+      updateVariantPrice: (productId, variantId, variantPrice) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.productId === productId && item.variantId === variantId
+              ? { ...item, variantPrice }
+              : item
+          ),
+        }))
       },
     }),
     {

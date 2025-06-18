@@ -5,13 +5,14 @@ import { formatPrice } from "@/lib/utils"
 import { useVariantDetails } from "@/queries/product-variants"
 import { type CartItem as CartItemType, useCartStore } from "@/stores/cart-store"
 import { Minus, Plus, X } from "lucide-react"
+import { useEffect } from "react"
 
 interface CartItemProps {
   item: CartItemType
 }
 
 export default function CartItem({ item }: CartItemProps) {
-  const { removeItem, updateQuantity } = useCartStore()
+  const { removeItem, updateQuantity, updateVariantPrice } = useCartStore()
   const { data: variantDetails } = useVariantDetails(item.variantId ?? null)
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -19,6 +20,13 @@ export default function CartItem({ item }: CartItemProps) {
       updateQuantity(item.id, newQuantity)
     }
   }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (variantDetails && item.variantId) {
+      updateVariantPrice(item.productId, item.variantId, variantDetails.price)
+    }
+  }, [variantDetails, item.productId, item.variantId])
 
   // Calculate total price: base price + variant price (if exists)
   const totalUnitPrice = variantDetails ? item.price + variantDetails.price : item.price

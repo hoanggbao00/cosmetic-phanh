@@ -61,6 +61,7 @@ export default function CartItem({
             size="icon"
             className="h-8 w-8"
             onClick={() => handleQuantityChange(quantity - 1)}
+            disabled={quantity === 1}
           >
             <Minus className="h-4 w-4" />
           </Button>

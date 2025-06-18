@@ -19,14 +19,15 @@ interface CartState {
   removeItem: (id: string) => Promise<void>
   updateQuantity: (id: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
-  getTotal: () => number
+  updateTotal: () => void
+  total: number
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-
+      total: 0,
       addItem: async (product) => {
         const {
           data: { session },
@@ -151,6 +152,8 @@ export const useCartStore = create<CartState>()(
           items: state.items.map((item) => (item.id === id ? { ...item, quantity } : item)),
         }))
 
+        get().updateTotal()
+
         // Update in database if user is logged in
         if (session) {
           const item = get().items.find((item) => item.id === id)
@@ -179,8 +182,9 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      getTotal: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0)
+      updateTotal: () => {
+        const total = get().items.reduce((total, item) => total + item.price * item.quantity, 0)
+        set({ total })
       },
     }),
     {

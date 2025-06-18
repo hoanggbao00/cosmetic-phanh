@@ -12,7 +12,7 @@ interface CartItemProps {
 
 export default function CartItem({ item }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore()
-  const { data: variantDetails } = useVariantDetails(item.variantId)
+  const { data: variantDetails } = useVariantDetails(item.variantId ?? null)
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1) {

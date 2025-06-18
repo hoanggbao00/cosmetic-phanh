@@ -13,12 +13,13 @@ interface CartViewProps {
 }
 
 export default function CartView({ userId }: CartViewProps) {
-  const { items, getTotal } = useCartStore()
+  const { items, updateTotal } = useCartStore()
 
   // Hydrate the store on client side
   useEffect(() => {
     useCartStore.persist.rehydrate()
-  }, [])
+    updateTotal()
+  }, [updateTotal])
 
   if (items.length === 0) {
     return <EmptyCart />
@@ -64,7 +65,7 @@ export default function CartView({ userId }: CartViewProps) {
 
         {/* Cart Summary */}
         <div className="lg:w-1/3">
-          <CartSummary subtotal={getTotal()} userId={userId} />
+          <CartSummary userId={userId} />
         </div>
       </div>
     </div>

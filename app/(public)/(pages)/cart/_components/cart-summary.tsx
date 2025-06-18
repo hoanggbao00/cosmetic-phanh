@@ -9,27 +9,26 @@ import { useValidateVoucher } from "@/queries/voucher"
 import { useCartStore } from "@/stores/cart-store"
 import type { OrderInsert } from "@/types/tables/orders"
 import { ArrowLeft, Loader2 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import OrderForm from "./order-form"
 
 interface CartSummaryProps {
-  subtotal: number
   userId?: string
 }
 
-export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
+export default function CartSummary({ userId }: CartSummaryProps) {
   const [promoCode, setPromoCode] = useState("")
   const [promoError, setPromoError] = useState<string | null>(null)
   const [showOrderForm, setShowOrderForm] = useState(false)
   const [discount, setDiscount] = useState(0)
   const [voucherId, setVoucherId] = useState<string | null>(null)
 
-  const { clearCart } = useCartStore()
+  const { clearCart, total: totalCart } = useCartStore()
 
   // Calculate order values
-  const shipping = subtotal > 100 ? 0 : 0
-  const total = subtotal + shipping - discount
+  const shipping = totalCart > 100 ? 0 : 0
+  const total = useMemo(() => totalCart + shipping - discount, [totalCart, shipping, discount])
 
   const validateVoucher = useValidateVoucher()
   const createOrder = useCreateOrder()
@@ -110,7 +109,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
         // Calculate discount based on voucher type and value
         let discountAmount = 0
         if (voucher.type === "percentage") {
-          discountAmount = (subtotal * voucher.value) / 100
+          discountAmount = (totalCart * voucher.value) / 100
           if (voucher.maximum_discount_amount && discountAmount > voucher.maximum_discount_amount) {
             discountAmount = voucher.maximum_discount_amount
           }
@@ -119,7 +118,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
         }
 
         // Check minimum order amount
-        if (voucher.minimum_order_amount && subtotal < voucher.minimum_order_amount) {
+        if (voucher.minimum_order_amount && totalCart < voucher.minimum_order_amount) {
           throw new Error(
             `Minimum order amount for this voucher is ${formatPrice(voucher.minimum_order_amount)}`
           )
@@ -203,7 +202,7 @@ export default function CartSummary({ subtotal, userId }: CartSummaryProps) {
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatPrice(subtotal)}</span>
+          <span>{formatPrice(totalCart)}</span>
         </div>
 
         <div className="flex justify-between text-sm">

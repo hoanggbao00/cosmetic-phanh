@@ -52,11 +52,9 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
   const [orderAmount, setOrderAmount] = useState(0)
   const router = useRouter()
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
+  const { total, items, clearCart } = useCartStore()
 
   const { addToHistory } = useOrderStore()
-  const cartItems = useCartStore((state) => state.items)
-  const cartTotal = useCartStore((state) => state.getTotal())
-  const clearCart = useCartStore((state) => state.clearCart)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -77,7 +75,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
         payment_method: data.payment_method,
         shipping_amount: 0,
         discount_amount: 0,
-        total_amount: cartTotal,
+        total_amount: total,
         shipping_address: {
           full_name: data.full_name,
           address_line1: data.address_line1,
@@ -89,7 +87,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
         admin_notes: "",
       }
 
-      const result = await onSubmit(orderData, cartItems)
+      const result = await onSubmit(orderData, items)
 
       if (result) {
         // Add to order history
@@ -99,7 +97,7 @@ export default function OrderForm({ onSubmit, isLoading }: OrderFormProps) {
           status: "pending",
           paymentStatus: "pending",
           createdAt: new Date().toISOString(),
-          items: cartItems.map((item) => ({
+          items: items.map((item) => ({
             productId: item.productId,
             name: item.name,
             variantId: item.variantId,

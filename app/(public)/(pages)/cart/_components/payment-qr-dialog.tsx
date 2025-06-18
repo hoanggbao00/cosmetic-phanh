@@ -93,9 +93,7 @@ export default function PaymentQRDialog({
               <div className="flex flex-col items-center justify-center gap-2 py-4 text-green-600">
                 <CheckCircleIcon size={48} />
                 <p className="font-semibold text-lg">Successfully paid</p>
-                <p className="font-semibold text-black text-lg">
-                  Amount: {formatPrice(amount)} (VND)
-                </p>
+                <p className="font-semibold text-black text-lg">Amount: ${formatPrice(amount)}</p>
                 <p className="text-muted-foreground text-sm">
                   Thank you for trusting and using our services
                   <br />
@@ -109,7 +107,7 @@ export default function PaymentQRDialog({
             )}
             {!isPaid && (
               <>
-                <p className="font-semibold text-lg">Amount: {formatPrice(amount)} (VND)</p>
+                <p className="font-semibold text-lg">Amount: ${formatPrice(amount)}</p>
                 <p className="font-medium text-green-600">Successfully created order</p>
                 <p className="text-muted-foreground text-sm">
                   Click the button below to proceed with payment via VNPay

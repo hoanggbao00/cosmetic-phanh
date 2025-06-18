@@ -1,4 +1,3 @@
-import { SpecialButton } from "@/components/shared/special-button"
 import { APP_NAME } from "@/lib/config/app.config"
 import Link from "next/link"
 import { CartCount } from "./cart-count"
@@ -32,7 +31,6 @@ export const HeaderNav = () => {
           <UserDropdown />
           <CartCount />
         </div>
-        <SpecialButton className="hidden md:flex">Special Offers</SpecialButton>
       </div>
     </div>
   )

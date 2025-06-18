@@ -132,20 +132,20 @@ export default function ProductInfo({
       </div>
 
       {/* Add to Cart and Wishlist */}
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row">
+      <div className="mb-8 flex flex-row gap-3">
         <Button className="flex-1" size="lg" onClick={onAddToCart}>
           Add to Cart
         </Button>
         <Button
           variant={isInWishlist ? "default" : "outline"}
           size="icon"
-          className="h-12 w-12"
+          className="size-11"
           onClick={onWishlist}
         >
           <Heart className={isInWishlist ? "fill-current" : "h-5 w-5"} />
           <span className="sr-only">Add to wishlist</span>
         </Button>
-        <Button variant="outline" size="icon" className="h-12 w-12" onClick={onShare}>
+        <Button variant="outline" size="icon" className="size-11" onClick={onShare}>
           <Share2 className="h-5 w-5" />
           <span className="sr-only">Share product</span>
         </Button>

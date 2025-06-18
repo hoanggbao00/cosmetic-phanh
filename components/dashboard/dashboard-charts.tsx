@@ -12,7 +12,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Doanh thu theo tháng</CardTitle>
+          <CardTitle>Revenue by month</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
@@ -30,7 +30,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Top sản phẩm thêm vào giỏ hàng</CardTitle>
+          <CardTitle>Top products in cart</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
@@ -39,8 +39,8 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
               data={data?.topCartProducts || []}
               index="name"
               categories={["quantity"]}
-              colors={["teal"]}
-              valueFormatter={(value: number) => `${value} sản phẩm`}
+              colors={["blue", "cyan", "violet"]}
+              valueFormatter={(value: number) => `${value} products`}
               yAxisWidth={48}
             />
           </div>

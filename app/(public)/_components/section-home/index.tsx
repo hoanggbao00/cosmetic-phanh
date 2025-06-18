@@ -1,6 +1,7 @@
 import { SpecialButton } from "@/components/shared/special-button"
 import { IMAGE_HOME } from "@/lib/const"
 import { ChevronDownIcon } from "lucide-react"
+import Link from "next/link"
 import { CarouselHome } from "./carousel-home"
 
 export const SectionHome = () => {
@@ -22,7 +23,9 @@ export const SectionHome = () => {
           </span>
           of <u>Cosmetics</u> wonders.
         </p>
-        <SpecialButton className="mt-10 animate-bounce">Shop Now</SpecialButton>
+        <Link href="/catalog">
+          <SpecialButton className="mt-10 animate-bounce">Shop Now</SpecialButton>
+        </Link>
         {/* Scroll down */}
 
         <a href="#scroll-down-section" className="relative mt-20 text-primary">

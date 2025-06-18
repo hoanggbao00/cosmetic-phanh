@@ -19,6 +19,7 @@ export interface DashboardData {
     name: string
     quantity: number
   }[]
+  totalRevenue: number
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -127,6 +128,10 @@ export async function getDashboardData(): Promise<DashboardData> {
       quantity: item.quantity,
     })) || []
 
+  const { data: totalRevenueData } = await supabase.from("orders").select("total_amount")
+
+  const totalRevenue = totalRevenueData?.reduce((sum, order) => sum + order.total_amount, 0) || 0
+
   return {
     currentMonthRevenue,
     lastMonthRevenue,
@@ -138,5 +143,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     lastMonthReviews: lastMonthReviewCount,
     revenueByMonth: processedRevenueByMonth,
     topCartProducts: processedTopCartProducts,
+    totalRevenue,
   }
 }
